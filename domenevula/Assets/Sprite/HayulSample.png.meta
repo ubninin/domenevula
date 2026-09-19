@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 7ec1d3269c7bd6842b1be6f7970d6909
+guid: e2f35f1926b12b84280a36c441ca4f8a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6043706123364777731
-    second: Unnamed_009_0
+      213: -264452558616281671
+    second: HayulSample_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Unnamed_009_0
+      name: HayulSample_0
       rect:
         serializedVersion: 2
-        x: 127
-        y: 7
-        width: 247
-        height: 413
+        x: 146
+        y: 71
+        width: 174
+        height: 318
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: df04dfd3d41702ca0800000000000000
-      internalID: -6043706123364777731
+      spriteID: 9bdbbbf8cc9745cf0800000000000000
+      internalID: -264452558616281671
       vertices: []
       indices: 
       edges: []
@@ -134,8 +134,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      Unnamed_009_0: -6043706123364777731
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
