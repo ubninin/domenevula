@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2511864834990058132}
   m_Layer: 5
-  m_Name: Player1
+  m_Name: PartySlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -49,7 +49,7 @@ GameObject:
   - component: {fileID: 4410867063038302659}
   - component: {fileID: 6999884709151522450}
   m_Layer: 5
-  m_Name: Face (1)
+  m_Name: SlotPortrait
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -124,7 +124,7 @@ GameObject:
   - component: {fileID: 1505507131350894923}
   - component: {fileID: 3132872569154738249}
   m_Layer: 5
-  m_Name: base
+  m_Name: SlotBarBg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -200,7 +200,7 @@ GameObject:
   - component: {fileID: 3441141671886057372}
   - component: {fileID: 1410369870305804561}
   m_Layer: 5
-  m_Name: cap
+  m_Name: SlotBarFrame
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
