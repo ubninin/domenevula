@@ -1321,7 +1321,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1170708454
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1725,7 +1725,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1638256850
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2180,31 +2180,35 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2120442815222498709, guid: 771670c57bd166f4eba1c00f7d6be898, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 487.78
+      value: 583.39
       objectReference: {fileID: 0}
     - target: {fileID: 2120442815222498709, guid: 771670c57bd166f4eba1c00f7d6be898, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 131.26
       objectReference: {fileID: 0}
     - target: {fileID: 2120442815222498709, guid: 771670c57bd166f4eba1c00f7d6be898, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 323.89
+      value: 371.695
       objectReference: {fileID: 0}
     - target: {fileID: 2120442815222498709, guid: 771670c57bd166f4eba1c00f7d6be898, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -91
+      value: -115.63
       objectReference: {fileID: 0}
     - target: {fileID: 2339048973578354571, guid: 771670c57bd166f4eba1c00f7d6be898, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 743.39
       objectReference: {fileID: 0}
     - target: {fileID: 2339048973578354571, guid: 771670c57bd166f4eba1c00f7d6be898, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 231.26
       objectReference: {fileID: 0}
     - target: {fileID: 3466664535807944504, guid: 771670c57bd166f4eba1c00f7d6be898, type: 3}
       propertyPath: m_Name
       value: Canvas_SpeechBalloon
+      objectReference: {fileID: 0}
+    - target: {fileID: 3466664535807944504, guid: 771670c57bd166f4eba1c00f7d6be898, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5293374557574146872, guid: 771670c57bd166f4eba1c00f7d6be898, type: 3}
       propertyPath: m_Pivot.x
@@ -2285,6 +2289,14 @@ PrefabInstance:
     - target: {fileID: 5293374557574146872, guid: 771670c57bd166f4eba1c00f7d6be898, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6608774820808593953, guid: 771670c57bd166f4eba1c00f7d6be898, type: 3}
+      propertyPath: m_text
+      value: "SpeechBalloonBubble\n\u3139\u3139\u3147\u3134\u3139\u3134\u3139\u3147\u3141\u3139\u3134\u3139\u3139\n\u3134\u3147\u3139\u3134\u3147\u3139\u3139\u3134\u3139\u3134\u3139\u3134\u3147\u3139\u3134\u3147\u3147\u3139"
+      objectReference: {fileID: 0}
+    - target: {fileID: 7180498823511646981, guid: 771670c57bd166f4eba1c00f7d6be898, type: 3}
+      propertyPath: m_PresetInfoIsWorld
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
