@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      HayulSample_0: -264452558616281671
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
