@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   displayName: 
   portrait: {fileID: 0}
-  isPartyMember: 0
+  isPartyMember: 1

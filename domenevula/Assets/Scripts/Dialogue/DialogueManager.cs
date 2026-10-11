@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -21,7 +22,18 @@ public class DialogueManager : MonoBehaviour
 {
     public static DialogueManager Instance { get; private set; }
 
+    /// <summary>
+    /// 지금 대사가 재생 중인지. 플레이어 이동/공격 등 다른 입력 스크립트가
+    /// 이 값을 보고 자기 입력을 막는 데 쓴다. (메뉴창은 대사 중에도 열 수 있어야 하므로
+    /// 메뉴 토글 스크립트는 이 값을 확인하지 않는다.)
+    /// </summary>
+    public bool IsDialogueActive => isPlaying;
+
     [SerializeField] private PartyDialoguePanelController partyPanel;
+
+    [Header("파티 대사창 페이지 분할 (공백 포함 글자 수 기준)")]
+    [SerializeField] private int maxCharsPerLine = DialogueTextWrapper.DefaultMaxCharsPerLine;
+    [SerializeField] private int maxLinesPerPage = DialogueTextWrapper.DefaultMaxLinesPerPage;
 
     private bool isPlaying;
     private bool advanceRequested;
@@ -80,7 +92,16 @@ public class DialogueManager : MonoBehaviour
         {
             if (line.speaker != null && line.speaker.isPartyMember)
             {
-                partyPanel.Show(line);
+                // 파티 대사창은 한 줄 N자 / 페이지당 M줄로 자동 분할.
+                // 페이지마다 한 번씩 진행 입력을 받는다 (한 DialogueLine이 여러 페이지로 보일 수 있음).
+                List<string> pages = DialogueTextWrapper.SplitIntoPages(line.text, maxCharsPerLine, maxLinesPerPage);
+                foreach (string page in pages)
+                {
+                    partyPanel.ShowPage(line, page);
+                    advanceRequested = false;
+                    yield return new WaitUntil(() => advanceRequested);
+                }
+                continue;
             }
             else if (balloon != null)
             {

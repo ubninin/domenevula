@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e81636b26a62b96448280e5e37900b02, type: 3}
   m_Name: Lime
   m_EditorClassIdentifier: 
-  displayName: 
+  displayName: "\uAD6C\uB77C"
   portrait: {fileID: 0}
-  isPartyMember: 0
+  isPartyMember: 1

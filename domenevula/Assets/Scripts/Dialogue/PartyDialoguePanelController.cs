@@ -19,10 +19,20 @@ public class PartyDialoguePanelController : MonoBehaviour
         Hide();
     }
 
+    /// <summary>원문 그대로 표시 (줄바꿈/페이지 분할 없이). 짧은 대사용.</summary>
     public void Show(DialogueLine line)
     {
+        ShowPage(line, line.text);
+    }
+
+    /// <summary>
+    /// 초상화는 line에서 그대로 쓰되, 본문 텍스트만 pageText로 교체해서 표시.
+    /// DialogueManager가 긴 대사를 페이지로 쪼갤 때 쓴다.
+    /// </summary>
+    public void ShowPage(DialogueLine line, string pageText)
+    {
         gameObject.SetActive(true);
-        dialogueText.text = line.text;
+        dialogueText.text = pageText;
 
         Sprite portrait = line.portraitOverride != null ? line.portraitOverride : line.speaker.portrait;
         portraitImage.sprite = portrait;
