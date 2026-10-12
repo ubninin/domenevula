@@ -1,0 +1,1413 @@
+fileFormatVersion: 2
+guid: 433ec97e13fd6f94bb9b88f4136f08b4
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1281067278010060173
+    second: Teremi_Sit_0
+  - first:
+      213: 7028472240296000817
+    second: Teremi_Sit_1
+  - first:
+      213: -4568743613951610283
+    second: Teremi_Sit_2
+  - first:
+      213: -7531191675404211464
+    second: Teremi_Sit_3
+  - first:
+      213: 8385990374611328745
+    second: Teremi_Sit_4
+  - first:
+      213: 5637801935950062244
+    second: Teremi_Sit_5
+  - first:
+      213: -5753013888130900108
+    second: Teremi_Sit_6
+  - first:
+      213: 1743711850653997620
+    second: Teremi_Sit_7
+  - first:
+      213: 1404346302320332436
+    second: Teremi_Sit_8
+  - first:
+      213: -123535375476917882
+    second: Teremi_Sit_9
+  - first:
+      213: -294287804814774835
+    second: Teremi_Sit_10
+  - first:
+      213: -5481448417310834828
+    second: Teremi_Sit_11
+  - first:
+      213: -3998852269796824566
+    second: Teremi_Sit_12
+  - first:
+      213: 5508320897157970180
+    second: Teremi_Sit_13
+  - first:
+      213: 1075376240225647036
+    second: Teremi_Sit_14
+  - first:
+      213: -3641068733826402997
+    second: Teremi_Sit_15
+  - first:
+      213: -3185007808623092166
+    second: Teremi_Sit_16
+  - first:
+      213: -6484568775493570861
+    second: Teremi_Sit_17
+  - first:
+      213: 9071958781922112659
+    second: Teremi_Sit_18
+  - first:
+      213: 4865210712922890030
+    second: Teremi_Sit_19
+  - first:
+      213: 8384877835183639030
+    second: Teremi_Sit_20
+  - first:
+      213: 8014061749767697527
+    second: Teremi_Sit_21
+  - first:
+      213: -4760199471222836336
+    second: Teremi_Sit_22
+  - first:
+      213: -6550373061080440119
+    second: Teremi_Sit_23
+  - first:
+      213: 8396988271236875387
+    second: Teremi_Sit_24
+  - first:
+      213: 7477675017815500749
+    second: Teremi_Sit_25
+  - first:
+      213: -9021363145258551150
+    second: Teremi_Sit_26
+  - first:
+      213: -6276566160119151356
+    second: Teremi_Sit_27
+  - first:
+      213: 8110432843912201947
+    second: Teremi_Sit_28
+  - first:
+      213: 476537555050171963
+    second: Teremi_Sit_29
+  - first:
+      213: -2196593073150584206
+    second: Teremi_Sit_30
+  - first:
+      213: -7898272713365877273
+    second: Teremi_Sit_31
+  - first:
+      213: -4225384908115367382
+    second: Teremi_Sit_32
+  - first:
+      213: -984537378436983761
+    second: Teremi_Sit_33
+  - first:
+      213: 6091876707225325465
+    second: Teremi_Sit_34
+  - first:
+      213: 2895789275869300108
+    second: Teremi_Sit_35
+  - first:
+      213: 8302344289574119010
+    second: Teremi_Sit_36
+  - first:
+      213: 5233695313893589074
+    second: Teremi_Sit_37
+  - first:
+      213: 4647045022593065834
+    second: Teremi_Sit_38
+  - first:
+      213: -6382572252245481852
+    second: Teremi_Sit_39
+  - first:
+      213: -4517733242754884647
+    second: Teremi_Sit_40
+  - first:
+      213: 6985765555375043784
+    second: Teremi_Sit_41
+  - first:
+      213: -5251267540744054851
+    second: Teremi_Sit_42
+  - first:
+      213: -6913148665566600438
+    second: Teremi_Sit_43
+  - first:
+      213: -1370220807665953456
+    second: Teremi_Sit_44
+  - first:
+      213: -4411814525482661276
+    second: Teremi_Sit_45
+  - first:
+      213: -4774297216063925618
+    second: Teremi_Sit_46
+  - first:
+      213: 3597288383639974687
+    second: Teremi_Sit_47
+  - first:
+      213: -677364179517673940
+    second: Teremi_Sit_48
+  - first:
+      213: 9002415822263339167
+    second: Teremi_Sit_49
+  - first:
+      213: -1539989115497580015
+    second: Teremi_Sit_50
+  - first:
+      213: -4712100120744134592
+    second: Teremi_Sit_51
+  - first:
+      213: 5606039221669297818
+    second: Teremi_Sit_52
+  - first:
+      213: 412461559786607707
+    second: Teremi_Sit_53
+  - first:
+      213: -2075792946339133602
+    second: Teremi_Sit_54
+  - first:
+      213: -4651322146877018265
+    second: Teremi_Sit_55
+  - first:
+      213: -6158791582070075309
+    second: Teremi_Sit_56
+  - first:
+      213: 5635935886348182517
+    second: Teremi_Sit_57
+  - first:
+      213: -8381405559594612772
+    second: Teremi_Sit_58
+  - first:
+      213: -8250335203232602334
+    second: Teremi_Sit_59
+  - first:
+      213: 163722000577690225
+    second: Teremi_Sit_60
+  - first:
+      213: -4878083215963242226
+    second: Teremi_Sit_61
+  - first:
+      213: -3934274979756246676
+    second: Teremi_Sit_62
+  - first:
+      213: -6648033842601515992
+    second: Teremi_Sit_63
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Teremi_Sit_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1050
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 59c4c7fce6d39c64bbe0f0c7c6b7889c
+      internalID: 85244100
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_1
+      rect:
+        serializedVersion: 2
+        x: 350
+        y: 1050
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 439c7180cbef2d44eaf13efbb790b69e
+      internalID: 810004197
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_2
+      rect:
+        serializedVersion: 2
+        x: 700
+        y: 1050
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7901d9c7a3146da43895f9102ba1feb7
+      internalID: -876592396
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_3
+      rect:
+        serializedVersion: 2
+        x: 1050
+        y: 1050
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2d53a297aa84a274b9c77dc2b8216cb4
+      internalID: 1550225620
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_4
+      rect:
+        serializedVersion: 2
+        x: 1400
+        y: 1050
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 21ad4a0eae5d0e247bad28bfeef46c22
+      internalID: -414893531
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_5
+      rect:
+        serializedVersion: 2
+        x: 1750
+        y: 1050
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c9eae2e4e58f70c4caf83a4ce5ade01b
+      internalID: -549686480
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_6
+      rect:
+        serializedVersion: 2
+        x: 2100
+        y: 1050
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0ec29f3c16e783e489884dccc383875c
+      internalID: -16032083
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_7
+      rect:
+        serializedVersion: 2
+        x: 2450
+        y: 1050
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1f39ab8b7f7c64c46a5fc9be013f5c6c
+      internalID: -1175376892
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_8
+      rect:
+        serializedVersion: 2
+        x: 2800
+        y: 1050
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e9caf716a848aef4ca7ef2765c57e82b
+      internalID: -66655179
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_9
+      rect:
+        serializedVersion: 2
+        x: 3150
+        y: 1050
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7aee93874efc3994ab9753407bbc477c
+      internalID: -826848350
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_10
+      rect:
+        serializedVersion: 2
+        x: 3500
+        y: 1050
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2bb802eff99cfbd428054eae788e98f8
+      internalID: 1978810480
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_11
+      rect:
+        serializedVersion: 2
+        x: 3850
+        y: 1050
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4607844bf9aa0194bbb78fb0983727fa
+      internalID: 1223553069
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 700
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9c57112e875c5fb488577abd7edf133f
+      internalID: -923578230
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_13
+      rect:
+        serializedVersion: 2
+        x: 350
+        y: 700
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 920bb390e71bc6f44b2b8cb248ec84eb
+      internalID: 1088806171
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_14
+      rect:
+        serializedVersion: 2
+        x: 700
+        y: 700
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4f7ffd52437d7084897849a95ac22d03
+      internalID: -473115827
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_15
+      rect:
+        serializedVersion: 2
+        x: 1050
+        y: 700
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 10326a91b4dedd14c8fabf7fbf9d8907
+      internalID: -2117922463
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_16
+      rect:
+        serializedVersion: 2
+        x: 1400
+        y: 700
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5e734e9d0b939ec46a81eea5ad687fae
+      internalID: -207768731
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_17
+      rect:
+        serializedVersion: 2
+        x: 1750
+        y: 700
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 37198862ff418814ab34fbc8f2862087
+      internalID: -1363376731
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_18
+      rect:
+        serializedVersion: 2
+        x: 2100
+        y: 700
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 88c4fd1b3f214714dbcb19f2f99f9845
+      internalID: -1151437467
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_19
+      rect:
+        serializedVersion: 2
+        x: 2450
+        y: 700
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3b141c865f4aba54f9af338b31c14600
+      internalID: 998470578
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_20
+      rect:
+        serializedVersion: 2
+        x: 2800
+        y: 700
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e79ee18bd278c1144a5d668d1d915b8a
+      internalID: -1796403266
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_21
+      rect:
+        serializedVersion: 2
+        x: 3150
+        y: 700
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bf2cc0e5fbb240449a697c9f6f55a806
+      internalID: -814997917
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_22
+      rect:
+        serializedVersion: 2
+        x: 3500
+        y: 700
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cb52e90da44f3304db0f3cefba7d7274
+      internalID: 839605052
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_23
+      rect:
+        serializedVersion: 2
+        x: 3850
+        y: 700
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a352ff2fe98baa4499c4f982c9251115
+      internalID: -415015235
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_24
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 350
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 12870ad83ab42f146a7f315fdbb9a2df
+      internalID: -469232147
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_25
+      rect:
+        serializedVersion: 2
+        x: 350
+        y: 350
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 531b572cfcf015b4581ed03883d2ff9b
+      internalID: -1006498625
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_26
+      rect:
+        serializedVersion: 2
+        x: 700
+        y: 350
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 94492161195313c4896c3693c6e7958d
+      internalID: 2068523568
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_27
+      rect:
+        serializedVersion: 2
+        x: 1050
+        y: 350
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 116ae83ebb76ad64e9775fc48860a175
+      internalID: -334496520
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_28
+      rect:
+        serializedVersion: 2
+        x: 1400
+        y: 350
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 33f9aab39d6cf1e43a05592c55f44535
+      internalID: 648183300
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_29
+      rect:
+        serializedVersion: 2
+        x: 1750
+        y: 350
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 49ba833d6116d3a42984407f22f0edf7
+      internalID: -1073065798
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_30
+      rect:
+        serializedVersion: 2
+        x: 2100
+        y: 350
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ca12811d7faf5f045b479b386e2d5800
+      internalID: -373896620
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_31
+      rect:
+        serializedVersion: 2
+        x: 2450
+        y: 350
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 379e4dcc7f377c54b86d05eb35cbf8ec
+      internalID: 1134180220
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_32
+      rect:
+        serializedVersion: 2
+        x: 2800
+        y: 350
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e139c0cde24ce624abc85144901af844
+      internalID: -1518368893
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_33
+      rect:
+        serializedVersion: 2
+        x: 3150
+        y: 350
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5a875d0af60c0014f81a8d11d16a9f58
+      internalID: -1491703048
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_34
+      rect:
+        serializedVersion: 2
+        x: 3500
+        y: 350
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b4ef1f231271ad24c8cfc9d8c49b3234
+      internalID: -698846690
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_35
+      rect:
+        serializedVersion: 2
+        x: 3850
+        y: 350
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: aa7fa0f670dfe2a4c9ca7384d4c11cba
+      internalID: 1494182804
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_36
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fb1d55bd9f53e3743b4aaacc8c382ec3
+      internalID: 470179189
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_37
+      rect:
+        serializedVersion: 2
+        x: 350
+        y: 0
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f4c0f9287ffe58a4bafb39ba8a10c9a5
+      internalID: 1554920491
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_38
+      rect:
+        serializedVersion: 2
+        x: 700
+        y: 0
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c137736378ff72347a6e130038f8ac92
+      internalID: 1968927403
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_39
+      rect:
+        serializedVersion: 2
+        x: 1050
+        y: 0
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 026117f998a39014985ccb51bd9eaebd
+      internalID: 871527863
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_40
+      rect:
+        serializedVersion: 2
+        x: 1400
+        y: 0
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0f5ca190d63754345ae6747a6cb4bed1
+      internalID: 2016815658
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_41
+      rect:
+        serializedVersion: 2
+        x: 1750
+        y: 0
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4497917f42d2e0644bda39c705767101
+      internalID: -1373965564
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_42
+      rect:
+        serializedVersion: 2
+        x: 2100
+        y: 0
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2970b901a91313c4ba9ec77713d5dcd3
+      internalID: 691062894
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_43
+      rect:
+        serializedVersion: 2
+        x: 2450
+        y: 0
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 19f50b97d4eed814f9b4307d0f596966
+      internalID: 39710195
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_44
+      rect:
+        serializedVersion: 2
+        x: 2800
+        y: 0
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 74f5c0204fa0ac64e92099ea15e5e29e
+      internalID: 1618090952
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_45
+      rect:
+        serializedVersion: 2
+        x: 3150
+        y: 0
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e2d3a9f0a9427fe48a1498b483e674d7
+      internalID: -789128868
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_46
+      rect:
+        serializedVersion: 2
+        x: 3500
+        y: 0
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 323e38eec5db94e47865ae1a5cebb7a5
+      internalID: -602782275
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Sit_47
+      rect:
+        serializedVersion: 2
+        x: 3850
+        y: 0
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 93744f03753e3594abd7492265f3cbca
+      internalID: -1462790874
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 4f187810982fa804f85f983f6dd44f38
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Teremi_Sit_0: 85244100
+      Teremi_Sit_1: 810004197
+      Teremi_Sit_10: 1978810480
+      Teremi_Sit_11: 1223553069
+      Teremi_Sit_12: -923578230
+      Teremi_Sit_13: 1088806171
+      Teremi_Sit_14: -473115827
+      Teremi_Sit_15: -2117922463
+      Teremi_Sit_16: -207768731
+      Teremi_Sit_17: -1363376731
+      Teremi_Sit_18: -1151437467
+      Teremi_Sit_19: 998470578
+      Teremi_Sit_2: -876592396
+      Teremi_Sit_20: -1796403266
+      Teremi_Sit_21: -814997917
+      Teremi_Sit_22: 839605052
+      Teremi_Sit_23: -415015235
+      Teremi_Sit_24: -469232147
+      Teremi_Sit_25: -1006498625
+      Teremi_Sit_26: 2068523568
+      Teremi_Sit_27: -334496520
+      Teremi_Sit_28: 648183300
+      Teremi_Sit_29: -1073065798
+      Teremi_Sit_3: 1550225620
+      Teremi_Sit_30: -373896620
+      Teremi_Sit_31: 1134180220
+      Teremi_Sit_32: -1518368893
+      Teremi_Sit_33: -1491703048
+      Teremi_Sit_34: -698846690
+      Teremi_Sit_35: 1494182804
+      Teremi_Sit_36: 470179189
+      Teremi_Sit_37: 1554920491
+      Teremi_Sit_38: 1968927403
+      Teremi_Sit_39: 871527863
+      Teremi_Sit_4: -414893531
+      Teremi_Sit_40: 2016815658
+      Teremi_Sit_41: -1373965564
+      Teremi_Sit_42: 691062894
+      Teremi_Sit_43: 39710195
+      Teremi_Sit_44: 1618090952
+      Teremi_Sit_45: -789128868
+      Teremi_Sit_46: -602782275
+      Teremi_Sit_47: -1462790874
+      Teremi_Sit_5: -549686480
+      Teremi_Sit_6: -16032083
+      Teremi_Sit_7: -1175376892
+      Teremi_Sit_8: -66655179
+      Teremi_Sit_9: -826848350
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

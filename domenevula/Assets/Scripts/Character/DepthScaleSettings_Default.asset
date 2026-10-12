@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c44579529bb7932489a247efca695b71, type: 3}
   m_Name: DepthScaleSettings_Default
   m_EditorClassIdentifier: 
-  minY: -5
+  minY: -7
   maxY: 0
-  closeScale: 2
+  closeScale: 1.7
   farScale: 0.1

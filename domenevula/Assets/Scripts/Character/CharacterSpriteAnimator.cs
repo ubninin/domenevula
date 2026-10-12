@@ -6,9 +6,15 @@ using UnityEngine;
 /// PlayerMovement2D가 매 프레임 UpdateFromInput()을 호출해서 상태를 알려주면
 /// 이 스크립트가 알아서 맞는 프레임을 SpriteRenderer에 넣는다.
 ///
-/// 붙이는 곳: Player 오브젝트 (SpriteRenderer가 이미 있는 그 오브젝트)
+/// NPC처럼 전혀 움직이지 않는 캐릭터에도 그대로 쓸 수 있다: UpdateFromInput()을
+/// 한 번도 안 불러도 Update()가 기본 상태(Idle, initialDirection 방향)로 계속
+/// 애니메이션을 재생하므로, Idle 배열만 채워서 붙이기만 하면 대기 모션이 자동으로 돈다.
+///
+/// 붙이는 곳: Player 오브젝트, 또는 NPC 오브젝트 (SpriteRenderer가 이미 있는 그 오브젝트)
 /// 인스펙터 연결: spriteRenderer ← 같은 오브젝트의 SpriteRenderer (비워두면 자동으로 찾음)
 ///              idle, walk 배열에 Sprite Editor로 슬라이스한 조각들을 방향별로 채워 넣기
+///              (NPC는 walk를 안 채워도 됨 - 이동을 안 하니까 쓰이지 않음)
+///              initialDirection ← NPC가 기본으로 바라볼 방향 (플레이어는 보통 Down 그대로 둠)
 /// </summary>
 [RequireComponent(typeof(SpriteRenderer))]
 public class CharacterSpriteAnimator : MonoBehaviour
@@ -16,6 +22,9 @@ public class CharacterSpriteAnimator : MonoBehaviour
     private enum MotionState { Idle, Walk, Run }
 
     [SerializeField] private SpriteRenderer spriteRenderer;
+
+    [Tooltip("UpdateFromInput()으로 한 번도 움직인 적 없을 때(NPC 등) 기본으로 바라보는 방향")]
+    [SerializeField] private FacingDirection initialDirection = FacingDirection.Down;
 
     [Header("모션별 방향 프레임 (Run은 Walk 프레임을 재사용)")]
     [SerializeField] private DirectionalFrameSet idle;
@@ -26,7 +35,7 @@ public class CharacterSpriteAnimator : MonoBehaviour
     [SerializeField] private float walkFrameRate = 15f;
     [SerializeField] private float runFrameRate = 20f;
 
-    private FacingDirection currentDirection = FacingDirection.Down;
+    private FacingDirection currentDirection;
     private MotionState currentMotion = MotionState.Idle;
     private int frameIndex;
     private float frameTimer;
@@ -39,6 +48,7 @@ public class CharacterSpriteAnimator : MonoBehaviour
     private void Awake()
     {
         if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
+        currentDirection = initialDirection;
     }
 
     /// <summary>
@@ -66,6 +76,17 @@ public class CharacterSpriteAnimator : MonoBehaviour
         bool enteringOrLeavingIdle = (currentMotion == MotionState.Idle) != (newMotion == MotionState.Idle);
         currentMotion = newMotion;
         if (enteringOrLeavingIdle) ResetFrame();
+    }
+
+    /// <summary>
+    /// NPC처럼 움직이진 않지만 특정 방향을 바라보게 하고 싶을 때(예: 플레이어를 보고 서있기) 쓴다.
+    /// 이동 중(UpdateFromInput이 매번 방향을 다시 계산하는 상태)에는 호출해도 다음 입력에 덮어써진다.
+    /// </summary>
+    public void SetFacing(FacingDirection direction)
+    {
+        if (direction == currentDirection) return;
+        currentDirection = direction;
+        ResetFrame();
     }
 
     private void Update()
