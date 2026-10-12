@@ -16,3 +16,24 @@ MonoBehaviour:
   - speaker: {fileID: 11400000, guid: 6c8a073a93f880e45b82f0c7d966b06e, type: 2}
     text: "\uB300\uC0AC\uB300\uC0AC\uB300\uC0AC"
     portraitOverride: {fileID: -8548035357666841804, guid: 7ff829ba5dce61e48aabad8e5cc329cf, type: 3}
+    displayMode: 2
+    windowBackgroundOverride: {fileID: 0}
+    windowFrameOverride: {fileID: 0}
+    balloonBubbleOverride: {fileID: 0}
+    balloonTailOverride: {fileID: 0}
+  - speaker: {fileID: 11400000, guid: 6c8a073a93f880e45b82f0c7d966b06e, type: 2}
+    text: "\uC624\uC624\uC624 \uADF8\uB807\uAD6C\uB098\uC544\uC544\uC544\uC544\uC544\uC544\uC544\uC544\uC544\n\uC544\uC544\uC544\uC544\uC544\uC544\uC544\uC559\uC544\uC544\uC544\uC544\uC544\uC544\uC544\uC544\n\uC544\uC544\uC559\uC544\uC544\uC544\uC544\uC544\uC544"
+    portraitOverride: {fileID: -8548035357666841804, guid: 7ff829ba5dce61e48aabad8e5cc329cf, type: 3}
+    displayMode: 2
+    windowBackgroundOverride: {fileID: 0}
+    windowFrameOverride: {fileID: 0}
+    balloonBubbleOverride: {fileID: 0}
+    balloonTailOverride: {fileID: 0}
+  - speaker: {fileID: 11400000, guid: 6c8a073a93f880e45b82f0c7d966b06e, type: 2}
+    text: "\uC624\uC624\uC624 \uADF8\uB807\uAD6C\uB098\uC544\uC544\uC544\uC544\uC544\uC544\uC544\uC544\uC544\n\uC544\uC544\uC544\uC544\uC544\uC544\uC544\uC559\uC544\uC544\uC544\uC544\uC544\uC544\uC544\uC544\n\uC544\uC544\uC559\uC544\uC544\uC544\uC544\uC544\uC544"
+    portraitOverride: {fileID: -8548035357666841804, guid: 7ff829ba5dce61e48aabad8e5cc329cf, type: 3}
+    displayMode: 1
+    windowBackgroundOverride: {fileID: 0}
+    windowFrameOverride: {fileID: 0}
+    balloonBubbleOverride: {fileID: 0}
+    balloonTailOverride: {fileID: 0}

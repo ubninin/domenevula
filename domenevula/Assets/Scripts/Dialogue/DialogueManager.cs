@@ -39,6 +39,9 @@ public class DialogueManager : MonoBehaviour
     private bool advanceRequested;
     private int startedOnFrame = -1;
 
+    /// <summary>지금 화면에 떠 있는 대사 창(파티 패널 또는 말풍선). 타자 애니메이션 스킵 판단에 쓴다.</summary>
+    private IDialogueDisplay activeDisplay;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -72,7 +75,18 @@ public class DialogueManager : MonoBehaviour
         // 곧바로 첫 줄을 넘겨버리지 않도록 시작 프레임은 건너뛴다.
         if (Time.frameCount == startedOnFrame) return;
 
-        if (WasInteractKeyPressedThisFrame()) advanceRequested = true;
+        if (!WasInteractKeyPressedThisFrame()) return;
+
+        // 글자가 타자처럼 나오는 중이면: 이번 입력은 "즉시 끝까지 보여주기"로 쓰고
+        // 다음 줄로 넘기지 않는다. 글자가 이미 다 나온 상태에서 눌러야 다음으로 넘어감.
+        if (activeDisplay != null && activeDisplay.IsRevealing)
+        {
+            activeDisplay.SkipReveal();
+        }
+        else
+        {
+            advanceRequested = true;
+        }
     }
 
     /// <param name="sequence">재생할 대사 묶음</param>
@@ -105,7 +119,7 @@ public class DialogueManager : MonoBehaviour
 
         foreach (DialogueLine line in sequence.lines)
         {
-            if (line.speaker != null && line.speaker.isPartyMember)
+            if (line.ShouldUsePartyPanel())
             {
                 // 파티 대사창은 한 줄 N자 / 페이지당 M줄로 자동 분할.
                 // 페이지마다 한 번씩 진행 입력을 받는다 (한 DialogueLine이 여러 페이지로 보일 수 있음).
@@ -113,6 +127,7 @@ public class DialogueManager : MonoBehaviour
                 foreach (string page in pages)
                 {
                     partyPanel.ShowPage(line, page);
+                    activeDisplay = partyPanel;
                     advanceRequested = false;
                     yield return new WaitUntil(() => advanceRequested);
                 }
@@ -121,16 +136,19 @@ public class DialogueManager : MonoBehaviour
             else if (balloon != null)
             {
                 balloon.Show(line);
+                activeDisplay = balloon;
             }
             else
             {
                 Debug.LogWarning("DialogueManager: 파티원이 아닌 화자인데 balloonAnchor가 없습니다. 대사를 건너뜁니다.");
+                activeDisplay = null;
             }
 
             advanceRequested = false;
             yield return new WaitUntil(() => advanceRequested);
         }
 
+        activeDisplay = null;
         partyPanel.Hide();
         if (balloon != null) balloon.Hide();
 
