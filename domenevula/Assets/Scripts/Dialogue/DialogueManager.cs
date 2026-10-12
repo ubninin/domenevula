@@ -50,6 +50,24 @@ public class DialogueManager : MonoBehaviour
             return;
         }
         Instance = this;
+
+        // partyPanel의 부모 중 하나(예: Canvas_Screen)가 꺼져있으면 partyPanel의 Awake가
+        // 아예 호출되지 않아서(인스펙터 연결은 멀쩡한데도) null 에러가 난다.
+        // 대사가 처음 시작되기 전에 미리 깨워서 이 문제를 막는다.
+        EnsureAncestorsActive(partyPanel != null ? partyPanel.transform : null);
+    }
+
+    /// <summary>
+    /// target과 그 부모들 중 꺼져있는 GameObject가 있으면 전부 켠다.
+    /// (Canvas_Screen을 테스트하다가 꺼놓고 깜빡하는 실수를 방지)
+    /// </summary>
+    private static void EnsureAncestorsActive(Transform target)
+    {
+        for (Transform t = target; t != null; t = t.parent)
+        {
+            if (!t.gameObject.activeSelf)
+                t.gameObject.SetActive(true);
+        }
     }
 
     /// <summary>
@@ -109,6 +127,9 @@ public class DialogueManager : MonoBehaviour
     {
         isPlaying = true;
         startedOnFrame = Time.frameCount;
+
+        // 말풍선 쪽 부모도 혹시 꺼져있으면 미리 깨워둔다 (partyPanel과 동일한 이유).
+        EnsureAncestorsActive(balloonAnchor);
 
         SpeechBalloonController balloon = balloonAnchor != null
             ? balloonAnchor.GetComponentInChildren<SpeechBalloonController>(true)

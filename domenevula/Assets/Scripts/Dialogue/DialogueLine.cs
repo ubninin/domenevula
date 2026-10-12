@@ -15,6 +15,15 @@ public enum DialogueDisplayMode
     ForceBalloon,
 }
 
+/// <summary>파티 대사창을 화면 어디에 띄울지 (이 줄에서만 적용).</summary>
+public enum PartyPanelPosition
+{
+    [InspectorName("아래 (기본)")]
+    Bottom,
+    [InspectorName("위")]
+    Top,
+}
+
 /// <summary>
 /// 대사 한 줄. DialogueSequence 안에 배열로 들어간다.
 /// </summary>
@@ -39,6 +48,9 @@ public class DialogueLine
 
     [Tooltip("자동이면 speaker.isPartyMember를 따름. speaker가 없으면 자동은 '말풍선'으로 처리됨")]
     public DialogueDisplayMode displayMode = DialogueDisplayMode.Auto;
+
+    [Tooltip("파티 대사창으로 표시될 때, 화면 위/아래 중 어디에 띄울지. 말풍선 표시에는 영향 없음")]
+    public PartyPanelPosition panelPosition = PartyPanelPosition.Bottom;
 
     [Header("대사창/말풍선 이미지 교체 (선택, 비워두면 기본 스킨 그대로)")]
     [Tooltip("파티 대사창의 배경 이미지(PartyDialogueBg)를 이 줄에서만 교체")]

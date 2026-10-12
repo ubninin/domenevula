@@ -282,7 +282,7 @@ Transform:
   m_GameObject: {fileID: 299621138}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 6.58, y: 0.15, z: 0}
+  m_LocalPosition: {x: 4.25, y: -2.36, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -427,8 +427,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1271698487
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 711d0106d02d3d24e9486b599cf42344, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -610,11 +610,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1170708454}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 289.629}
-  m_Pivot: {x: 0.5, y: 0}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: -305.1855}
+  m_SizeDelta: {x: 0, y: 289.62903}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &526142055
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -869,7 +869,7 @@ Transform:
   m_GameObject: {fileID: 632063202}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -7.8855033, y: -4.405409, z: -0.025328163}
+  m_LocalPosition: {x: -7.8855033, y: -5.99, z: -0.025328163}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1053,10 +1053,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97f409be55f0ab64fa0789b76640022e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  settings: {fileID: 11400000, guid: c13783d7fa30d9a418b6c1f4e8d48c5c, type: 2}
   minY: -5
   maxY: 5
-  closeScale: 1.5
-  farScale: 0.5
+  closeScale: 1
+  farScale: 0.2
 --- !u!114 &632063209
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1209,7 +1210,7 @@ MonoBehaviour:
   - character: {fileID: 11400000, guid: 6c8a073a93f880e45b82f0c7d966b06e, type: 2}
     followerPrefab: {fileID: 734471140931009712, guid: 92eb9ef627670824189f1dada2324913, type: 3}
     instance: {fileID: 0}
-  followDistance: 3
+  followDistance: 2
 --- !u!4 &714921296
 Transform:
   m_ObjectHideFlags: 0
@@ -1801,7 +1802,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1170708454
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1840,6 +1841,29 @@ MonoBehaviour:
   backgroundImage: {fileID: 0}
   frameImage: {fileID: 0}
   charsPerSecond: 30
+  panelRect: {fileID: 1068466975}
+  shadowRect: {fileID: 526142054}
+  useSeparateShadowPreset: 1
+  shadowBottomPreset:
+    anchorMin: {x: 0, y: 0}
+    anchorMax: {x: 1, y: 0}
+    pivot: {x: 0.5, y: 0}
+    anchoredPosition: {x: 0, y: 0}
+  shadowTopPreset:
+    anchorMin: {x: 0, y: 1}
+    anchorMax: {x: 1, y: 1}
+    pivot: {x: 0.5, y: 0}
+    anchoredPosition: {x: 0, y: 10}
+  bottomPreset:
+    anchorMin: {x: 0, y: 0}
+    anchorMax: {x: 1, y: 0}
+    pivot: {x: 0.5, y: 0}
+    anchoredPosition: {x: 0, y: 0}
+  topPreset:
+    anchorMin: {x: 0, y: 1}
+    anchorMax: {x: 1, y: 1}
+    pivot: {x: 0.5, y: 1}
+    anchoredPosition: {x: 0, y: 0}
 --- !u!1 &1173337339
 GameObject:
   m_ObjectHideFlags: 0
@@ -2609,7 +2633,7 @@ SpriteRenderer:
   m_SortingLayerID: -356654473
   m_SortingLayer: 1
   m_SortingOrder: 0
-  m_Sprite: {fileID: 304046957945154333, guid: 1401e324ef4d07a4db7cc00b7f7bfca7, type: 3}
+  m_Sprite: {fileID: -2475749987389609028, guid: bac6ed991d3b548459cc1d89be9d6ac7, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -2629,8 +2653,8 @@ Transform:
   m_GameObject: {fileID: 1945643503}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.4163, y: 1.079, z: 0}
-  m_LocalScale: {x: 1.9024601, y: 1.2493954, z: 1.9976133}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.12, y: 1.12, z: 1.12}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 985581994}
