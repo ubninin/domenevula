@@ -121,6 +121,10 @@ public class DialogueManager : MonoBehaviour
         {
             if (line.ShouldUsePartyPanel())
             {
+                // 이전 줄이 말풍선이었다면, 파티 창으로 넘어가기 전에 말풍선부터 꺼준다.
+                // (안 꺼주면 화자가 바뀌어도 말풍선이 화면에 계속 남아있음)
+                if (balloon != null) balloon.Hide();
+
                 // 파티 대사창은 한 줄 N자 / 페이지당 M줄로 자동 분할.
                 // 페이지마다 한 번씩 진행 입력을 받는다 (한 DialogueLine이 여러 페이지로 보일 수 있음).
                 List<string> pages = DialogueTextWrapper.SplitIntoPages(line.text, maxCharsPerLine, maxLinesPerPage);
@@ -135,6 +139,9 @@ public class DialogueManager : MonoBehaviour
             }
             else if (balloon != null)
             {
+                // 이전 줄이 파티 창이었다면, 말풍선으로 넘어가기 전에 파티 창부터 꺼준다.
+                partyPanel.Hide();
+
                 balloon.Show(line);
                 activeDisplay = balloon;
             }

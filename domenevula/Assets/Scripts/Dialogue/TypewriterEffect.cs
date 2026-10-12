@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// TMP_Text 하나에 한 글자씩 나타나는 타자 애니메이션을 재생하는 헬퍼.
@@ -15,16 +16,25 @@ public class TypewriterEffect
 {
     private readonly MonoBehaviour owner;
     private readonly TMP_Text target;
+    private readonly RectTransform layoutRootToRebuild;
 
     private Coroutine running;
     private int totalVisibleChars;
 
     public bool IsRevealing { get; private set; }
 
-    public TypewriterEffect(MonoBehaviour owner, TMP_Text target)
+    /// <param name="owner">코루틴을 돌릴 MonoBehaviour</param>
+    /// <param name="target">타자 효과를 적용할 텍스트</param>
+    /// <param name="layoutRootToRebuild">
+    /// 말풍선처럼 텍스트를 담은 배경이 ContentSizeFitter로 자동 크기 조정되는 경우,
+    /// 그 배경 쪽 RectTransform을 넘기면 전체 텍스트를 넣는 즉시 레이아웃을 강제로
+    /// 한 번 재계산해서 "최종 크기"로 바로 맞춘다. 필요 없으면 비워둬도 됨(null).
+    /// </param>
+    public TypewriterEffect(MonoBehaviour owner, TMP_Text target, RectTransform layoutRootToRebuild = null)
     {
         this.owner = owner;
         this.target = target;
+        this.layoutRootToRebuild = layoutRootToRebuild;
     }
 
     /// <param name="text">표시할 전체 텍스트 (리치 텍스트 태그 포함 가능)</param>
@@ -44,6 +54,7 @@ public class TypewriterEffect
             running = null;
         }
         target.maxVisibleCharacters = totalVisibleChars;
+        RebuildLayoutIfNeeded();
         IsRevealing = false;
     }
 
@@ -58,6 +69,13 @@ public class TypewriterEffect
 
         totalVisibleChars = target.textInfo.characterCount;
 
+        // 말풍선 배경처럼 ContentSizeFitter가 걸린 부모가 있으면, 글자를 하나씩 보여주기
+        // 시작하기 전에 "전체 텍스트 기준" 최종 크기로 미리 맞춰둔다.
+        // (maxVisibleCharacters는 레이아웃 크기에 영향을 주지 않고 렌더링만 가린다.
+        //  문제가 됐던 건 ContentSizeFitter가 2겹(Bubble, Text)으로 중첩돼 있어서
+        //  스크립트로 텍스트를 바꾼 직후 자동 재계산이 같은 프레임에 안 따라오는 경우였음.)
+        RebuildLayoutIfNeeded();
+
         float interval = 1f / Mathf.Max(0.01f, charsPerSecond);
 
         for (int shown = 1; shown <= totalVisibleChars; shown++)
@@ -68,5 +86,11 @@ public class TypewriterEffect
 
         IsRevealing = false;
         running = null;
+    }
+
+    private void RebuildLayoutIfNeeded()
+    {
+        if (layoutRootToRebuild != null)
+            LayoutRebuilder.ForceRebuildLayoutImmediate(layoutRootToRebuild);
     }
 }

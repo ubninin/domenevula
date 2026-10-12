@@ -8,15 +8,18 @@ using UnityEngine.UI;
 ///
 /// 붙이는 곳: Canvas_SpeechBalloon.prefab의 최상위 오브젝트
 /// 인스펙터 연결:
-///   balloonText  ← SpeechBalloonText
-///   bubbleRoot   ← SpeechBalloonRoot (Bubble과 Tail의 공통 부모. 이걸 꺼야 꼬리까지 같이 사라짐)
-///   bubbleImage  ← SpeechBalloonBubble의 Image (줄마다 이미지 교체 기능을 안 쓸 거면 비워둬도 됨)
-///   tailImage    ← SpeechBalloonTail의 Image (위와 동일)
+///   balloonText   ← SpeechBalloonText
+///   bubbleRoot    ← SpeechBalloonRoot (Bubble과 Tail의 공통 부모. 이걸 꺼야 꼬리까지 같이 사라짐)
+///   bubbleRect    ← SpeechBalloonBubble의 RectTransform (ContentSizeFitter가 걸린 배경.
+///                   이걸 연결해야 타자 애니메이션 중 말풍선 크기가 들쭉날쭉해지지 않음)
+///   bubbleImage   ← SpeechBalloonBubble의 Image (줄마다 이미지 교체 기능을 안 쓸 거면 비워둬도 됨)
+///   tailImage     ← SpeechBalloonTail의 Image (위와 동일)
 /// </summary>
 public class SpeechBalloonController : MonoBehaviour, IDialogueDisplay
 {
     [SerializeField] private TMP_Text balloonText;
     [SerializeField] private GameObject bubbleRoot;
+    [SerializeField] private RectTransform bubbleRect;
     [SerializeField] private Image bubbleImage;
     [SerializeField] private Image tailImage;
 
@@ -32,7 +35,7 @@ public class SpeechBalloonController : MonoBehaviour, IDialogueDisplay
 
     private void Awake()
     {
-        typewriter = new TypewriterEffect(this, balloonText);
+        typewriter = new TypewriterEffect(this, balloonText, bubbleRect);
         if (bubbleImage != null) defaultBubble = bubbleImage.sprite;
         if (tailImage != null) defaultTail = tailImage.sprite;
         Hide();
