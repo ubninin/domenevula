@@ -37,6 +37,7 @@ public class DialogueManager : MonoBehaviour
 
     private bool isPlaying;
     private bool advanceRequested;
+    private int startedOnFrame = -1;
 
     private void Awake()
     {
@@ -48,17 +49,30 @@ public class DialogueManager : MonoBehaviour
         Instance = this;
     }
 
+    /// <summary>
+    /// 대사 진행/상호작용에 쓰는 공용 키 판정 (Enter, Z, Space, 마우스 왼쪽 클릭).
+    /// NPC 상호작용(PlayerInteractor)도 같은 키를 쓰므로 여기서 공유한다.
+    /// </summary>
+    public static bool WasInteractKeyPressedThisFrame()
+    {
+        bool keyboard = Keyboard.current != null && (
+                            Keyboard.current.enterKey.wasPressedThisFrame
+                         || Keyboard.current.numpadEnterKey.wasPressedThisFrame
+                         || Keyboard.current.zKey.wasPressedThisFrame
+                         || Keyboard.current.spaceKey.wasPressedThisFrame);
+        bool mouse = Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
+        return keyboard || mouse;
+    }
+
     private void Update()
     {
         if (!isPlaying) return;
 
-        bool pressed = (Keyboard.current != null && (
-                            Keyboard.current.enterKey.wasPressedThisFrame
-                         || Keyboard.current.numpadEnterKey.wasPressedThisFrame
-                         || Keyboard.current.zKey.wasPressedThisFrame
-                         || Keyboard.current.spaceKey.wasPressedThisFrame))
-                     || (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame);
-        if (pressed) advanceRequested = true;
+        // PlayerInteractor가 대화를 시작시킨 바로 그 프레임의 키 입력이
+        // 곧바로 첫 줄을 넘겨버리지 않도록 시작 프레임은 건너뛴다.
+        if (Time.frameCount == startedOnFrame) return;
+
+        if (WasInteractKeyPressedThisFrame()) advanceRequested = true;
     }
 
     /// <param name="sequence">재생할 대사 묶음</param>
@@ -80,6 +94,7 @@ public class DialogueManager : MonoBehaviour
     private IEnumerator PlayRoutine(DialogueSequence sequence, Transform balloonAnchor, Action onComplete)
     {
         isPlaying = true;
+        startedOnFrame = Time.frameCount;
 
         SpeechBalloonController balloon = balloonAnchor != null
             ? balloonAnchor.GetComponentInChildren<SpeechBalloonController>(true)
