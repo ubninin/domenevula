@@ -54,7 +54,7 @@ Canvas:
   m_PlaneDistance: 100
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
-  m_OverrideSorting: 0
+  m_OverrideSorting: 1
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
@@ -117,6 +117,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   balloonText: {fileID: 6608774820808593953}
   bubbleRoot: {fileID: 7288447480465772148}
+  bubbleRect: {fileID: 0}
+  bubbleImage: {fileID: 0}
+  tailImage: {fileID: 0}
+  charsPerSecond: 30
 --- !u!1 &4951720290251988691
 GameObject:
   m_ObjectHideFlags: 0
@@ -230,9 +234,9 @@ MonoBehaviour:
   m_Spacing: 0
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
-  m_ChildControlWidth: 0
-  m_ChildControlHeight: 0
-  m_ChildScaleWidth: 0
+  m_ChildControlWidth: 1
+  m_ChildControlHeight: 1
+  m_ChildScaleWidth: 1
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
 --- !u!1 &7007696096133678827
@@ -358,7 +362,7 @@ GameObject:
   - component: {fileID: 2120442815222498709}
   - component: {fileID: 7498557162725157619}
   - component: {fileID: 6608774820808593953}
-  - component: {fileID: 2557606239726543357}
+  - component: {fileID: 8335454953702054505}
   m_Layer: 5
   m_Name: SpeechBalloonText
   m_TagString: Untagged
@@ -380,10 +384,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2339048973578354571}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 323.89, y: -91}
-  m_SizeDelta: {x: 487.78, y: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7498557162725157619
 CanvasRenderer:
@@ -413,7 +417,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uB9D0\uD48D\uC120 \uADF8\uB9BC\uC790\uB3C4 \uC9C4\uD558\uAC8C \uBC14\uAFE8\uC2B5\uB2C8\uB2E4..\n"
+  m_text: "\uD14D\uC2A4\uD2B8 \uC785\uB825"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 999a6ebc31d13c94a88797fbf1e09ab3, type: 2}
   m_sharedMaterial: {fileID: -1006315017430523027, guid: 999a6ebc31d13c94a88797fbf1e09ab3, type: 2}
@@ -484,7 +488,7 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &2557606239726543357
+--- !u!114 &8335454953702054505
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -493,8 +497,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 8326199988139143195}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_HorizontalFit: 2
-  m_VerticalFit: 2
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: -1
+  m_PreferredHeight: -1
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1

@@ -19,4 +19,18 @@ public class CharacterDefinition : ScriptableObject
 
     [Tooltip("체크하면 파티 대사창(PartyDialoguePanel)으로, 체크 해제하면 말풍선으로 출력됨")]
     public bool isPartyMember;
+
+    [Header("이 캐릭터 전용 대사창/말풍선 스킨 (선택, 비워두면 기본 스킨)")]
+    [Tooltip("이 캐릭터가 파티 대사창에 나올 때 쓸 배경 이미지. DialogueLine의 Window Background Override가 " +
+             "지정돼 있으면 그쪽이 우선하고, 둘 다 없으면 대사창 원래 기본 이미지를 씀")]
+    public Sprite windowBackground;
+
+    [Tooltip("이 캐릭터 전용 대사창 테두리 이미지 (위와 동일한 우선순위)")]
+    public Sprite windowFrame;
+
+    [Tooltip("이 캐릭터가 말풍선으로 나올 때 쓸 몸체 이미지 (위와 동일한 우선순위)")]
+    public Sprite balloonBubble;
+
+    [Tooltip("이 캐릭터 전용 말풍선 꼬리 이미지 (위와 동일한 우선순위)")]
+    public Sprite balloonTail;
 }

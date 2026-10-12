@@ -8,8 +8,11 @@ using UnityEngine.InputSystem;
 /// 필요 조건: Rigidbody2D가 있으면 물리 기반으로 움직여서 다른 Collider와 충돌 처리가 됨 (추천).
 ///          없으면 그냥 Transform을 직접 움직인다 (벽 통과함, 테스트용으로만 적합).
 ///          Rigidbody2D를 쓸 거면 Body Type을 Kinematic으로 두는 걸 추천 (탑다운이라 중력 불필요).
+///
+/// IPartyMovementState 구현: 지금 실제로 달리는 중인지(Shift 눌렀는지)를 외부에서 읽을 수 있게 해서,
+/// PartyFollower(따라오는 파티원)가 이 값을 그대로 따라가 플레이어와 같은 속도/애니메이션으로 달리게 한다.
 /// </summary>
-public class PlayerMovement2D : MonoBehaviour
+public class PlayerMovement2D : MonoBehaviour, IPartyMovementState
 {
     [SerializeField] private float moveSpeed = 3f; // 걷기 속도, 초당 이동 거리 (유닛)
     [SerializeField] private float runSpeed = 5f;  // 달리기 속도
@@ -18,6 +21,9 @@ public class PlayerMovement2D : MonoBehaviour
     private Rigidbody2D rb;
     private Vector2 moveInput;
     private bool isRunning;
+
+    /// <summary>지금 실제로 달리는 중인지. PartyFollower가 이 값을 읽어서 따라온다.</summary>
+    public bool IsRunning => isRunning;
 
     private void Awake()
     {
