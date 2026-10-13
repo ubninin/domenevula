@@ -1,0 +1,1371 @@
+fileFormatVersion: 2
+guid: 18e6cf92e601774499d05f1e9ef7381c
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -819888980385222676
+    second: Teremi_Walk_0
+  - first:
+      213: -244713060685502670
+    second: Teremi_Walk_1
+  - first:
+      213: -6330648195102752159
+    second: Teremi_Walk_2
+  - first:
+      213: 4898363538655535747
+    second: Teremi_Walk_3
+  - first:
+      213: 3441917682478695630
+    second: Teremi_Walk_4
+  - first:
+      213: 3293255620385108167
+    second: Teremi_Walk_5
+  - first:
+      213: -3948482509565648191
+    second: Teremi_Walk_6
+  - first:
+      213: 7607865383782879378
+    second: Teremi_Walk_7
+  - first:
+      213: 8008964671148192852
+    second: Teremi_Walk_8
+  - first:
+      213: -3936099617275486489
+    second: Teremi_Walk_9
+  - first:
+      213: -6624713428814388134
+    second: Teremi_Walk_10
+  - first:
+      213: 4043088894406711031
+    second: Teremi_Walk_11
+  - first:
+      213: -6590999671279807730
+    second: Teremi_Walk_12
+  - first:
+      213: 631784307735741195
+    second: Teremi_Walk_13
+  - first:
+      213: -319906316704559325
+    second: Teremi_Walk_14
+  - first:
+      213: -3717341637293031693
+    second: Teremi_Walk_15
+  - first:
+      213: 7295738669152022576
+    second: Teremi_Walk_16
+  - first:
+      213: 6471045585739855122
+    second: Teremi_Walk_17
+  - first:
+      213: 123900695127108067
+    second: Teremi_Walk_18
+  - first:
+      213: 1271382090244226971
+    second: Teremi_Walk_19
+  - first:
+      213: -4178777498749195969
+    second: Teremi_Walk_20
+  - first:
+      213: -3173389360734423582
+    second: Teremi_Walk_21
+  - first:
+      213: -6919633680042408942
+    second: Teremi_Walk_22
+  - first:
+      213: 5232359000887438485
+    second: Teremi_Walk_23
+  - first:
+      213: 5615309856214412694
+    second: Teremi_Walk_24
+  - first:
+      213: 8208856474660963794
+    second: Teremi_Walk_25
+  - first:
+      213: 5665693316083336916
+    second: Teremi_Walk_26
+  - first:
+      213: -5212325510343872326
+    second: Teremi_Walk_27
+  - first:
+      213: -6617965276058403319
+    second: Teremi_Walk_28
+  - first:
+      213: 6251385205618793616
+    second: Teremi_Walk_29
+  - first:
+      213: 6243607454680833910
+    second: Teremi_Walk_30
+  - first:
+      213: -3784054096744037088
+    second: Teremi_Walk_31
+  - first:
+      213: 4801192916540218370
+    second: Teremi_Walk_32
+  - first:
+      213: -611862342704211200
+    second: Teremi_Walk_33
+  - first:
+      213: 1527242128564050587
+    second: Teremi_Walk_34
+  - first:
+      213: 7898693043915804655
+    second: Teremi_Walk_35
+  - first:
+      213: -3032628327497873641
+    second: Teremi_Walk_36
+  - first:
+      213: -7420994410892889234
+    second: Teremi_Walk_37
+  - first:
+      213: -716359749305487127
+    second: Teremi_Walk_38
+  - first:
+      213: 376312983590097947
+    second: Teremi_Walk_39
+  - first:
+      213: 6475011007279252463
+    second: Teremi_Walk_40
+  - first:
+      213: -42850473996197810
+    second: Teremi_Walk_41
+  - first:
+      213: -5649251575590007487
+    second: Teremi_Walk_42
+  - first:
+      213: 8660268554516374734
+    second: Teremi_Walk_43
+  - first:
+      213: -65519432575156811
+    second: Teremi_Walk_44
+  - first:
+      213: 3699887244279809119
+    second: Teremi_Walk_45
+  - first:
+      213: 3023614412916356874
+    second: Teremi_Walk_46
+  - first:
+      213: -8669159087054631014
+    second: Teremi_Walk_47
+  - first:
+      213: 6864777164274115669
+    second: Teremi_Walk_48
+  - first:
+      213: -1061014346992353128
+    second: Teremi_Walk_49
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Teremi_Walk_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1050
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 07f5f50832cf0284fbc0c0566534c573
+      internalID: -1894812162
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_1
+      rect:
+        serializedVersion: 2
+        x: 350
+        y: 1050
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 658209072cceee4459ea57400e09f910
+      internalID: -451839163
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_2
+      rect:
+        serializedVersion: 2
+        x: 700
+        y: 1050
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b3e6db1ddff752c49994b59fa0199471
+      internalID: -1468083283
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_3
+      rect:
+        serializedVersion: 2
+        x: 1050
+        y: 1050
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c20403909aba6784691d71eba537ee80
+      internalID: -2027044095
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_4
+      rect:
+        serializedVersion: 2
+        x: 1400
+        y: 1050
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e5dedb489f898d54c8585f4df14555cc
+      internalID: -1443916884
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_5
+      rect:
+        serializedVersion: 2
+        x: 1750
+        y: 1050
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 55dcc6d8567ef64499a002baab38b1f2
+      internalID: -1256496477
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_6
+      rect:
+        serializedVersion: 2
+        x: 2100
+        y: 1050
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d146d26d3391cb64ba549b235debdbf8
+      internalID: -1777363328
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_7
+      rect:
+        serializedVersion: 2
+        x: 2450
+        y: 1050
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fe4ac5b627983954782092cceb190b19
+      internalID: -2116747668
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_8
+      rect:
+        serializedVersion: 2
+        x: 2800
+        y: 1050
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e09490c973fce8246a820a9d51c1d6fb
+      internalID: -1525536198
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_9
+      rect:
+        serializedVersion: 2
+        x: 3150
+        y: 1050
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 34069567aba9a6f418c2293091dfa912
+      internalID: -1179368639
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_10
+      rect:
+        serializedVersion: 2
+        x: 3500
+        y: 1050
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5256fbb59d2f6c34ba7f05feb0fb3137
+      internalID: -1773625892
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_11
+      rect:
+        serializedVersion: 2
+        x: 3850
+        y: 1050
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a6210a4582402e1479406d367606e2b3
+      internalID: -304196682
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 700
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2b6e38edb28f5ec40a6f9dc1e81e2283
+      internalID: -672862169
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_13
+      rect:
+        serializedVersion: 2
+        x: 350
+        y: 700
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 916ba154c02d4e948b92285556dbe58e
+      internalID: -1765442228
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_14
+      rect:
+        serializedVersion: 2
+        x: 700
+        y: 700
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bfc52d7847a1917459fb967f13c4cc27
+      internalID: -1523158493
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_15
+      rect:
+        serializedVersion: 2
+        x: 1050
+        y: 700
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: acdc403b267cba34c966e6ef7ecd8285
+      internalID: 95084011
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_16
+      rect:
+        serializedVersion: 2
+        x: 1400
+        y: 700
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b9c58c7be9a51da408bda06fd54b4784
+      internalID: -1831664716
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_17
+      rect:
+        serializedVersion: 2
+        x: 1750
+        y: 700
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b4497cf8b5d9cff4ca65c422098d7f21
+      internalID: 113932824
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_18
+      rect:
+        serializedVersion: 2
+        x: 2100
+        y: 700
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cff128eeafecf9e48bd7e289560489de
+      internalID: 319860779
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_19
+      rect:
+        serializedVersion: 2
+        x: 2450
+        y: 700
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b64a5b4b0e3fe0a4d951f5af397cf71d
+      internalID: 396276693
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_20
+      rect:
+        serializedVersion: 2
+        x: 2800
+        y: 700
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 51ee3855998b8fb4a8b5259b4c501baf
+      internalID: 1234118334
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_21
+      rect:
+        serializedVersion: 2
+        x: 3150
+        y: 700
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 585d176b98dc4414396e5a751c6df0bc
+      internalID: -555042498
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_22
+      rect:
+        serializedVersion: 2
+        x: 3500
+        y: 700
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 09db52ca3bb767542b5c83fd78d4a20b
+      internalID: 1148272438
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_23
+      rect:
+        serializedVersion: 2
+        x: 3850
+        y: 700
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f249087ee77bb7341a729e40108fcee3
+      internalID: -1656182791
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_24
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 350
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9a071176cd90ef149b237a42c7397e60
+      internalID: 1195776480
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_25
+      rect:
+        serializedVersion: 2
+        x: 350
+        y: 350
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 75c00a2a2552ef34e8f33b8a08477b89
+      internalID: -2114336913
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_26
+      rect:
+        serializedVersion: 2
+        x: 700
+        y: 350
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2ba49396e89fe9e4288f6b13be19c189
+      internalID: -387403947
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_27
+      rect:
+        serializedVersion: 2
+        x: 1050
+        y: 350
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f3c2436da5287a7429c5c999a483cb87
+      internalID: 1686564049
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_28
+      rect:
+        serializedVersion: 2
+        x: 1400
+        y: 350
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fcde6970d909dff46a8215798a9f5b89
+      internalID: -768630136
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_29
+      rect:
+        serializedVersion: 2
+        x: 1750
+        y: 350
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8cd43d584be33f0458044e326e728cb3
+      internalID: -797257933
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_30
+      rect:
+        serializedVersion: 2
+        x: 2100
+        y: 350
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fa3529a3cc7378146b83b4e4455e7465
+      internalID: 2099727109
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_31
+      rect:
+        serializedVersion: 2
+        x: 2450
+        y: 350
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 435877039524cf646b02da39ae63a632
+      internalID: -1144638647
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_32
+      rect:
+        serializedVersion: 2
+        x: 2800
+        y: 350
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0ff9ed91db18cb042bb9d988da0e6ebe
+      internalID: 1555865714
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_33
+      rect:
+        serializedVersion: 2
+        x: 3150
+        y: 350
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 136531cf43ea12e42afa5d11bcb2e6bf
+      internalID: -1566894240
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_34
+      rect:
+        serializedVersion: 2
+        x: 3500
+        y: 350
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ffb82ad6d96ee25439414fa63c1274f6
+      internalID: -472497534
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_35
+      rect:
+        serializedVersion: 2
+        x: 3850
+        y: 350
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8e6cacf84ba060f40b3deb64440b8132
+      internalID: 41801352
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_36
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 64dacaf0fe3f52f4eaa9c4eff8f223a5
+      internalID: 1638661096
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_37
+      rect:
+        serializedVersion: 2
+        x: 350
+        y: 0
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 29483ec71e9d86f45aa94ff6a821c4ea
+      internalID: 1078793128
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_38
+      rect:
+        serializedVersion: 2
+        x: 700
+        y: 0
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c69145084e42f684a9d8e31ce5f9b5bd
+      internalID: 1062938084
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_39
+      rect:
+        serializedVersion: 2
+        x: 1050
+        y: 0
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 12f641870eefda7458c50586bfa94a7f
+      internalID: 1214740103
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_40
+      rect:
+        serializedVersion: 2
+        x: 1400
+        y: 0
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3f109130a91e9924a8b16d6ab7c55f5d
+      internalID: -1353028484
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_41
+      rect:
+        serializedVersion: 2
+        x: 1750
+        y: 0
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ea23e6aaaae7ecc4a925fc9b57d63932
+      internalID: -2067461205
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_42
+      rect:
+        serializedVersion: 2
+        x: 2100
+        y: 0
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f430e5a2017c49a49a810182d7602bb4
+      internalID: -1443954501
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_43
+      rect:
+        serializedVersion: 2
+        x: 2450
+        y: 0
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e18111d1b64a5d04689792689e340a4c
+      internalID: -350567254
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_44
+      rect:
+        serializedVersion: 2
+        x: 2800
+        y: 0
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 614eae7312611434a8823f3802bb00e9
+      internalID: 1391711813
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_45
+      rect:
+        serializedVersion: 2
+        x: 3150
+        y: 0
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7765b07ef716f394182ebefc1570b53b
+      internalID: -664168080
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_46
+      rect:
+        serializedVersion: 2
+        x: 3500
+        y: 0
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f59600e18040a024983045f44bf784ee
+      internalID: -198372054
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Teremi_Walk_47
+      rect:
+        serializedVersion: 2
+        x: 3850
+        y: 0
+        width: 350
+        height: 350
+      alignment: 9
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bced1ba5ef44afb4fbb5945649469102
+      internalID: 2145722062
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5c630bbe9a3b1884ca9b604f2d362af2
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Teremi_Walk_0: -1894812162
+      Teremi_Walk_1: -451839163
+      Teremi_Walk_10: -1773625892
+      Teremi_Walk_11: -304196682
+      Teremi_Walk_12: -672862169
+      Teremi_Walk_13: -1765442228
+      Teremi_Walk_14: -1523158493
+      Teremi_Walk_15: 95084011
+      Teremi_Walk_16: -1831664716
+      Teremi_Walk_17: 113932824
+      Teremi_Walk_18: 319860779
+      Teremi_Walk_19: 396276693
+      Teremi_Walk_2: -1468083283
+      Teremi_Walk_20: 1234118334
+      Teremi_Walk_21: -555042498
+      Teremi_Walk_22: 1148272438
+      Teremi_Walk_23: -1656182791
+      Teremi_Walk_24: 1195776480
+      Teremi_Walk_25: -2114336913
+      Teremi_Walk_26: -387403947
+      Teremi_Walk_27: 1686564049
+      Teremi_Walk_28: -768630136
+      Teremi_Walk_29: -797257933
+      Teremi_Walk_3: -2027044095
+      Teremi_Walk_30: 2099727109
+      Teremi_Walk_31: -1144638647
+      Teremi_Walk_32: 1555865714
+      Teremi_Walk_33: -1566894240
+      Teremi_Walk_34: -472497534
+      Teremi_Walk_35: 41801352
+      Teremi_Walk_36: 1638661096
+      Teremi_Walk_37: 1078793128
+      Teremi_Walk_38: 1062938084
+      Teremi_Walk_39: 1214740103
+      Teremi_Walk_4: -1443916884
+      Teremi_Walk_40: -1353028484
+      Teremi_Walk_41: -2067461205
+      Teremi_Walk_42: -1443954501
+      Teremi_Walk_43: -350567254
+      Teremi_Walk_44: 1391711813
+      Teremi_Walk_45: -664168080
+      Teremi_Walk_46: -198372054
+      Teremi_Walk_47: 2145722062
+      Teremi_Walk_5: -1256496477
+      Teremi_Walk_6: -1777363328
+      Teremi_Walk_7: -2116747668
+      Teremi_Walk_8: -1525536198
+      Teremi_Walk_9: -1179368639
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
