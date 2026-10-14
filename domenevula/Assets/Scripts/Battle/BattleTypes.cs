@@ -248,6 +248,10 @@ public class BattleSettings
     [Range(0f, 1f)] public float inputFlashAlphaMin = 0.2f;
     [Tooltip("번쩍임이 지속되는 시간(초)")]
     [Min(0.05f)] public float inputFlashSeconds = 0.25f;
+    [Header("칸 수 변경 연출")]
+    [Tooltip("라운드가 바뀌어 행/열 수가 달라질 때, 납작한 격자가 새 크기로 늘어나거나 줄어드는 시간(초)")]
+    [Min(0.05f)] public float gridMorphSeconds = 0.35f;
+
     [Header("플레이어(커서) 색")]
     [Tooltip("평소 플레이어(커서)의 색")]
     public Color soulColor = new Color(1f, 0.25f, 0.3f, 1f);
@@ -267,6 +271,8 @@ public class BattleSettings
     public Vector2 enemyBalloonPos = new Vector2(0f, 175f);
     [Tooltip("아군 말풍선 위치(픽셀): 아군 얼굴 중심 기준. X=0 이면 꼬리가 얼굴 중심 바로 위를 가리킨다. X를 키우면 왼쪽 아군은 오른쪽으로, 오른쪽 아군은 왼쪽으로(화면 가운데 쪽) 밀린다")]
     public Vector2 partyBalloonPos = new Vector2(0f, 190f);
+    [Tooltip("켜면 적 턴 시작 대사 때 아군 말풍선의 꼬리를 숨긴다 (이때는 아군이 화면 가장자리에 있어 꼬리가 얼굴을 못 가리키므로)")]
+    public bool hidePartyTailAtEnemyTurnStart = true;
 
     [Header("칸 표시")]
     [Tooltip("플레이어가 서 있는 칸의 색. 이 색의 A 값이 그대로 불투명도가 된다 (0 = 투명, 255 = 불투명)")]
@@ -370,10 +376,12 @@ public static class BattleDefaults
                 fromRound = 1,
                 party = new List<ActorLine>
                 {
-                    new ActorLine { actorName = "하율", waiting = "어떻게 할까?", attack = "내 공격을 받아라!", skill = "{skill}!", guard = "버텨 볼게!" },
-                    new ActorLine { actorName = "라임", waiting = "음… 뭘 하지?", attack = "에잇!", skill = "{skill}~!", guard = "조심해야지." },
+                    new ActorLine { actorName = "하율", turnStart = "좋아, 이제 내 차례야!", enemyTurnStart = "조심해!", waiting = "어떻게 할까?", attack = "내 공격을 받아라!", skill = "{skill}!", guard = "버텨 볼게!" },
+                    new ActorLine { actorName = "라임", turnStart = "힘내 보자!", enemyTurnStart = "피해야 해!", waiting = "음… 뭘 하지?", attack = "에잇!", skill = "{skill}~!", guard = "조심해야지." },
                 },
                 enemyReaction = "으윽, 너무 강하잖아!",
+                enemyAtPlayerTurnStart = "",
+                enemyAtEnemyTurnStart = "이번엔 내 차례다!",
             },
         };
     }
@@ -428,6 +436,8 @@ public static class BattleDefaults
 public class ActorLine
 {
     [Tooltip("아군 이름 (Party 의 Name 과 같아야 한다)")] public string actorName = "";
+    [TextArea(1, 3)] [Tooltip("플레이어 턴 시작 대사: UI 이동이 끝난 뒤, 행동 메뉴가 열리기 전에 잠깐 뜬다 (다른 아군/적 대사와 동시에)")] public string turnStart = "";
+    [TextArea(1, 3)] [Tooltip("적 턴 시작 대사: UI 이동이 끝난 뒤, 적 공격이 시작되기 전에 잠깐 뜬다 (적 대사와 동시에)")] public string enemyTurnStart = "";
     [TextArea(1, 3)] [Tooltip("이 아군이 행동을 고르는 중(메뉴가 열려 있는 동안) 계속 떠 있는 대사")] public string waiting = "";
     [TextArea(1, 3)] [Tooltip("공격 선택 시 대사")] public string attack = "";
     [TextArea(1, 3)] [Tooltip("스킬 사용 시 대사 ({skill} = 스킬 이름)")] public string skill = "";
@@ -445,6 +455,10 @@ public class RoundLines
     [Tooltip("플레이어 턴 행동 중 아군 대사")] public List<ActorLine> party = new List<ActorLine>();
     [TextArea(1, 3)] [Tooltip("플레이어 턴이 끝난 뒤 적이 하는 반응 대사 (적 턴 배너 직전). {enemy} 사용 가능")]
     public string enemyReaction = "";
+    [TextArea(1, 3)] [Tooltip("플레이어 턴 시작 때 적도 함께 하는 대사 (아군의 Turn Start 대사와 동시에 뜨고, 그동안 적 이름/HP 바가 숨겨진다)")]
+    public string enemyAtPlayerTurnStart = "";
+    [TextArea(1, 3)] [Tooltip("적 턴 시작 때 적이 하는 대사 (아군의 Enemy Turn Start 대사와 동시에 뜬다)")]
+    public string enemyAtEnemyTurnStart = "";
 }
 
 /// <summary>"이 라운드부터 이 플레이어 턴 안내 문구를 쓴다". 가장 큰 fromRound(현재 라운드 이하)가 적용된다.</summary>

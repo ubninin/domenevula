@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -59,6 +60,7 @@ public class BattleArena : MonoBehaviour
     private float invincible;
     private float hitShake;
     private float poseScaleY = 1f, poseDetail = 1f;
+    private float morphX = 1f, morphY = 1f; // 칸 배치가 바뀔 때 이전 크기에서 새 크기로 이어지게 하는 보정 배율
     private CanvasGroup labelGroup, soulGroup;
     private const float HitShakeTime = 0.3f;
     private bool running;
@@ -96,6 +98,36 @@ public class BattleArena : MonoBehaviour
         rowsCount = Mathf.Max(1, rowsCount);
         if (columns == cols && rowsCount == rows) return;
         Construct(columns, rowsCount);
+    }
+
+    /// <summary>
+    /// 칸 배치를 바꾸되, 이전 판의 크기에서 새 판의 크기로 부드럽게 늘어나거나 줄어든다.
+    /// (플레이어 턴처럼 판이 납작하고 글자가 숨겨진 상태에서 쓰면 막대가 늘었다 줄었다 하는 것처럼 보인다.)
+    /// 끝날 때까지 기다리는 코루틴.
+    /// </summary>
+    public IEnumerator RelayoutAnimated(int columns, int rowsCount, float seconds)
+    {
+        columns = Mathf.Max(1, columns);
+        rowsCount = Mathf.Max(1, rowsCount);
+        if (columns == cols && rowsCount == rows) yield break;
+
+        float oldW = cols * cell, oldH = rows * cell;
+        Construct(columns, rowsCount);
+        float newW = Mathf.Max(1f, cols * cell), newH = Mathf.Max(1f, rows * cell);
+
+        float dur = Mathf.Max(0.01f, seconds);
+        float fromX = oldW / newW, fromY = oldH / newH;
+        for (float t = 0f; t < dur; t += Time.deltaTime)
+        {
+            float p = Mathf.Clamp01(t / dur);
+            float ease = 1f - (1f - p) * (1f - p) * (1f - p); // 빠르게 시작해 부드럽게 멈춤
+            morphX = Mathf.Lerp(fromX, 1f, ease);
+            morphY = Mathf.Lerp(fromY, 1f, ease);
+            ApplyPose();
+            yield return null;
+        }
+        morphX = morphY = 1f;
+        ApplyPose();
     }
 
     private void Construct(int columns, int rowsCount)
@@ -172,7 +204,7 @@ public class BattleArena : MonoBehaviour
 
     private void ApplyPose()
     {
-        root.localScale = new Vector3(1f, poseScaleY, 1f);
+        root.localScale = new Vector3(morphX, poseScaleY * morphY, 1f);
         if (labelGroup != null) labelGroup.alpha = poseDetail;
         if (soulGroup != null) soulGroup.alpha = poseDetail;
     }

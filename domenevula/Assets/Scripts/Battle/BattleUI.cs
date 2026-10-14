@@ -472,27 +472,79 @@ public class BattleUI : MonoBehaviour
     private readonly Dictionary<string, SpeechBalloonController> balloons = new Dictionary<string, SpeechBalloonController>();
     private bool balloonWarned;
 
-    /// <summary>아군이 말풍선으로 대사를 한다 (글자가 다 나온 뒤 잠깐 머물고 사라질 때까지 대기).</summary>
-    public IEnumerator PartyBalloon(int index, string text)
+    /// <summary>한 번에 띄울 말풍선 하나 (아군 또는 적).</summary>
+    public struct BalloonSpec
     {
-        if (index < 0 || index >= slots.Count || string.IsNullOrWhiteSpace(text)) yield break;
+        public bool enemy;
+        public int partyIndex;
+        public string text;
+        public bool hideTail;
+        public static BalloonSpec Enemy(string text) { return new BalloonSpec { enemy = true, partyIndex = -1, text = text }; }
+        public static BalloonSpec Party(int index, string text, bool hideTail = false) { return new BalloonSpec { enemy = false, partyIndex = index, text = text, hideTail = hideTail }; }
+    }
+
+    private SpeechBalloonController GetPartyBalloon(int index)
+    {
+        if (index < 0 || index >= slots.Count) return null;
         PartySlotUI s = slots[index];
         Vector2 pos = s.face != null ? s.face.rectTransform.anchoredPosition : s.root.anchoredPosition;
         Vector2 off = settings.partyBalloonPos;
         if (index != 0) off.x = -off.x; // 오른쪽 아군은 화면 가운데 쪽(왼쪽)으로
-        yield return BalloonRoutine(GetBalloon("Party" + index, pos, off), text);
+        return GetBalloon("Party" + index, pos, off);
+    }
+
+    /// <summary>말풍선 꼬리(SpeechBalloonTail)를 켜고 끈다.</summary>
+    private static void SetTailVisible(SpeechBalloonController b, bool visible)
+    {
+        Transform tail = b.transform.Find("SpeechBalloonRoot/SpeechBalloonTail");
+        if (tail != null) tail.gameObject.SetActive(visible);
+    }
+
+    /// <summary>
+    /// 여러 말풍선을 동시에 띄운다. 모두 글자가 다 나온 뒤 잠깐 머물다 함께 사라질 때까지 대기.
+    /// 적 말풍선이 포함되면 그동안 적 이름/HP 바와 안내 메시지가 숨겨진다.
+    /// </summary>
+    public IEnumerator BalloonGroup(IList<BalloonSpec> specs)
+    {
+        var active = new List<SpeechBalloonController>();
+        bool hasEnemy = false;
+        foreach (BalloonSpec sp in specs)
+        {
+            if (string.IsNullOrWhiteSpace(sp.text)) continue;
+            SpeechBalloonController b = sp.enemy ? GetBalloon("Enemy", enemyCur, settings.enemyBalloonPos) : GetPartyBalloon(sp.partyIndex);
+            if (b == null) continue;
+            b.Show(new DialogueLine { text = sp.text.Replace("\\n", "\n").Replace("<br>", "\n") });
+            SetTailVisible(b, !sp.hideTail);
+            active.Add(b);
+            if (sp.enemy) hasEnemy = true;
+        }
+        if (active.Count == 0) yield break;
+
+        if (hasEnemy) SetEnemyInfoVisible(false);
+        yield return null; // 이 단계로 넘어오게 한 키 입력이 바로 스킵으로 처리되지 않도록
+        while (true)
+        {
+            bool revealing = false;
+            foreach (SpeechBalloonController b in active) if (b.IsRevealing) revealing = true;
+            if (!revealing) break;
+            if (PressedConfirm() || PressedClick()) foreach (SpeechBalloonController b in active) b.SkipReveal();
+            yield return null;
+        }
+        yield return new WaitForSeconds(Mathf.Max(0f, settings.balloonHoldSeconds));
+        foreach (SpeechBalloonController b in active) b.Hide();
+        if (hasEnemy) SetEnemyInfoVisible(true);
+    }
+
+    /// <summary>아군 한 명이 말풍선으로 대사를 한다.</summary>
+    public IEnumerator PartyBalloon(int index, string text)
+    {
+        yield return BalloonGroup(new[] { BalloonSpec.Party(index, text) });
     }
 
     /// <summary>적이 말풍선으로 대사를 한다. 말풍선이 떠 있는 동안에만 적 이름/HP 바와 안내 메시지가 숨겨진다.</summary>
     public IEnumerator EnemyBalloon(string text)
     {
-        if (string.IsNullOrWhiteSpace(text)) yield break;
-        SpeechBalloonController b = GetBalloon("Enemy", enemyCur, settings.enemyBalloonPos);
-        if (b == null) yield break;
-
-        SetEnemyInfoVisible(false);
-        yield return BalloonRoutine(b, text);
-        SetEnemyInfoVisible(true);
+        yield return BalloonGroup(new[] { BalloonSpec.Enemy(text) });
     }
 
     /// <summary>위쪽 적 패널(이름, HP 바)과 그에 붙은 안내 메시지를 켜고 끈다.</summary>
@@ -509,15 +561,10 @@ public class BattleUI : MonoBehaviour
     public void ShowWaitBalloon(int index, string text)
     {
         HideWaitBalloon();
-        if (index < 0 || index >= slots.Count || string.IsNullOrWhiteSpace(text)) return;
-        PartySlotUI s = slots[index];
-        Vector2 pos = s.face != null ? s.face.rectTransform.anchoredPosition : s.root.anchoredPosition;
-        Vector2 off = settings.partyBalloonPos; // 다른 아군 말풍선과 같은 위치
-        if (index != 0) off.x = -off.x;
-        SpeechBalloonController b = GetBalloon("Party" + index, pos, off);
+        if (string.IsNullOrWhiteSpace(text)) return;
+        SpeechBalloonController b = GetPartyBalloon(index);
         if (b == null) return;
-        text = text.Replace("\\n", "\n").Replace("<br>", "\n");
-        b.Show(new DialogueLine { text = text });
+        b.Show(new DialogueLine { text = text.Replace("\\n", "\n").Replace("<br>", "\n") });
         waitBalloon = b;
     }
 
@@ -564,27 +611,17 @@ public class BattleUI : MonoBehaviour
         }
 
         // 프리팹 전체를 말하는 쪽 위치에 두고, 말풍선 몸체(SpeechBalloonRoot)는 거기서 offset 만큼 떨어뜨린다
+        // 적 턴 배치에서는 아군이 화면 가장자리에 있어서 말풍선이 화면 밖으로 나갈 수 있으니 안쪽으로 당긴다
+        const float halfBody = 140f;
+        float bodyX = Mathf.Clamp(anchorPos.x + bodyOffset.x, -800f + halfBody, 800f - halfBody);
+        bodyOffset.x = bodyX - anchorPos.x;
+
         RectTransform canvasRt = (RectTransform)b.transform;
         canvasRt.anchoredPosition3D = new Vector3(anchorPos.x, anchorPos.y, 0f);
         Transform body = canvasRt.Find("SpeechBalloonRoot");
         if (body != null) ((RectTransform)body).anchoredPosition = bodyOffset;
+        SetTailVisible(b, true); // 기본은 꼬리 표시 (필요한 곳에서만 숨김)
         return b;
-    }
-
-    private IEnumerator BalloonRoutine(SpeechBalloonController b, string text)
-    {
-        if (b == null) yield break;
-        text = (text ?? "").Replace("\\n", "\n").Replace("<br>", "\n");
-
-        b.Show(new DialogueLine { text = text });
-        yield return null; // 이 행동을 고른 키 입력이 바로 스킵으로 처리되지 않도록
-        while (b.IsRevealing)
-        {
-            if (PressedConfirm() || PressedClick()) b.SkipReveal(); // 누르면 글자를 한 번에
-            yield return null;
-        }
-        yield return new WaitForSeconds(Mathf.Max(0f, settings.balloonHoldSeconds));
-        b.Hide();
     }
 
     // ───────────────────────── 플레이어 턴 ↔ 적 턴 배치 전환 ─────────────────────────

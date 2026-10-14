@@ -162,10 +162,12 @@ public class BattleManager : MonoBehaviour
             while (!battleOver)
             {
                 round++;
-                ApplyLayoutForRound(); // 칸 배치는 플레이어 턴(명령 단계)부터 바꾼다
-                Debug.Log($"[Battle] 라운드 {round} 명령 단계 시작 — 칸 {arena.Columns}x{arena.Rows}");
+                Debug.Log($"[Battle] 라운드 {round} 플레이어 턴 시작 (이전 칸 {arena.Columns}x{arena.Rows})");
                 yield return ui.ShowTurnBanner(turnBanner, turnBanner.playerTurn);
-                yield return ui.PlayLayoutTransition(false, settings.layoutTransitionSeconds); // 배너가 끝나면 UI가 플레이어 턴 배치로 이동
+                yield return ui.PlayLayoutTransition(false, settings.layoutTransitionSeconds); // 배너가 끝나면 UI가 플레이어 턴 배치로 이동 (격자는 납작하게 접힘)
+                yield return ApplyLayoutForRoundAnimated(); // 납작한 상태에서 칸 수가 새 크기로 부드럽게 바뀐다
+                Debug.Log($"[Battle] 라운드 {round} 칸 배치 — {arena.Columns}x{arena.Rows}");
+                yield return PlayerTurnStartLines(); // UI 이동이 끝난 뒤 잠깐 대사 (이때는 행동 메뉴가 아직 안 열린다)
                 yield return CommandPhase();
                 if (battleOver) break;
 
@@ -352,6 +354,40 @@ public class BattleManager : MonoBehaviour
         return found;
     }
 
+    /// <summary>플레이어 턴 시작 대사: 살아 있는 아군(Turn Start)과 적(Enemy At Player Turn Start)이 동시에 말한다.</summary>
+    private IEnumerator PlayerTurnStartLines()
+    {
+        RoundLines lines = CurrentLines();
+        if (lines == null) yield break;
+        var specs = new List<BattleUI.BalloonSpec>();
+        if (lines.party != null)
+            foreach (BattleActor a in party)
+            {
+                if (!a.IsAlive) continue;
+                ActorLine al = lines.party.Find(x => x != null && x.actorName == a.name);
+                if (al != null) specs.Add(BattleUI.BalloonSpec.Party(party.IndexOf(a), BattleMessages.Fill(al.turnStart, enemy: enemy.name, actor: a.name)));
+            }
+        specs.Add(BattleUI.BalloonSpec.Enemy(BattleMessages.Fill(lines.enemyAtPlayerTurnStart, enemy: enemy.name)));
+        yield return ui.BalloonGroup(specs);
+    }
+
+    /// <summary>적 턴 시작 대사: 적(Enemy At Enemy Turn Start)과 살아 있는 아군(Enemy Turn Start)이 동시에 말한다.</summary>
+    private IEnumerator EnemyTurnStartLines()
+    {
+        RoundLines lines = CurrentLines();
+        if (lines == null) yield break;
+        var specs = new List<BattleUI.BalloonSpec>();
+        if (lines.party != null)
+            foreach (BattleActor a in party)
+            {
+                if (!a.IsAlive) continue;
+                ActorLine al = lines.party.Find(x => x != null && x.actorName == a.name);
+                if (al != null) specs.Add(BattleUI.BalloonSpec.Party(party.IndexOf(a), BattleMessages.Fill(al.enemyTurnStart, enemy: enemy.name, actor: a.name), settings.hidePartyTailAtEnemyTurnStart));
+            }
+        specs.Add(BattleUI.BalloonSpec.Enemy(BattleMessages.Fill(lines.enemyAtEnemyTurnStart, enemy: enemy.name)));
+        yield return ui.BalloonGroup(specs);
+    }
+
     private void ShowWaitingLine(BattleActor actor)
     {
         RoundLines lines = CurrentLines();
@@ -467,10 +503,10 @@ public class BattleManager : MonoBehaviour
 
     // ───────────────────────── 3) 적 턴 (탄막 + 타자) ─────────────────────────
 
-    /// <summary>이번 라운드의 칸 배치를 고르고, 달라졌으면 아레나와 단어판을 다시 만든다.</summary>
-    private void ApplyLayoutForRound()
+    /// <summary>이번 라운드의 칸 배치(열, 행)를 고른다.</summary>
+    private void ResolveLayout(out int c, out int r)
     {
-        int c = settings.columns, r = settings.rows;
+        c = settings.columns; r = settings.rows;
         int best = int.MinValue;
         if (roundLayouts != null)
         {
@@ -481,13 +517,34 @@ public class BattleManager : MonoBehaviour
             }
         }
         c = Mathf.Max(1, c); r = Mathf.Max(1, r);
-        if (c == arena.Columns && r == arena.Rows) return;
+    }
 
+    private void RebuildBoard()
+    {
         int keepTier = board != null ? board.Tier : 0;
-        arena.Relayout(c, r);
         board = new BattleWordBoard(wordTiers, arena.CellCount, Environment.TickCount);
         board.SetTier(keepTier);
         board.Warn = msg => Debug.LogWarning("[Battle] " + msg);
+    }
+
+    /// <summary>칸 배치가 달라졌으면 즉시 다시 만든다 (안전장치. 평소엔 아래 애니메이션 버전이 먼저 처리한다).</summary>
+    private void ApplyLayoutForRound()
+    {
+        int c, r;
+        ResolveLayout(out c, out r);
+        if (c == arena.Columns && r == arena.Rows) return;
+        arena.Relayout(c, r);
+        RebuildBoard();
+    }
+
+    /// <summary>칸 배치가 달라졌으면 격자가 새 크기로 부드럽게 바뀐다 (납작한 플레이어 턴 상태에서).</summary>
+    private IEnumerator ApplyLayoutForRoundAnimated()
+    {
+        int c, r;
+        ResolveLayout(out c, out r);
+        if (c == arena.Columns && r == arena.Rows) yield break;
+        yield return arena.RelayoutAnimated(c, r, settings.gridMorphSeconds);
+        RebuildBoard();
     }
 
     private IEnumerator EnemyPhase()
@@ -510,6 +567,7 @@ public class BattleManager : MonoBehaviour
 
         // UI 이동 애니메이션이 모두 끝난 뒤, 약간의 텀을 두고 공격을 시작한다
         yield return ui.PlayLayoutTransition(true, settings.layoutTransitionSeconds);
+        yield return EnemyTurnStartLines(); // UI 이동이 끝난 뒤, 공격 시작 전에 잠깐 대사
         if (settings.enemyAttackDelaySeconds > 0f) yield return new WaitForSeconds(settings.enemyAttackDelaySeconds);
 
         arena.SetRunning(true);
