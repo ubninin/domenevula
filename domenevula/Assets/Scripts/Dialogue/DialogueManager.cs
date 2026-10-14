@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// 대사 재생의 중심. 한 줄(DialogueLine)을 받아서
@@ -35,7 +36,11 @@ public class DialogueManager : MonoBehaviour
     [SerializeField] private int maxCharsPerLine = DialogueTextWrapper.DefaultMaxCharsPerLine;
     [SerializeField] private int maxLinesPerPage = DialogueTextWrapper.DefaultMaxLinesPerPage;
 
+    [Header("전투에서 패배(Allow Defeat 해제)했을 때 불러올 씬 이름 (비우면 현재 씬 다시 시작). Build Settings에 등록돼 있어야 함")]
+    [SerializeField] private string gameOverSceneName;
+
     private bool isPlaying;
+    private bool gameOver;
     private bool advanceRequested;
     private int startedOnFrame = -1;
 
@@ -126,6 +131,7 @@ public class DialogueManager : MonoBehaviour
     private IEnumerator PlayRoutine(DialogueSequence sequence, Transform balloonAnchor, Action onComplete)
     {
         isPlaying = true;
+        gameOver = false;
         startedOnFrame = Time.frameCount;
 
         // 말풍선 쪽 부모도 혹시 꺼져있으면 미리 깨워둔다 (partyPanel과 동일한 이유).
@@ -138,49 +144,133 @@ public class DialogueManager : MonoBehaviour
         if (balloonAnchor != null && balloon == null)
             Debug.LogWarning($"DialogueManager: {balloonAnchor.name} 아래에서 SpeechBalloonController를 찾지 못했습니다.");
 
-        foreach (DialogueLine line in sequence.lines)
-        {
-            if (line.ShouldUsePartyPanel())
-            {
-                // 이전 줄이 말풍선이었다면, 파티 창으로 넘어가기 전에 말풍선부터 꺼준다.
-                // (안 꺼주면 화자가 바뀌어도 말풍선이 화면에 계속 남아있음)
-                if (balloon != null) balloon.Hide();
-
-                // 파티 대사창은 한 줄 N자 / 페이지당 M줄로 자동 분할.
-                // 페이지마다 한 번씩 진행 입력을 받는다 (한 DialogueLine이 여러 페이지로 보일 수 있음).
-                List<string> pages = DialogueTextWrapper.SplitIntoPages(line.text, maxCharsPerLine, maxLinesPerPage);
-                foreach (string page in pages)
-                {
-                    partyPanel.ShowPage(line, page);
-                    activeDisplay = partyPanel;
-                    advanceRequested = false;
-                    yield return new WaitUntil(() => advanceRequested);
-                }
-                continue;
-            }
-            else if (balloon != null)
-            {
-                // 이전 줄이 파티 창이었다면, 말풍선으로 넘어가기 전에 파티 창부터 꺼준다.
-                partyPanel.Hide();
-
-                balloon.Show(line);
-                activeDisplay = balloon;
-            }
-            else
-            {
-                Debug.LogWarning("DialogueManager: 파티원이 아닌 화자인데 balloonAnchor가 없습니다. 대사를 건너뜁니다.");
-                activeDisplay = null;
-            }
-
-            advanceRequested = false;
-            yield return new WaitUntil(() => advanceRequested);
-        }
+        yield return PlayLines(sequence, balloon);
 
         activeDisplay = null;
         partyPanel.Hide();
         if (balloon != null) balloon.Hide();
 
+        if (gameOver)
+        {
+            // 게임오버: isPlaying을 true로 둔 채(필드 조작 잠금 유지) 게임오버 처리로 넘어간다. onComplete는 부르지 않는다.
+            HandleGameOver();
+            yield break;
+        }
+
         isPlaying = false;
         onComplete?.Invoke();
+    }
+
+    /// <summary>
+    /// 대사 묶음을 한 줄씩 재생. 전투 줄의 승리/패배 대화도 이 함수로 이어서 재생한다.
+    /// 게임오버가 되면 gameOver를 켜고 바로 빠져나온다.
+    /// </summary>
+    private IEnumerator PlayLines(DialogueSequence sequence, SpeechBalloonController balloon)
+    {
+        foreach (DialogueLine line in sequence.lines)
+        {
+            if (line.kind == DialogueLineKind.Battle)
+            {
+                // 대사(Text)가 적혀 있으면 전투 시작 전에 먼저 보여준다 (비어 있으면 바로 전투)
+                if (!string.IsNullOrWhiteSpace(line.text))
+                    yield return PlaySayLine(line, balloon);
+
+                // 전투 전에 떠 있는 창을 모두 정리하고, 전투가 끝날 때까지 기다린다.
+                if (balloon != null) balloon.Hide();
+                partyPanel.Hide();
+                activeDisplay = null;
+
+                yield return PlayBattleLine(line, balloon);
+                if (gameOver) yield break;
+                continue;
+            }
+
+            yield return PlaySayLine(line, balloon);
+        }
+    }
+
+    /// <summary>대사 한 줄을 파티 대사창 또는 말풍선으로 띄우고, 진행 입력을 받을 때까지 기다린다.</summary>
+    private IEnumerator PlaySayLine(DialogueLine line, SpeechBalloonController balloon)
+    {
+        if (line.ShouldUsePartyPanel())
+        {
+            // 이전 줄이 말풍선이었다면, 파티 창으로 넘어가기 전에 말풍선부터 꺼준다.
+            // (안 꺼주면 화자가 바뀌어도 말풍선이 화면에 계속 남아있음)
+            if (balloon != null) balloon.Hide();
+
+            // 파티 대사창은 한 줄 N자 / 페이지당 M줄로 자동 분할.
+            // 페이지마다 한 번씩 진행 입력을 받는다 (한 DialogueLine이 여러 페이지로 보일 수 있음).
+            List<string> pages = DialogueTextWrapper.SplitIntoPages(line.text, maxCharsPerLine, maxLinesPerPage);
+            foreach (string page in pages)
+            {
+                partyPanel.ShowPage(line, page);
+                activeDisplay = partyPanel;
+                advanceRequested = false;
+                yield return new WaitUntil(() => advanceRequested);
+            }
+            yield break;
+        }
+        else if (balloon != null)
+        {
+            // 이전 줄이 파티 창이었다면, 말풍선으로 넘어가기 전에 파티 창부터 꺼준다.
+            partyPanel.Hide();
+
+            balloon.Show(line);
+            activeDisplay = balloon;
+        }
+        else
+        {
+            Debug.LogWarning("DialogueManager: 파티원이 아닌 화자인데 balloonAnchor가 없습니다. 대사를 건너뜁니다.");
+            activeDisplay = null;
+        }
+
+        advanceRequested = false;
+        yield return new WaitUntil(() => advanceRequested);
+    }
+
+    /// <summary>전투 줄 하나: 전투 실행 → 결과에 따라 승리/패배 대화 재생 (또는 게임오버).</summary>
+    private IEnumerator PlayBattleLine(DialogueLine line, SpeechBalloonController balloon)
+    {
+        if (line.battle == null)
+        {
+            Debug.LogWarning("DialogueManager: 전투 줄인데 Battle 에셋이 비어 있습니다. 이 줄을 건너뜁니다.");
+            yield break;
+        }
+
+        BattleOutcome outcome = BattleOutcome.Failed;
+        yield return BattleLauncher.Run(line.battle, line.allowDefeat, o => outcome = o);
+
+        if (outcome == BattleOutcome.Victory)
+        {
+            if (line.onVictory != null) yield return PlayLines(line.onVictory, balloon);
+        }
+        else if (outcome == BattleOutcome.Defeat)
+        {
+            if (!line.allowDefeat)
+            {
+                gameOver = true;
+            }
+            else if (line.onDefeat != null)
+            {
+                yield return PlayLines(line.onDefeat, balloon);
+            }
+        }
+        // Failed(전투 씬을 못 불러옴): 에러는 BattleLauncher가 이미 로그에 남겼고, 대화는 그냥 다음 줄로 이어간다.
+    }
+
+    private void HandleGameOver()
+    {
+        BattleLauncher.ResetPartyHp();
+
+        if (string.IsNullOrEmpty(gameOverSceneName))
+        {
+            Debug.LogWarning("DialogueManager: Game Over Scene Name이 비어 있어 현재 씬을 다시 불러옵니다. " +
+                             "인스펙터에서 게임오버 씬 이름을 지정하세요 (Build Settings에 등록 필요).");
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
+        else
+        {
+            SceneManager.LoadScene(gameOverSceneName);
+        }
     }
 }

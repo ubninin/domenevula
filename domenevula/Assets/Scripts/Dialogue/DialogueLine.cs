@@ -24,12 +24,25 @@ public enum PartyPanelPosition
     Top,
 }
 
+/// <summary>이 줄이 하는 일.</summary>
+public enum DialogueLineKind
+{
+    [InspectorName("대사 (기본)")]
+    Say,
+    [InspectorName("전투 시작")]
+    Battle,
+}
+
 /// <summary>
 /// 대사 한 줄. DialogueSequence 안에 배열로 들어간다.
 /// </summary>
 [Serializable]
 public class DialogueLine
 {
+    [Tooltip("대사(기본) / 전투 시작. '전투 시작'이면 이 줄에서 전투가 열리고, 끝나면 아래 승리/패배 대화가 이어진 뒤 " +
+             "다음 줄로 넘어간다. 전투 줄에서는 Text 가 적혀 있으면 전투 시작 전에 그 대사(화자·표시 방식 설정 그대로)가 먼저 뜨고, 비어 있으면 바로 전투가 시작된다.")]
+    public DialogueLineKind kind = DialogueLineKind.Say;
+
     [Tooltip("이 줄을 말하는 캐릭터 (선택). 비워두면 아래 Portrait Override와 Display Mode를 직접 지정해서 " +
              "캐릭터 에셋 없이 이 줄 하나만으로 완결된 대사를 만들 수 있다. 자주 나오는 캐릭터는 에셋으로 " +
              "만들어두면 얼굴/파티 여부를 매번 다시 지정할 필요가 없어서 편함.")]
@@ -64,6 +77,19 @@ public class DialogueLine
 
     [Tooltip("말풍선 꼬리 이미지(SpeechBalloonTail)를 이 줄에서만 교체")]
     public Sprite balloonTailOverride;
+
+    [Header("[전투] Kind 가 '전투 시작'일 때만 사용 (Text 에 적은 대사는 전투 전에 먼저 나옴)")]
+    [Tooltip("시작할 전투. Project 창에서 Create → 도메네뷸라 → Battle Encounter 로 만든 에셋을 넣는다")]
+    public BattleEncounter battle;
+
+    [Tooltip("체크하면 패배해도 게임오버가 되지 않고 '패배 시 대화'로 이어진다. 체크 해제하면 패배 = 게임오버")]
+    public bool allowDefeat;
+
+    [Tooltip("승리했을 때 이어서 재생할 대화 (비워두면 바로 다음 줄)")]
+    public DialogueSequence onVictory;
+
+    [Tooltip("패배했을 때 이어서 재생할 대화 — Allow Defeat 가 체크된 경우에만 쓰인다 (비워두면 바로 다음 줄)")]
+    public DialogueSequence onDefeat;
 
     /// <summary>이 줄을 실제로 파티 대사창에 표시할지 계산.</summary>
     public bool ShouldUsePartyPanel()

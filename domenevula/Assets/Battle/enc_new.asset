@@ -1,0 +1,427 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e2cab816e04e174d8aaa4127eb62061, type: 3}
+  m_Name: enc_new
+  m_EditorClassIdentifier: 
+  enemy:
+    name: "\uC2DC\uD5D8\uC6A9 \uC801"
+    maxHP: 160
+    color: {r: 0.8, g: 0.3, b: 0.4, a: 1}
+    description: "{enemy}\uC774(\uAC00) \uB0AF\uC120 \uAE30\uC6B4\uC744 \uD48D\uAE30\uACE0
+      \uC788\uB2E4."
+    patterns:
+    - name: "\uBE44"
+      steps:
+      - time: 0
+        side: 0
+        laneSelect: 1
+        lane: 0
+        warning: 0.6
+        speed: 420
+        damage: 8
+        element: 0
+      - time: 0.8
+        side: 0
+        laneSelect: 1
+        lane: 0
+        warning: 0.6
+        speed: 420
+        damage: 8
+        element: 0
+      - time: 1.6
+        side: 0
+        laneSelect: 1
+        lane: 0
+        warning: 0.6
+        speed: 420
+        damage: 8
+        element: 0
+      - time: 2.4
+        side: 0
+        laneSelect: 1
+        lane: 0
+        warning: 0.6
+        speed: 420
+        damage: 8
+        element: 0
+      - time: 3.2
+        side: 0
+        laneSelect: 1
+        lane: 0
+        warning: 0.6
+        speed: 420
+        damage: 8
+        element: 0
+      - time: 4
+        side: 0
+        laneSelect: 1
+        lane: 0
+        warning: 0.6
+        speed: 420
+        damage: 8
+        element: 0
+    - name: "\uC591\uC606"
+      steps:
+      - time: 0
+        side: 2
+        laneSelect: 1
+        lane: 0
+        warning: 0.6
+        speed: 460
+        damage: 8
+        element: 3
+      - time: 0.9
+        side: 3
+        laneSelect: 1
+        lane: 0
+        warning: 0.6
+        speed: 460
+        damage: 8
+        element: 3
+      - time: 1.8
+        side: 2
+        laneSelect: 1
+        lane: 0
+        warning: 0.6
+        speed: 460
+        damage: 8
+        element: 3
+      - time: 2.6999998
+        side: 3
+        laneSelect: 1
+        lane: 0
+        warning: 0.6
+        speed: 460
+        damage: 8
+        element: 3
+      - time: 3.6
+        side: 2
+        laneSelect: 1
+        lane: 0
+        warning: 0.6
+        speed: 460
+        damage: 8
+        element: 3
+      - time: 4.5
+        side: 3
+        laneSelect: 1
+        lane: 0
+        warning: 0.6
+        speed: 460
+        damage: 8
+        element: 3
+    - name: "\uC870\uC900"
+      steps:
+      - time: 0
+        side: 0
+        laneSelect: 2
+        lane: 0
+        warning: 0.9
+        speed: 500
+        damage: 10
+        element: 1
+      - time: 1
+        side: 2
+        laneSelect: 2
+        lane: 0
+        warning: 0.9
+        speed: 500
+        damage: 10
+        element: 1
+      - time: 2
+        side: 1
+        laneSelect: 2
+        lane: 0
+        warning: 0.9
+        speed: 500
+        damage: 10
+        element: 1
+      - time: 3
+        side: 3
+        laneSelect: 2
+        lane: 0
+        warning: 0.9
+        speed: 500
+        damage: 10
+        element: 1
+    - name: "\uBCBD"
+      steps:
+      - time: 0
+        side: 1
+        laneSelect: 3
+        lane: 0
+        warning: 1
+        speed: 380
+        damage: 10
+        element: 2
+      - time: 2.2
+        side: 3
+        laneSelect: 3
+        lane: 0
+        warning: 1
+        speed: 380
+        damage: 10
+        element: 2
+    faces:
+      idle: {fileID: 0}
+      attack: {fileID: 0}
+      hit: {fileID: 0}
+      lowHp: {fileID: 0}
+      dead: {fileID: 0}
+      status: {fileID: 0}
+      element: {fileID: 0}
+  background: {fileID: 0}
+  wordTiers:
+  - name: "\uC790\uC74C"
+    words:
+    - "\u3131"
+    - "\u3134"
+    - "\u3137"
+    - "\u3139"
+    - "\u3141"
+    - "\u3142"
+    - "\u3145"
+    - "\u3147"
+    - "\u3148"
+    - "\u314A"
+    - "\u314B"
+    - "\u314C"
+    - "\u314D"
+    - "\u314E"
+    - "\u3132"
+    - "\u3138"
+    - "\u3143"
+    - "\u3146"
+    - "\u3149"
+    instantKey: 0
+  - name: "\uC790\uC74C\xB7\uBAA8\uC74C"
+    words:
+    - "\u3131"
+    - "\u3134"
+    - "\u3137"
+    - "\u3139"
+    - "\u3141"
+    - "\u3142"
+    - "\u3145"
+    - "\u3147"
+    - "\u3148"
+    - "\u314A"
+    - "\u314B"
+    - "\u314C"
+    - "\u314D"
+    - "\u314E"
+    - "\u314F"
+    - "\u3151"
+    - "\u3153"
+    - "\u3155"
+    - "\u3157"
+    - "\u315B"
+    - "\u315C"
+    - "\u3160"
+    - "\u3161"
+    - "\u3163"
+    instantKey: 0
+  - name: "\uD55C \uAE00\uC790"
+    words:
+    - "\uAC00"
+    - "\uB098"
+    - "\uB2E4"
+    - "\uB77C"
+    - "\uB9C8"
+    - "\uBC14"
+    - "\uC0AC"
+    - "\uC544"
+    - "\uC790"
+    - "\uCC28"
+    - "\uCE74"
+    - "\uD0C0"
+    - "\uD30C"
+    - "\uD558"
+    - "\uAC70"
+    - "\uB108"
+    - "\uB354"
+    - "\uB7EC"
+    - "\uBA38"
+    - "\uBC84"
+    - "\uC11C"
+    - "\uC5B4"
+    - "\uC800"
+    - "\uCC98"
+    - "\uCEE4"
+    - "\uD130"
+    - "\uD37C"
+    - "\uD5C8"
+    - "\uACE0"
+    - "\uB178"
+    - "\uB3C4"
+    - "\uB85C"
+    - "\uBAA8"
+    - "\uBCF4"
+    - "\uC18C"
+    - "\uC624"
+    - "\uC870"
+    - "\uCD08"
+    - "\uCF54"
+    - "\uD1A0"
+    - "\uD3EC"
+    - "\uD638"
+    - "\uAD6C"
+    - "\uB204"
+    - "\uB450"
+    - "\uB8E8"
+    - "\uBB34"
+    - "\uBD80"
+    - "\uC218"
+    - "\uC6B0"
+    - "\uC8FC"
+    - "\uCD94"
+    - "\uCFE0"
+    - "\uD22C"
+    - "\uD478"
+    - "\uD6C4"
+    instantKey: 0
+  - name: "\uB450 \uAE00\uC790"
+    words:
+    - "\uACF5\uACA9"
+    - "\uBC29\uC5B4"
+    - "\uD68C\uBCF5"
+    - "\uD558\uB298"
+    - "\uBC14\uB2E4"
+    - "\uAD6C\uB984"
+    - "\uBCC4\uBE5B"
+    - "\uB2EC\uBE5B"
+    - "\uB178\uC744"
+    - "\uBC14\uB78C"
+    - "\uAC70\uC6B8"
+    - "\uC2DC\uACC4"
+    - "\uC5F4\uC1E0"
+    - "\uAE30\uC5B5"
+    - "\uC57D\uC18D"
+    - "\uB9C8\uC74C"
+    - "\uB178\uB798"
+    - "\uC18C\uB9AC"
+    - "\uC5BC\uC74C"
+    - "\uBD88\uAF43"
+    - "\uBC88\uAC1C"
+    - "\uD3ED\uD48D"
+    - "\uD587\uC0B4"
+    - "\uB098\uBB34"
+    - "\uAF43\uC78E"
+    - "\uD558\uB8E8"
+    - "\uC5B4\uC81C"
+    - "\uB0B4\uC77C"
+    - "\uC6B0\uC8FC"
+    - "\uC740\uD558"
+    - "\uD589\uC131"
+    - "\uC2E0\uD638"
+    - "\uC5F0\uACB0"
+    - "\uC548\uB155"
+    - "\uCE5C\uAD6C"
+    - "\uC0AC\uB791"
+    - "\uC5EC\uB984"
+    - "\uACA8\uC6B8"
+    - "\uAC00\uC744"
+    - "\uC0C8\uBCBD"
+    - "\uC815\uC6D0"
+    - "\uB2E4\uB9AC"
+    - "\uACC4\uB2E8"
+    - "\uC9C0\uB3C4"
+    - "\uD3B8\uC9C0"
+    - "\uB098\uCE68\uBC18"
+    instantKey: 0
+  - name: "\uAE34 \uB2E8\uC5B4"
+    words:
+    - "\uB3C4\uC11C\uAD00"
+    - "\uB180\uC774\uD130"
+    - "\uBC1C\uC790\uAD6D"
+    - "\uADF8\uB9BC\uC790"
+    - "\uBB34\uC9C0\uAC1C"
+    - "\uB208\uC0AC\uB78C"
+    - "\uBCC4\uC790\uB9AC"
+    - "\uBE44\uBC00\uBC88\uD638"
+    - "\uC9C0\uD558\uCCA0"
+    - "\uC790\uB3D9\uCC28"
+    - "\uCEF4\uD4E8\uD130"
+    - "\uD0A4\uBCF4\uB4DC"
+    - "\uBAA8\uB2C8\uD130"
+    - "\uC2A4\uD53C\uCEE4"
+    - "\uC2DC\uAC04\uD45C"
+    - "\uC0AC\uB0E5\uAFBC"
+    - "\uB9C8\uBC95\uC0AC"
+    - "\uD0D0\uD5D8\uAC00"
+    - "\uC6B0\uCCB4\uAD6D"
+    - "\uD3B8\uC758\uC810"
+    - "\uC6B4\uB3D9\uC7A5"
+    - "\uD55C\uBC24\uC911"
+    - "\uC774\uC57C\uAE30"
+    - "\uACE0\uC591\uC774"
+    - "\uAC15\uC544\uC9C0"
+    - "\uB3C4\uC2DC\uB77D"
+    - "\uC804\uD654\uAE30"
+    - "\uC190\uC804\uB4F1"
+    - "\uC6B0\uC0B0\uAF42\uC774"
+    - "\uAC00\uB85C\uB4F1"
+    - "\uC2E0\uD638\uB4F1"
+    - "\uB180\uC774\uACF5\uC6D0"
+    - "\uB3C4\uBA54\uB124\uBDF8\uB77C"
+    - "\uB124\uBDF8\uB77C\uC2DC\uD2F0"
+    - "\uC5D0\uB374\uC758\uC528\uC557"
+    instantKey: 0
+  roundLayouts:
+  - fromRound: 1
+    columns: 3
+    rows: 2
+  - fromRound: 3
+    columns: 3
+    rows: 3
+  roundMessages: []
+  roundLines:
+  - fromRound: 1
+    party:
+    - actorName: "\uD558\uC728"
+      waiting: "\uC5B4\uB5BB\uAC8C \uD560\uAE4C?"
+      attack: "\uB0B4 \uACF5\uACA9\uC744 \uBC1B\uC544\uB77C!"
+      skill: '{skill}!'
+      guard: "\uBC84\uD168 \uBCFC\uAC8C!"
+    - actorName: "\uB77C\uC784"
+      waiting: "\uC74C\u2026 \uBB58 \uD558\uC9C0?"
+      attack: "\uC5D0\uC787!"
+      skill: '{skill}~!'
+      guard: "\uC870\uC2EC\uD574\uC57C\uC9C0."
+    enemyReaction: "\uC73C\uC73D, \uB108\uBB34 \uAC15\uD558\uC796\uC544!"
+    playerTurnStart:
+    - speaker: 1
+      actorName: "\uD558\uC728"
+      text: "\uC88B\uC544, \uC774\uC81C \uB0B4 \uCC28\uB840\uC57C!"
+      hideTail: 0
+      advance: 0
+    - speaker: 1
+      actorName: "\uB77C\uC784"
+      text: "\uD798\uB0B4 \uBCF4\uC790!"
+      hideTail: 0
+      advance: 0
+    enemyTurnStart:
+    - speaker: 0
+      actorName: 
+      text: "\uC774\uBC88\uC5D4 \uB0B4 \uCC28\uB840\uB2E4!"
+      hideTail: 0
+      advance: 0
+    - speaker: 1
+      actorName: "\uD558\uC728"
+      text: "\uC870\uC2EC\uD574!"
+      hideTail: 1
+      advance: 0
+    - speaker: 1
+      actorName: "\uB77C\uC784"
+      text: "\uD53C\uD574\uC57C \uD574!"
+      hideTail: 1
+      advance: 0
