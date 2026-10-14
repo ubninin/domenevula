@@ -248,10 +248,25 @@ public class BattleSettings
     [Range(0f, 1f)] public float inputFlashAlphaMin = 0.2f;
     [Tooltip("번쩍임이 지속되는 시간(초)")]
     [Min(0.05f)] public float inputFlashSeconds = 0.25f;
-    [Tooltip("지금 서 있는 칸의 단어를 쳐서 적을 공격했을 때 그 칸이 번쩍이는 색")]
-    public Color cellAttackColor = new Color(1f, 0.82f, 0.3f, 1f);
-    [Tooltip("다른 칸의 단어를 쳐서 이동(TP 획득)했을 때 그 칸이 번쩍이는 색")]
-    public Color cellMoveColor = new Color(0.45f, 0.95f, 0.6f, 1f);
+    [Header("플레이어(커서) 색")]
+    [Tooltip("평소 플레이어(커서)의 색")]
+    public Color soulColor = new Color(1f, 0.25f, 0.3f, 1f);
+    [Tooltip("지금 서 있는 칸의 단어를 쳐서 적을 공격했을 때 플레이어가 물드는 색")]
+    public Color soulAttackColor = new Color(1f, 0.82f, 0.3f, 1f);
+    [Tooltip("다른 칸의 단어를 쳐서 이동(TP 획득)했을 때 플레이어가 물드는 색")]
+    public Color soulMoveColor = new Color(0.45f, 0.95f, 0.6f, 1f);
+    [Tooltip("물들었다가 원래 색으로 돌아오는 데 걸리는 시간(초)")]
+    [Min(0.05f)] public float soulTintSeconds = 0.3f;
+
+    [Header("말풍선 대사 (플레이어 턴 행동 중 / 적 반응)")]
+    [Tooltip("Assets/Prefabs/Canvas_SpeechBalloon 프리팹을 끌어다 넣는다. 비우면 말풍선 대사는 나오지 않는다")]
+    public GameObject speechBalloonPrefab;
+    [Tooltip("글자가 다 나온 뒤 말풍선이 머무는 시간(초)")]
+    public float balloonHoldSeconds = 0.8f;
+    [Tooltip("적 말풍선 위치(픽셀): 적 그림 중심 기준. X=0 이면 꼬리가 적 중심 바로 위를 가리킨다. Y는 높이(클수록 위)")]
+    public Vector2 enemyBalloonPos = new Vector2(0f, 175f);
+    [Tooltip("아군 말풍선 위치(픽셀): 아군 얼굴 중심 기준. X=0 이면 꼬리가 얼굴 중심 바로 위를 가리킨다. X를 키우면 왼쪽 아군은 오른쪽으로, 오른쪽 아군은 왼쪽으로(화면 가운데 쪽) 밀린다")]
+    public Vector2 partyBalloonPos = new Vector2(0f, 190f);
 
     [Header("칸 표시")]
     [Tooltip("플레이어가 서 있는 칸의 색. 이 색의 A 값이 그대로 불투명도가 된다 (0 = 투명, 255 = 불투명)")]
@@ -346,6 +361,23 @@ public static class BattleDefaults
         };
     }
 
+    public static List<RoundLines> DefaultRoundLines()
+    {
+        return new List<RoundLines>
+        {
+            new RoundLines
+            {
+                fromRound = 1,
+                party = new List<ActorLine>
+                {
+                    new ActorLine { actorName = "하율", waiting = "어떻게 할까?", attack = "내 공격을 받아라!", skill = "{skill}!", guard = "버텨 볼게!" },
+                    new ActorLine { actorName = "라임", waiting = "음… 뭘 하지?", attack = "에잇!", skill = "{skill}~!", guard = "조심해야지." },
+                },
+                enemyReaction = "으윽, 너무 강하잖아!",
+            },
+        };
+    }
+
     public static BattleEnemy Enemy()
     {
         return new BattleEnemy { name = "시험용 적", maxHP = 160, patterns = Patterns() };
@@ -389,6 +421,30 @@ public static class BattleDefaults
     {
         return spaced.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
     }
+}
+
+/// <summary>한 아군의 말풍선 대사. {actor} {skill} {enemy} 를 쓸 수 있다. 비우면 그 행동엔 대사 없음.</summary>
+[Serializable]
+public class ActorLine
+{
+    [Tooltip("아군 이름 (Party 의 Name 과 같아야 한다)")] public string actorName = "";
+    [TextArea(1, 3)] [Tooltip("이 아군이 행동을 고르는 중(메뉴가 열려 있는 동안) 계속 떠 있는 대사")] public string waiting = "";
+    [TextArea(1, 3)] [Tooltip("공격 선택 시 대사")] public string attack = "";
+    [TextArea(1, 3)] [Tooltip("스킬 사용 시 대사 ({skill} = 스킬 이름)")] public string skill = "";
+    [TextArea(1, 3)] [Tooltip("방어 선택 시 대사")] public string guard = "";
+}
+
+/// <summary>
+/// "이 라운드부터 이 말풍선 대사들을 쓴다". 가장 큰 fromRound(현재 라운드 이하)가 적용된다.
+/// 라운드가 바뀔 때마다 새 항목을 추가해서 대사를 바꾼다.
+/// </summary>
+[Serializable]
+public class RoundLines
+{
+    [Tooltip("이 라운드부터 적용 (1부터). 다음 항목이 나올 때까지 계속 쓰인다")] public int fromRound = 1;
+    [Tooltip("플레이어 턴 행동 중 아군 대사")] public List<ActorLine> party = new List<ActorLine>();
+    [TextArea(1, 3)] [Tooltip("플레이어 턴이 끝난 뒤 적이 하는 반응 대사 (적 턴 배너 직전). {enemy} 사용 가능")]
+    public string enemyReaction = "";
 }
 
 /// <summary>"이 라운드부터 이 플레이어 턴 안내 문구를 쓴다". 가장 큰 fromRound(현재 라운드 이하)가 적용된다.</summary>

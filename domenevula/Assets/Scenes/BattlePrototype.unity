@@ -352,8 +352,14 @@ MonoBehaviour:
     inputFlashAlphaMax: 0.186
     inputFlashAlphaMin: 0.029
     inputFlashSeconds: 0.25
-    cellAttackColor: {r: 0.32131544, g: 1, b: 0.109803915, a: 0.05490196}
-    cellMoveColor: {r: 0, g: 0.9813695, b: 1, a: 0.0627451}
+    soulColor: {r: 1, g: 0.25, b: 0.3, a: 1}
+    soulAttackColor: {r: 1, g: 0.82, b: 0.3, a: 0.18039216}
+    soulMoveColor: {r: 0.45, g: 0.95, b: 0.6, a: 0.21176471}
+    soulTintSeconds: 0.3
+    speechBalloonPrefab: {fileID: 3466664535807944504, guid: 771670c57bd166f4eba1c00f7d6be898, type: 3}
+    balloonHoldSeconds: 0.8
+    enemyBalloonPos: {x: 0, y: 175}
+    partyBalloonPos: {x: 0, y: 190}
     currentCellColor: {r: 0.22, g: 0.25, b: 0.4, a: 0.16470589}
     cellBackColor: {r: 0.04, g: 0.04, b: 0.08, a: 1}
     hudPanelColor: {r: 0.1, g: 0.1, b: 0.15, a: 0.95}
@@ -379,18 +385,6 @@ MonoBehaviour:
     enterButtonSprite: {fileID: 0}
     enterButtonColor: {r: 0.25, g: 0.3, b: 0.5, a: 1}
   party:
-  - name: "\uD558\uC728"
-    maxHP: 80
-    attack: 12
-    color: {r: 1, g: 0.6, b: 0.7, a: 1}
-    face: {fileID: 0}
-    maxMP: 30
-    skills:
-    - name: "\uAC15\uD0C0"
-      kind: 0
-      tpCost: 30
-      power: 2.2
-      useTiming: 1
   - name: "\uB77C\uC784"
     maxHP: 70
     attack: 9
@@ -403,6 +397,18 @@ MonoBehaviour:
       tpCost: 40
       power: 35
       useTiming: 0
+  - name: "\uD558\uC728"
+    maxHP: 80
+    attack: 12
+    color: {r: 1, g: 0.6, b: 0.7, a: 1}
+    face: {fileID: 0}
+    maxMP: 30
+    skills:
+    - name: "\uAC15\uD0C0"
+      kind: 0
+      tpCost: 30
+      power: 2.2
+      useTiming: 1
   enemy:
     name: "\uC2DC\uD5D8\uC6A9 \uC801"
     maxHP: 160
@@ -784,6 +790,20 @@ MonoBehaviour:
     bandColor: {r: 0, g: 0, b: 0, a: 0.75}
     fontSize: 96
     imageSize: {x: 640, y: 180}
+  roundLines:
+  - fromRound: 1
+    party:
+    - actorName: "\uD558\uC728"
+      waiting: "\uC5B4\uB5BB\uAC8C \uD560\uAE4C?"
+      attack: "\uB0B4 \uACF5\uACA9\uC744 \uBC1B\uC544\uB77C!"
+      skill: '{skill}!'
+      guard: "\uBC84\uD168 \uBCFC\uAC8C!"
+    - actorName: "\uB77C\uC784"
+      waiting: "\uC74C\u2026 \uBB58 \uD558\uC9C0?"
+      attack: "\uC5D0\uC787!"
+      skill: '{skill}~!'
+      guard: "\uC870\uC2EC\uD574\uC57C\uC9C0."
+    enemyReaction: "\uC73C\uC73D, \uB108\uBB34 \uAC15\uD558\uC796\uC544!"
   roundMessages: []
   roundLayouts:
   - fromRound: 1

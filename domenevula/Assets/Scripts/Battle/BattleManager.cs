@@ -47,6 +47,9 @@ public class BattleManager : MonoBehaviour
     [Header("턴 전환 연출 (\"플레이어 턴!\" / \"적 턴!\") — 이미지는 나중에 여기서 교체")]
     public TurnBannerSettings turnBanner = new TurnBannerSettings();
 
+    [Header("라운드별 말풍선 대사 (Settings 의 Speech Balloon Prefab 필요). 라운드가 바뀔 때마다 항목을 추가해서 대사를 바꾼다")]
+    public List<RoundLines> roundLines = BattleDefaults.DefaultRoundLines();
+
     [Header("라운드별 플레이어 턴 안내 문구 (해당하는 항목이 없으면 Enemy 의 Description 이 쓰인다)")]
     public List<RoundMessage> roundMessages = new List<RoundMessage>();
 
@@ -169,6 +172,8 @@ public class BattleManager : MonoBehaviour
                 yield return ActionPhase();
                 if (battleOver) break;
 
+                yield return EnemyReaction(); // 플레이어 턴이 끝나면 적이 말풍선으로 한마디
+
                 yield return ui.ShowTurnBanner(turnBanner, turnBanner.enemyTurn);
                 yield return EnemyPhase();
             }
@@ -214,7 +219,9 @@ public class BattleManager : MonoBehaviour
             ui.SetActiveSlot(party.IndexOf(order[i]));
             var plan = new PlannedAction { actor = order[i] };
             int availableTp = tp - PlannedTpCost();
+            ShowWaitingLine(order[i]); // 고르는 동안 떠 있는 말풍선 대사
             yield return PlanOne(plan, availableTp);
+            ui.HideWaitBalloon();
 
             if (plan.cancelled)
             {
@@ -299,6 +306,8 @@ public class BattleManager : MonoBehaviour
             if (battleOver) yield break;
             if (!p.actor.IsAlive) continue;
 
+            yield return PlayerLine(p); // 행동 시작 전 말풍선 대사
+
             switch (p.kind)
             {
                 case ActionKind.Guard:
@@ -323,6 +332,65 @@ public class BattleManager : MonoBehaviour
                 yield break;
             }
         }
+    }
+
+    // ───────────────────────── 말풍선 대사 ─────────────────────────
+
+    /// <summary>이번 라운드에 적용되는 대사 묶음 (없으면 null).</summary>
+    private RoundLines CurrentLines()
+    {
+        RoundLines found = null;
+        int best = int.MinValue;
+        if (roundLines != null)
+        {
+            foreach (RoundLines l in roundLines)
+            {
+                if (l == null || l.fromRound > round || l.fromRound < best) continue;
+                best = l.fromRound; found = l;
+            }
+        }
+        return found;
+    }
+
+    private void ShowWaitingLine(BattleActor actor)
+    {
+        RoundLines lines = CurrentLines();
+        if (lines == null || lines.party == null) return;
+        ActorLine al = lines.party.Find(a => a != null && a.actorName == actor.name);
+        if (al == null) return;
+        ui.ShowWaitBalloon(party.IndexOf(actor), BattleMessages.Fill(al.waiting, enemy: enemy.name, actor: actor.name));
+    }
+
+    private IEnumerator PlayerLine(PlannedAction p)
+    {
+        RoundLines lines = CurrentLines();
+        if (lines == null || lines.party == null) yield break;
+
+        ActorLine al = lines.party.Find(a => a != null && a.actorName == p.actor.name);
+        if (al == null) yield break;
+
+        string text = "";
+        string skillName = "";
+        switch (p.kind)
+        {
+            case ActionKind.Guard: text = al.guard; break;
+            case ActionKind.Attack: text = al.attack; break;
+            case ActionKind.Skill:
+                BattleSkill sk = p.actor.skills[p.skillIndex];
+                if (tp < sk.tpCost) yield break; // TP가 모자라 못 쓰는 스킬은 대사도 없음
+                text = al.skill;
+                skillName = sk.name;
+                break;
+        }
+        text = BattleMessages.Fill(text, enemy: enemy.name, actor: p.actor.name, skill: skillName, action: skillName);
+        yield return ui.PartyBalloon(party.IndexOf(p.actor), text);
+    }
+
+    private IEnumerator EnemyReaction()
+    {
+        RoundLines lines = CurrentLines();
+        if (lines == null) yield break;
+        yield return ui.EnemyBalloon(BattleMessages.Fill(lines.enemyReaction, enemy: enemy.name));
     }
 
     private IEnumerator DoSkill(BattleActor actor, BattleSkill skill)
@@ -509,7 +577,7 @@ public class BattleManager : MonoBehaviour
         // 친 칸의 단어는 새 단어로 교체 (같은 단어 연타 방지)
         board.Refresh(idx);
         arena.SetWord(idx, board.Words[idx]);
-        arena.FlashCell(idx, attack);
+        arena.TintSoul(attack); // 칸이 아니라 플레이어 색조가 바뀐다
     }
 
     /// <summary>서 있는 칸의 단어: 이동 없이 적에게 추가 데미지.</summary>

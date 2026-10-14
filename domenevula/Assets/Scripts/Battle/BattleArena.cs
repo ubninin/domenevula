@@ -37,10 +37,8 @@ public class BattleArena : MonoBehaviour
     public event Action<int, BattleElement> SoulHit;
 
     private static readonly Color CellColor = new Color(0.10f, 0.11f, 0.17f, 0.92f);
-    private static readonly Color SoulColor = new Color(1f, 0.25f, 0.3f);
     private static readonly Color WordColor = new Color(1f, 1f, 1f, 0.95f);
     private static readonly Color WordCurrentColor = new Color(1f, 0.88f, 0.35f, 1f);
-    private const float CellFlashTime = 0.3f;
 
     private BattleSettings s;
     private TMP_FontAsset font;
@@ -51,8 +49,8 @@ public class BattleArena : MonoBehaviour
     private RectTransform cellLayer, warningLayer, soulLayer, bulletLayer, labelLayer, floatLayer;
     private Image[] cellImages;
     private TextMeshProUGUI[] cellLabels;
-    private float[] cellFlash;
-    private bool[] cellFlashAttack;
+    private float soulFlash;          // 남은 색조 변화 시간
+    private bool soulFlashAttack;
 
     private Image soulImg;
     private RectTransform soulRt;
@@ -133,8 +131,6 @@ public class BattleArena : MonoBehaviour
         int count = cols * rows;
         cellImages = new Image[count];
         cellLabels = new TextMeshProUGUI[count];
-        cellFlash = new float[count];
-        cellFlashAttack = new bool[count];
 
         for (int r = 0; r < rows; r++)
         {
@@ -156,7 +152,7 @@ public class BattleArena : MonoBehaviour
         }
 
         soulImg = BattleUIFactory.MakeImage("Soul", soulLayer, Vector2.zero, new Vector2(30f, 30f),
-                                            SoulColor, BattleUIFactory.CircleSprite);
+                                            s.soulColor, BattleUIFactory.CircleSprite);
         soulRt = soulImg.rectTransform;
         ApplyPose();
         ResetSoul();
@@ -235,12 +231,21 @@ public class BattleArena : MonoBehaviour
         cellLabels[idx].text = "<nobr>" + word + "</nobr>";
     }
 
-    /// <summary>칸을 번쩍인다. attack=true 면 공격 색(cellAttackColor), false 면 이동 색(cellMoveColor).</summary>
-    public void FlashCell(int idx, bool attack)
+    /// <summary>
+    /// 플레이어(커서)의 색조를 잠깐 바꿨다가 원래 색으로 돌아오게 한다.
+    /// attack=true 면 공격 색(soulAttackColor), false 면 이동 색(soulMoveColor).
+    /// </summary>
+    public void TintSoul(bool attack)
     {
-        if (idx < 0 || idx >= cellFlash.Length) return;
-        cellFlash[idx] = CellFlashTime;
-        cellFlashAttack[idx] = attack;
+        soulFlash = Mathf.Max(0.05f, s.soulTintSeconds);
+        soulFlashAttack = attack;
+    }
+
+    private Color CurrentSoulColor()
+    {
+        if (soulFlash <= 0f) return s.soulColor;
+        float k = Mathf.Clamp01(soulFlash / Mathf.Max(0.05f, s.soulTintSeconds));
+        return Color.Lerp(s.soulColor, soulFlashAttack ? s.soulAttackColor : s.soulMoveColor, k);
     }
 
     public void Float(string text, Vector2 localPos, Color color)
@@ -258,7 +263,8 @@ public class BattleArena : MonoBehaviour
         soulTarget = soulPos;
         soulRt.anchoredPosition = soulPos;
         invincible = 0f;
-        soulImg.color = SoulColor;
+        soulFlash = 0f;
+        soulImg.color = s.soulColor;
     }
 
     /// <summary>그 칸을 향해 직선 이동 시작 (이동 중이면 방향만 바뀜).</summary>
@@ -281,7 +287,7 @@ public class BattleArena : MonoBehaviour
             invincible = 0f;
             hitShake = 0f;
             if (soulRt != null) { soulRt.localScale = Vector3.one; soulRt.anchoredPosition = soulPos; }
-            if (soulImg != null) soulImg.color = SoulColor;
+            if (soulImg != null) soulImg.color = CurrentSoulColor();
         }
     }
 
@@ -366,7 +372,8 @@ public class BattleArena : MonoBehaviour
         {
             invincible -= dt;
             bool visible = invincible <= 0f || ((int)(Time.time * 16f) % 2 == 0);
-            soulImg.color = visible ? SoulColor : new Color(SoulColor.r, SoulColor.g, SoulColor.b, 0.25f);
+            Color sc = CurrentSoulColor();
+            soulImg.color = visible ? sc : new Color(sc.r, sc.g, sc.b, 0.25f);
         }
 
         UpdateWarnings(dt);
@@ -375,14 +382,12 @@ public class BattleArena : MonoBehaviour
 
     private void UpdateCellVisuals(float dt)
     {
+        if (soulFlash > 0f) soulFlash = Mathf.Max(0f, soulFlash - dt);
+        if (soulImg != null && invincible <= 0f) soulImg.color = CurrentSoulColor();
+
         for (int i = 0; i < cellImages.Length; i++)
         {
             Color c = (i == soulCell) ? s.currentCellColor : CellColor;
-            if (cellFlash[i] > 0f)
-            {
-                cellFlash[i] -= dt;
-                c = Color.Lerp(c, cellFlashAttack[i] ? s.cellAttackColor : s.cellMoveColor, Mathf.Clamp01(cellFlash[i] / CellFlashTime));
-            }
             cellImages[i].color = c;
             // 지금 서 있는 칸의 단어(= 치면 추가 공격)는 금색으로
             cellLabels[i].color = (i == soulCell) ? WordCurrentColor : WordColor;

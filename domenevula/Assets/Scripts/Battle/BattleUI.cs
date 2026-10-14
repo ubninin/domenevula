@@ -173,6 +173,8 @@ public class BattleUI : MonoBehaviour
         BuildTypingField();
         BuildMenu();
         BuildFaces(party); // 메뉴/선택 테두리보다 위에 그려지도록 그 뒤에
+        balloonLayer = BattleUIFactory.MakeRect("BalloonLayer", CanvasRect, Vector2.zero, Vector2.zero);
+        BattleUIFactory.Stretch(balloonLayer); // 말풍선은 얼굴/메뉴보다도 위
         BuildTiming();
         BuildResult();
         BuildTurnBanner(); // 맨 위에 그려지도록 마지막에
@@ -462,6 +464,127 @@ public class BattleUI : MonoBehaviour
                                             "", 17f, new Color(0.7f, 0.75f, 0.85f), font);
         AnchorTop(menuHint.rectTransform, MenuTopPad + MenuHeaderHeight + MenuHintHeight * 0.5f);
         menuPanel.SetActive(false);
+    }
+
+    // ───────────────────────── 말풍선 대사 (Canvas_SpeechBalloon 프리팹 재사용) ─────────────────────────
+
+    private RectTransform balloonLayer;
+    private readonly Dictionary<string, SpeechBalloonController> balloons = new Dictionary<string, SpeechBalloonController>();
+    private bool balloonWarned;
+
+    /// <summary>아군이 말풍선으로 대사를 한다 (글자가 다 나온 뒤 잠깐 머물고 사라질 때까지 대기).</summary>
+    public IEnumerator PartyBalloon(int index, string text)
+    {
+        if (index < 0 || index >= slots.Count || string.IsNullOrWhiteSpace(text)) yield break;
+        PartySlotUI s = slots[index];
+        Vector2 pos = s.face != null ? s.face.rectTransform.anchoredPosition : s.root.anchoredPosition;
+        Vector2 off = settings.partyBalloonPos;
+        if (index != 0) off.x = -off.x; // 오른쪽 아군은 화면 가운데 쪽(왼쪽)으로
+        yield return BalloonRoutine(GetBalloon("Party" + index, pos, off), text);
+    }
+
+    /// <summary>적이 말풍선으로 대사를 한다. 말풍선이 떠 있는 동안에만 적 이름/HP 바와 안내 메시지가 숨겨진다.</summary>
+    public IEnumerator EnemyBalloon(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) yield break;
+        SpeechBalloonController b = GetBalloon("Enemy", enemyCur, settings.enemyBalloonPos);
+        if (b == null) yield break;
+
+        SetEnemyInfoVisible(false);
+        yield return BalloonRoutine(b, text);
+        SetEnemyInfoVisible(true);
+    }
+
+    /// <summary>위쪽 적 패널(이름, HP 바)과 그에 붙은 안내 메시지를 켜고 끈다.</summary>
+    private void SetEnemyInfoVisible(bool visible)
+    {
+        if (enemyPanelRt != null) enemyPanelRt.gameObject.SetActive(visible);
+        if (enemyRowItems != null) foreach (RectTransform r in enemyRowItems) r.gameObject.SetActive(visible);
+        if (messageRoot != null) messageRoot.gameObject.SetActive(visible);
+    }
+
+    private SpeechBalloonController waitBalloon;
+
+    /// <summary>행동을 고르는 동안 아군 말풍선을 띄워 둔다 (기다리지 않고 바로 돌아온다). HideWaitBalloon 으로 끈다.</summary>
+    public void ShowWaitBalloon(int index, string text)
+    {
+        HideWaitBalloon();
+        if (index < 0 || index >= slots.Count || string.IsNullOrWhiteSpace(text)) return;
+        PartySlotUI s = slots[index];
+        Vector2 pos = s.face != null ? s.face.rectTransform.anchoredPosition : s.root.anchoredPosition;
+        Vector2 off = settings.partyBalloonPos; // 다른 아군 말풍선과 같은 위치
+        if (index != 0) off.x = -off.x;
+        SpeechBalloonController b = GetBalloon("Party" + index, pos, off);
+        if (b == null) return;
+        text = text.Replace("\\n", "\n").Replace("<br>", "\n");
+        b.Show(new DialogueLine { text = text });
+        waitBalloon = b;
+    }
+
+    public void HideWaitBalloon()
+    {
+        if (waitBalloon != null) waitBalloon.Hide();
+        waitBalloon = null;
+    }
+
+    private SpeechBalloonController GetBalloon(string key, Vector2 anchorPos, Vector2 bodyOffset)
+    {
+        if (settings.speechBalloonPrefab == null)
+        {
+            if (!balloonWarned)
+            {
+                balloonWarned = true;
+                Debug.LogWarning("[Battle] 말풍선 대사가 있지만 Settings 의 Speech Balloon Prefab 이 비어 있어 건너뜁니다.");
+            }
+            return null;
+        }
+
+        SpeechBalloonController b;
+        if (!balloons.TryGetValue(key, out b) || b == null)
+        {
+            GameObject go = Instantiate(settings.speechBalloonPrefab, balloonLayer, false);
+            go.name = "Balloon_" + key;
+            // 원래는 NPC에 붙는 World Space 캔버스(1/90 배율)라서, 화면 캔버스 안에서는 픽셀 1:1이 되도록 맞춘다
+            RectTransform rt = (RectTransform)go.transform;
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.sizeDelta = new Vector2(1600f, 900f);
+            rt.localScale = Vector3.one;
+            rt.localRotation = Quaternion.identity;
+            GraphicRaycaster gr = go.GetComponent<GraphicRaycaster>();
+            if (gr != null) gr.enabled = false; // 말풍선이 마우스 입력을 가로채지 않도록
+            b = go.GetComponentInChildren<SpeechBalloonController>(true);
+            if (b == null)
+            {
+                Debug.LogWarning("[Battle] Speech Balloon Prefab 에서 SpeechBalloonController 를 찾지 못했습니다.");
+                Destroy(go);
+                return null;
+            }
+            balloons[key] = b;
+        }
+
+        // 프리팹 전체를 말하는 쪽 위치에 두고, 말풍선 몸체(SpeechBalloonRoot)는 거기서 offset 만큼 떨어뜨린다
+        RectTransform canvasRt = (RectTransform)b.transform;
+        canvasRt.anchoredPosition3D = new Vector3(anchorPos.x, anchorPos.y, 0f);
+        Transform body = canvasRt.Find("SpeechBalloonRoot");
+        if (body != null) ((RectTransform)body).anchoredPosition = bodyOffset;
+        return b;
+    }
+
+    private IEnumerator BalloonRoutine(SpeechBalloonController b, string text)
+    {
+        if (b == null) yield break;
+        text = (text ?? "").Replace("\\n", "\n").Replace("<br>", "\n");
+
+        b.Show(new DialogueLine { text = text });
+        yield return null; // 이 행동을 고른 키 입력이 바로 스킵으로 처리되지 않도록
+        while (b.IsRevealing)
+        {
+            if (PressedConfirm() || PressedClick()) b.SkipReveal(); // 누르면 글자를 한 번에
+            yield return null;
+        }
+        yield return new WaitForSeconds(Mathf.Max(0f, settings.balloonHoldSeconds));
+        b.Hide();
     }
 
     // ───────────────────────── 플레이어 턴 ↔ 적 턴 배치 전환 ─────────────────────────
