@@ -40,7 +40,7 @@ public enum DialogueLineKind
 public class DialogueLine
 {
     [Tooltip("대사(기본) / 전투 시작. '전투 시작'이면 이 줄에서 전투가 열리고, 끝나면 아래 승리/패배 대화가 이어진 뒤 " +
-             "다음 줄로 넘어간다. 전투 줄에서는 맨 아래 [전투] 항목만 쓰이고 나머지(화자, 대사 등)는 무시된다.")]
+             "다음 줄로 넘어간다. 전투 줄에서는 Text 가 적혀 있으면 전투 시작 전에 그 대사(화자·표시 방식 설정 그대로)가 먼저 뜨고, 비어 있으면 바로 전투가 시작된다.")]
     public DialogueLineKind kind = DialogueLineKind.Say;
 
     [Tooltip("이 줄을 말하는 캐릭터 (선택). 비워두면 아래 Portrait Override와 Display Mode를 직접 지정해서 " +
@@ -78,7 +78,7 @@ public class DialogueLine
     [Tooltip("말풍선 꼬리 이미지(SpeechBalloonTail)를 이 줄에서만 교체")]
     public Sprite balloonTailOverride;
 
-    [Header("[전투] Kind 가 '전투 시작'일 때만 사용 (대사 줄에서는 무시됨)")]
+    [Header("[전투] Kind 가 '전투 시작'일 때만 사용 (Text 에 적은 대사는 전투 전에 먼저 나옴)")]
     [Tooltip("시작할 전투. Project 창에서 Create → 도메네뷸라 → Battle Encounter 로 만든 에셋을 넣는다")]
     public BattleEncounter battle;
 

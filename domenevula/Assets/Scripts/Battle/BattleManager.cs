@@ -169,6 +169,8 @@ public class BattleManager : MonoBehaviour
     private IEnumerator Run()
     {
         yield return null; // UI가 한 프레임 자리 잡을 시간
+        if (encounterMode)
+            while (!BattleLauncher.CanStart) yield return null; // 화면 전환 연출이 끝날 때까지 기다린다
 
         while (true)
         {

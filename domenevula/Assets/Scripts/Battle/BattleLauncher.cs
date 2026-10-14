@@ -37,6 +37,9 @@ public static class BattleLauncher
     /// <summary>true 면 패배해도 게임오버가 아니라 대화가 이어진다. (BattleManager 는 읽기만 함)</summary>
     public static bool AllowDefeat { get; private set; }
 
+    /// <summary>전환 연출이 끝나 전투를 시작해도 되는지. BattleManager 가 이 값이 true 가 될 때까지 기다렸다 시작한다.</summary>
+    public static bool CanStart { get; private set; }
+
     private static bool reported;
     private static bool reportedVictory;
 
@@ -79,12 +82,20 @@ public static class BattleLauncher
         Pending = encounter;
         AllowDefeat = allowDefeat;
         reported = false;
+        CanStart = false;
         Active = true;
 
+        // 1) 필드 화면을 덮는다
+        var overlay = new BattleTransitionOverlay(encounter != null ? encounter.transition : null);
+        yield return overlay.Cover();
+
+        // 2) 가려진 채로 전투 씬을 불러온다
         AsyncOperation load = SceneManager.LoadSceneAsync(BattleSceneName, LoadSceneMode.Additive);
         if (load == null)
         {
             Debug.LogError($"[Battle] '{BattleSceneName}' 씬을 불러오지 못했습니다. File > Build Profiles(Build Settings) 의 Scene List 에 씬을 추가했는지 확인하세요.");
+            yield return overlay.Reveal();
+            overlay.Destroy();
             Active = false;
             Pending = null;
             onDone?.Invoke(BattleOutcome.Failed);
@@ -94,15 +105,32 @@ public static class BattleLauncher
 
         DedupeSceneObjects(SceneManager.GetSceneByName(BattleSceneName));
 
+        yield return null; // 전투 UI 가 만들어질 시간
+        yield return null;
+        if (overlay.HoldSeconds > 0f) yield return new WaitForSeconds(overlay.HoldSeconds);
+
+        // 3) 걷어내면서 전투 시작
+        CanStart = true;
+        yield return overlay.Reveal();
+
         while (!reported) yield return null;
+
+        // 4) 전투가 끝나면 다시 덮고, 가려진 채로 전투 씬을 치운 뒤 필드로 돌아온다
+        yield return overlay.Cover();
 
         AsyncOperation unload = SceneManager.UnloadSceneAsync(BattleSceneName);
         if (unload != null)
             while (!unload.isDone) yield return null;
+        yield return null;
+        if (overlay.HoldSeconds > 0f) yield return new WaitForSeconds(overlay.HoldSeconds);
 
         Active = false;
         Pending = null;
+        CanStart = false;
         onDone?.Invoke(reportedVictory ? BattleOutcome.Victory : BattleOutcome.Defeat);
+
+        yield return overlay.Reveal(); // 필드 화면이 드러난다 (이 코루틴이 끝나야 대화가 이어진다)
+        overlay.Destroy();
     }
 
     /// <summary>BattleManager 가 전투가 끝났을 때 부른다.</summary>

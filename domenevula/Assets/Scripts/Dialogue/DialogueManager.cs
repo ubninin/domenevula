@@ -171,6 +171,10 @@ public class DialogueManager : MonoBehaviour
         {
             if (line.kind == DialogueLineKind.Battle)
             {
+                // 대사(Text)가 적혀 있으면 전투 시작 전에 먼저 보여준다 (비어 있으면 바로 전투)
+                if (!string.IsNullOrWhiteSpace(line.text))
+                    yield return PlaySayLine(line, balloon);
+
                 // 전투 전에 떠 있는 창을 모두 정리하고, 전투가 끝날 때까지 기다린다.
                 if (balloon != null) balloon.Hide();
                 partyPanel.Hide();
@@ -181,41 +185,47 @@ public class DialogueManager : MonoBehaviour
                 continue;
             }
 
-            if (line.ShouldUsePartyPanel())
-            {
-                // 이전 줄이 말풍선이었다면, 파티 창으로 넘어가기 전에 말풍선부터 꺼준다.
-                // (안 꺼주면 화자가 바뀌어도 말풍선이 화면에 계속 남아있음)
-                if (balloon != null) balloon.Hide();
-
-                // 파티 대사창은 한 줄 N자 / 페이지당 M줄로 자동 분할.
-                // 페이지마다 한 번씩 진행 입력을 받는다 (한 DialogueLine이 여러 페이지로 보일 수 있음).
-                List<string> pages = DialogueTextWrapper.SplitIntoPages(line.text, maxCharsPerLine, maxLinesPerPage);
-                foreach (string page in pages)
-                {
-                    partyPanel.ShowPage(line, page);
-                    activeDisplay = partyPanel;
-                    advanceRequested = false;
-                    yield return new WaitUntil(() => advanceRequested);
-                }
-                continue;
-            }
-            else if (balloon != null)
-            {
-                // 이전 줄이 파티 창이었다면, 말풍선으로 넘어가기 전에 파티 창부터 꺼준다.
-                partyPanel.Hide();
-
-                balloon.Show(line);
-                activeDisplay = balloon;
-            }
-            else
-            {
-                Debug.LogWarning("DialogueManager: 파티원이 아닌 화자인데 balloonAnchor가 없습니다. 대사를 건너뜁니다.");
-                activeDisplay = null;
-            }
-
-            advanceRequested = false;
-            yield return new WaitUntil(() => advanceRequested);
+            yield return PlaySayLine(line, balloon);
         }
+    }
+
+    /// <summary>대사 한 줄을 파티 대사창 또는 말풍선으로 띄우고, 진행 입력을 받을 때까지 기다린다.</summary>
+    private IEnumerator PlaySayLine(DialogueLine line, SpeechBalloonController balloon)
+    {
+        if (line.ShouldUsePartyPanel())
+        {
+            // 이전 줄이 말풍선이었다면, 파티 창으로 넘어가기 전에 말풍선부터 꺼준다.
+            // (안 꺼주면 화자가 바뀌어도 말풍선이 화면에 계속 남아있음)
+            if (balloon != null) balloon.Hide();
+
+            // 파티 대사창은 한 줄 N자 / 페이지당 M줄로 자동 분할.
+            // 페이지마다 한 번씩 진행 입력을 받는다 (한 DialogueLine이 여러 페이지로 보일 수 있음).
+            List<string> pages = DialogueTextWrapper.SplitIntoPages(line.text, maxCharsPerLine, maxLinesPerPage);
+            foreach (string page in pages)
+            {
+                partyPanel.ShowPage(line, page);
+                activeDisplay = partyPanel;
+                advanceRequested = false;
+                yield return new WaitUntil(() => advanceRequested);
+            }
+            yield break;
+        }
+        else if (balloon != null)
+        {
+            // 이전 줄이 파티 창이었다면, 말풍선으로 넘어가기 전에 파티 창부터 꺼준다.
+            partyPanel.Hide();
+
+            balloon.Show(line);
+            activeDisplay = balloon;
+        }
+        else
+        {
+            Debug.LogWarning("DialogueManager: 파티원이 아닌 화자인데 balloonAnchor가 없습니다. 대사를 건너뜁니다.");
+            activeDisplay = null;
+        }
+
+        advanceRequested = false;
+        yield return new WaitUntil(() => advanceRequested);
     }
 
     /// <summary>전투 줄 하나: 전투 실행 → 결과에 따라 승리/패배 대화 재생 (또는 게임오버).</summary>

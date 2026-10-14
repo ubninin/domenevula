@@ -14,6 +14,9 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "enc_new", menuName = "도메네뷸라/Battle Encounter")]
 public class BattleEncounter : ScriptableObject
 {
+    [Header("필드 ↔ 전투 전환 연출")]
+    public BattleTransitionSettings transition = new BattleTransitionSettings();
+
     [Header("적 (이름, HP, 설명, 공격 패턴)")]
     public BattleEnemy enemy = BattleDefaults.Enemy();
 
