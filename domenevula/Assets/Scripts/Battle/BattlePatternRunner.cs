@@ -99,7 +99,7 @@ public class BattlePatternRunner : MonoBehaviour
     private IEnumerator RunStep(PatternStep step)
     {
         List<int> lanes = PickLanes(step);
-        foreach (int lane in lanes) arena.ShowWarning(step.side, lane, step.warning);
+        foreach (int lane in lanes) arena.ShowWarning(step.side, lane, step.warning, step.element);
 
         yield return new WaitForSeconds(step.warning);
         if (!arena.IsRunning) yield break;

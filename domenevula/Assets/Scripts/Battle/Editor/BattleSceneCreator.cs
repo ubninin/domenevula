@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -49,7 +50,33 @@ public static class BattleSceneCreator
 
         EditorSceneManager.SaveScene(scene, ScenePath);
         AssetDatabase.Refresh();
+        AddToBuildSettings(); // 대화에서 전투를 시작하려면 Build Settings 에 있어야 한다
         Selection.activeGameObject = managerGo;
         Debug.Log("[Battle] 전투 프로토타입 씬을 만들었습니다: " + ScenePath + "  → 재생(▶) 해서 확인하세요.");
+    }
+
+    /// <summary>대화 → 전투 전환(BattleLauncher)은 씬을 이름으로 불러오므로 Build Settings 의 Scene List 에 있어야 한다.</summary>
+    [MenuItem("도메네뷸라/전투 씬을 Build Settings에 추가")]
+    public static void AddToBuildSettings()
+    {
+        if (AssetDatabase.LoadAssetAtPath<SceneAsset>(ScenePath) == null)
+        {
+            Debug.LogWarning($"[Battle] {ScenePath} 가 없습니다. 먼저 '전투 프로토타입 씬 만들기'를 실행하세요.");
+            return;
+        }
+
+        var scenes = new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
+        foreach (EditorBuildSettingsScene s in scenes)
+        {
+            if (s.path == ScenePath)
+            {
+                if (!s.enabled) { s.enabled = true; EditorBuildSettings.scenes = scenes.ToArray(); }
+                Debug.Log("[Battle] 전투 씬은 이미 Build Settings 에 있습니다.");
+                return;
+            }
+        }
+        scenes.Add(new EditorBuildSettingsScene(ScenePath, true));
+        EditorBuildSettings.scenes = scenes.ToArray();
+        Debug.Log("[Battle] 전투 씬을 Build Settings 의 Scene List 에 추가했습니다.");
     }
 }

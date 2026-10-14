@@ -30,6 +30,7 @@ public class BattleArena : MonoBehaviour
     private class Warning
     {
         public Image img;
+        public Image preview; // 격자 밖 발사 위치에 미리 띄우는 탄
         public float elapsed;
         public float duration;
     }
@@ -56,6 +57,7 @@ public class BattleArena : MonoBehaviour
     private Image soulImg;
     private RectTransform soulRt;
     private Vector2 soulPos, soulPrev, soulTarget;
+    private float soulCurSpeed; // 현재 이동 속도 (가속/감속용)
     private int soulCell;
     private float invincible;
     private float hitShake;
@@ -293,6 +295,7 @@ public class BattleArena : MonoBehaviour
         soulPos = CellCenter(soulCell);
         soulPrev = soulPos;
         soulTarget = soulPos;
+        soulCurSpeed = Mathf.Max(0f, s.soulStartSpeed);
         soulRt.anchoredPosition = soulPos;
         invincible = 0f;
         soulFlash = 0f;
@@ -305,6 +308,31 @@ public class BattleArena : MonoBehaviour
         if (idx < 0 || idx >= CellCount) return;
         soulCell = idx;
         soulTarget = CellCenter(idx);
+    }
+
+    /// <summary>이번 프레임에 움직일 거리. 가속도가 0 이하면 예전처럼 일정한 속도.</summary>
+    private float NextSoulStep(float dt)
+    {
+        float maxSpeed = s.soulSpeed;
+        if (s.soulAcceleration <= 0f && s.soulDeceleration <= 0f) return maxSpeed * dt;
+
+        Vector2 d = soulTarget - soulPos;
+        float dist = Mathf.Sqrt(d.x * d.x + d.y * d.y);
+        float startSpeed = Mathf.Clamp(s.soulStartSpeed, 0f, maxSpeed);
+        if (dist <= 0.01f) { soulCurSpeed = startSpeed; return 0f; } // 도착: 다음 출발을 위해 속도 초기화
+
+        float v = soulCurSpeed;
+        if (s.soulAcceleration > 0f) v = Mathf.Min(maxSpeed, Mathf.Max(v, startSpeed) + s.soulAcceleration * dt);
+        else v = maxSpeed;
+
+        if (s.soulDeceleration > 0f)
+        {
+            // 남은 거리 안에서 멈출 수 있는 속도 (v² = 2·a·d). 너무 느려져서 멈춰 서지 않도록 바닥값을 둔다
+            float brake = Mathf.Sqrt(2f * s.soulDeceleration * dist);
+            v = Mathf.Min(v, Mathf.Max(brake, Mathf.Max(startSpeed, 30f)));
+        }
+        soulCurSpeed = v;
+        return v * dt;
     }
 
     /// <summary>피격 연출: 플레이어(커서)가 흔들리며 잠깐 커진다.</summary>
@@ -325,7 +353,7 @@ public class BattleArena : MonoBehaviour
 
     // ───────────── 탄막 ─────────────
 
-    public void ShowWarning(AttackSide side, int lane, float duration)
+    public void ShowWarning(AttackSide side, int lane, float duration, BattleElement element = BattleElement.None)
     {
         Vector2 pos;
         Vector2 size;
@@ -341,7 +369,29 @@ public class BattleArena : MonoBehaviour
         }
 
         Image img = BattleUIFactory.MakeImage("Warning", warningLayer, pos, size, new Color(s.warningColor.r, s.warningColor.g, s.warningColor.b, Mathf.Min(s.warningAlphaMin, s.warningAlphaMax)));
-        warnings.Add(new Warning { img = img, duration = Mathf.Max(0.05f, duration) });
+        Image preview = null;
+        if (s.bulletPreview)
+        {
+            // 경고 동안 격자 밖 발사 위치에 탄을 미리 보여준다 (발사되면 같은 자리에서 그대로 출발)
+            float r = s.bulletRadius;
+            Vector2 start = SpawnPosition(side, LaneCoord(side, lane), r + 20f);
+            Color pc = ElementChart.ColorOf(element);
+            preview = BattleUIFactory.MakeImage("BulletPreview", warningLayer, start, new Vector2(r * 2f, r * 2f),
+                                                new Color(pc.r, pc.g, pc.b, s.bulletPreviewAlpha), BattleUIFactory.CircleSprite);
+        }
+        warnings.Add(new Warning { img = img, preview = preview, duration = Mathf.Max(0.05f, duration) });
+    }
+
+    /// <summary>탄이 격자 밖에서 출발하는 자리 (side 방향 바깥쪽, 레인 좌표 along).</summary>
+    private Vector2 SpawnPosition(AttackSide side, float along, float edge)
+    {
+        switch (side)
+        {
+            case AttackSide.Top: return new Vector2(along, halfH + edge);
+            case AttackSide.Bottom: return new Vector2(along, -halfH - edge);
+            case AttackSide.Left: return new Vector2(-halfW - edge, along);
+            default: return new Vector2(halfW + edge, along);
+        }
     }
 
     public void Fire(AttackSide side, int lane, float speed, int damage, BattleElement element)
@@ -350,14 +400,14 @@ public class BattleArena : MonoBehaviour
         float r = s.bulletRadius;
         float edge = r + 20f;
 
-        Vector2 pos;
+        Vector2 pos = SpawnPosition(side, along, edge);
         Vector2 vel;
         switch (side)
         {
-            case AttackSide.Top: pos = new Vector2(along, halfH + edge); vel = new Vector2(0f, -speed); break;
-            case AttackSide.Bottom: pos = new Vector2(along, -halfH - edge); vel = new Vector2(0f, speed); break;
-            case AttackSide.Left: pos = new Vector2(-halfW - edge, along); vel = new Vector2(speed, 0f); break;
-            default: pos = new Vector2(halfW + edge, along); vel = new Vector2(-speed, 0f); break;
+            case AttackSide.Top: vel = new Vector2(0f, -speed); break;
+            case AttackSide.Bottom: vel = new Vector2(0f, speed); break;
+            case AttackSide.Left: vel = new Vector2(speed, 0f); break;
+            default: vel = new Vector2(-speed, 0f); break;
         }
 
         Image img = BattleUIFactory.MakeImage("Bullet", bulletLayer, pos, new Vector2(r * 2f, r * 2f),
@@ -372,7 +422,10 @@ public class BattleArena : MonoBehaviour
         bullets.Clear();
 
         foreach (Warning w in warnings)
+        {
             if (w.img != null) Destroy(w.img.gameObject);
+            if (w.preview != null) Destroy(w.preview.gameObject);
+        }
         warnings.Clear();
     }
 
@@ -386,9 +439,9 @@ public class BattleArena : MonoBehaviour
         UpdateCellVisuals(dt);
         if (!running) return;
 
-        // 플레이어: 목적지를 향해 일정한 속도로 직선 이동
+        // 플레이어: 목적지를 향해 직선 이동 (가속/감속 설정이 있으면 속도가 변한다)
         soulPrev = soulPos;
-        soulPos = Vector2.MoveTowards(soulPos, soulTarget, s.soulSpeed * dt);
+        soulPos = Vector2.MoveTowards(soulPos, soulTarget, NextSoulStep(dt));
         Vector2 shakeOffset = Vector2.zero;
         if (hitShake > 0f)
         {
@@ -435,6 +488,7 @@ public class BattleArena : MonoBehaviour
             if (w.elapsed >= w.duration)
             {
                 Destroy(w.img.gameObject);
+                if (w.preview != null) Destroy(w.preview.gameObject);
                 warnings.RemoveAt(i);
                 continue;
             }

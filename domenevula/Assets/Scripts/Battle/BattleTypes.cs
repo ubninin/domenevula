@@ -140,6 +140,116 @@ public class BattleSkill
     }
 }
 
+/// <summary>얼굴/적 이미지가 바뀌는 상태.</summary>
+public enum FaceState
+{
+    Idle, Selecting, Attack, Skill, Guard, Hit, LowHp, Dead, Status, Element,
+}
+
+/// <summary>
+/// 상태별 색조. 얼굴/적 이미지(이미지가 없으면 색 네모/동그라미)에 곱해진다. 흰색 = 변화 없음.
+/// 이미지가 있어도 적용되므로, 이미지 없이 색조만으로 상태를 표현할 수도 있다.
+/// </summary>
+[Serializable]
+public class FaceTintSet
+{
+    public Color idle = Color.white;
+    public Color selecting = new Color(1f, 0.95f, 0.65f);
+    public Color attack = new Color(1f, 0.6f, 0.45f);
+    public Color skill = new Color(0.7f, 0.7f, 1f);
+    public Color guard = new Color(0.6f, 0.9f, 1f);
+    public Color hit = new Color(1f, 0.3f, 0.3f);
+    public Color lowHp = new Color(1f, 0.85f, 0.4f);
+    public Color dead = new Color(0.4f, 0.4f, 0.4f);
+    public Color status = new Color(0.8f, 0.5f, 1f);
+    public Color element = new Color(0.5f, 1f, 0.6f);
+
+    public Color Get(FaceState s)
+    {
+        switch (s)
+        {
+            case FaceState.Selecting: return selecting;
+            case FaceState.Attack: return attack;
+            case FaceState.Skill: return skill;
+            case FaceState.Guard: return guard;
+            case FaceState.Hit: return hit;
+            case FaceState.LowHp: return lowHp;
+            case FaceState.Dead: return dead;
+            case FaceState.Status: return status;
+            case FaceState.Element: return element;
+        }
+        return idle;
+    }
+}
+
+/// <summary>
+/// 아군 얼굴 이미지 (상태별). 비워 둔 칸은 건너뛰고 그 다음으로 우선순위가 높은 상태의 이미지, 마지막엔 Idle(없으면 Face)을 쓴다.
+/// 우선순위: 피격 > 공격/스킬/방어(행동 중) > 쓰러짐 > 상태이상/속성 > 방어 중 > HP 낮음 > 행동 선택 중 > 대기
+/// </summary>
+[Serializable]
+public class FaceSet
+{
+    [Tooltip("대기(평소). 비우면 위의 Face 를 쓴다")] public Sprite idle;
+    [Tooltip("행동을 고르는 중 (공격 대기)")] public Sprite selecting;
+    [Tooltip("공격하는 중")] public Sprite attack;
+    [Tooltip("스킬을 쓰는 중")] public Sprite skill;
+    [Tooltip("방어 (행동 중 + 방어 상태가 유지되는 동안)")] public Sprite guard;
+    [Tooltip("피격 (잠깐)")] public Sprite hit;
+    [Tooltip("HP 가 Low Hp Ratio 이하")] public Sprite lowHp;
+    [Tooltip("전투불능")] public Sprite dead;
+    [Tooltip("상태이상 (상태이상 시스템이 생기면 연결)")] public Sprite status;
+    [Tooltip("속성 적용됨 (속성 시스템이 생기면 연결)")] public Sprite element;
+
+    public Sprite Get(FaceState s)
+    {
+        switch (s)
+        {
+            case FaceState.Idle: return idle;
+            case FaceState.Selecting: return selecting;
+            case FaceState.Attack: return attack;
+            case FaceState.Skill: return skill;
+            case FaceState.Guard: return guard;
+            case FaceState.Hit: return hit;
+            case FaceState.LowHp: return lowHp;
+            case FaceState.Dead: return dead;
+            case FaceState.Status: return status;
+            case FaceState.Element: return element;
+        }
+        return null;
+    }
+}
+
+/// <summary>
+/// 적 이미지 (상태별). 비워 둔 칸은 건너뛴다. Idle 도 비어 있으면 Color 의 네모가 보인다.
+/// 우선순위: 피격 > 공격(적 턴) > 쓰러짐 > 상태이상/속성 > HP 낮음 > 대기
+/// </summary>
+[Serializable]
+public class EnemyFaceSet
+{
+    [Tooltip("대기(평소)")] public Sprite idle;
+    [Tooltip("공격 중 (적 턴 동안)")] public Sprite attack;
+    [Tooltip("피격 (잠깐)")] public Sprite hit;
+    [Tooltip("HP 가 Low Hp Ratio 이하")] public Sprite lowHp;
+    [Tooltip("쓰러짐 (HP 0)")] public Sprite dead;
+    [Tooltip("상태이상 (상태이상 시스템이 생기면 연결)")] public Sprite status;
+    [Tooltip("속성 적용됨 (속성 시스템이 생기면 연결)")] public Sprite element;
+
+    public Sprite Get(FaceState s)
+    {
+        switch (s)
+        {
+            case FaceState.Idle: return idle;
+            case FaceState.Attack: return attack;
+            case FaceState.Hit: return hit;
+            case FaceState.LowHp: return lowHp;
+            case FaceState.Dead: return dead;
+            case FaceState.Status: return status;
+            case FaceState.Element: return element;
+        }
+        return null;
+    }
+}
+
 [Serializable]
 public class BattleActor
 {
@@ -147,8 +257,10 @@ public class BattleActor
     public int maxHP = 80;
     public int attack = 10;
     public Color color = Color.white;
-    [Tooltip("상태창 왼쪽에 보이는 얼굴 이미지(Sprite). 비우면 캐릭터 색의 네모가 대신 보인다")]
+    [Tooltip("기본 얼굴 이미지(Sprite). 상태별 이미지(Faces)의 Idle 이 비어 있을 때 쓰인다. 둘 다 비우면 캐릭터 색의 동그라미가 보인다")]
     public Sprite face;
+    [Tooltip("상태별 얼굴 이미지 (행동 선택 중 / 공격 / 스킬 / 방어 / 피격 / HP 낮음 / 쓰러짐 / 상태이상 / 속성)")]
+    public FaceSet faces = new FaceSet();
     [Tooltip("MP 최대치. 지금은 표시만 하는 자리표시용이다 (MP 시스템은 나중에 별도로 만들 예정)")]
     public int maxMP = 30;
     public List<BattleSkill> skills = new List<BattleSkill>();
@@ -170,6 +282,8 @@ public class BattleEnemy
     [Tooltip("플레이어 턴이 시작될 때 위쪽 패널에 보이는 적 설명. {enemy} 는 적 이름으로 바뀌고, 줄바꿈은 \\n 또는 <br>. 비우면 아무것도 안 보인다")]
     public string description = "{enemy}이(가) 낯선 기운을 풍기고 있다.";
     public List<AttackPattern> patterns = new List<AttackPattern>();
+    [Tooltip("상태별 적 이미지 (대기 / 공격 / 피격 / HP 낮음 / 쓰러짐 / 상태이상 / 속성). 비우면 Color 의 네모가 보인다")]
+    public EnemyFaceSet faces = new EnemyFaceSet();
 
     [NonSerialized] public int hp;
 
@@ -191,6 +305,12 @@ public class BattleSettings
     [Header("이동 (타자로 칸을 지정하면 그 칸을 향해 직선 이동)")]
     [Tooltip("픽셀/초. 낮을수록 이동 중에 맞을 위험이 커진다. 칸 크기 140 기준 380이면 한 칸 이동에 약 0.37초")]
     public float soulSpeed = 380f;
+    [Tooltip("가속도 (픽셀/초²). 출발할 때 Soul Start Speed 에서 이 값으로 빨라져 Soul Speed(최고 속도)까지 올라간다. 0 이하면 가속 없이 처음부터 일정한 속도. 클수록 빨리 최고 속도에 도달 (2400 이면 최고 속도까지 약 0.16초)")]
+    public float soulAcceleration = 2400f;
+    [Tooltip("출발 속도 (픽셀/초). 가속을 쓸 때 정지 상태에서 움직이기 시작하는 속도")]
+    public float soulStartSpeed = 60f;
+    [Tooltip("감속도 (픽셀/초²). 목적지에 가까워지면 이 값으로 속도를 줄여 부드럽게 멈춘다. 0 이하면 감속 없이 최고 속도로 가다 바로 멈춘다")]
+    public float soulDeceleration = 0f;
     public float soulHitRadius = 10f;
     public float bulletRadius = 16f;
     [Tooltip("피격 후 무적 시간(초)")]
@@ -207,6 +327,10 @@ public class BattleSettings
     [Range(0f, 1f)] public float warningAlphaMax = 0.42f;
     [Tooltip("경고가 1초에 몇 번 깜빡이는지 (옅음→진함→옅음 = 1번). 클수록 빠르게 깜빡임")]
     [Range(0.5f, 20f)] public float warningBlinkPerSecond = 4.5f;
+    [Tooltip("체크하면 경고가 떠 있는 동안 격자 밖 발사 위치에 탄을 미리 보여준다 (어느 쪽에서 어느 방향으로 날아올지 예고)")]
+    public bool bulletPreview = true;
+    [Tooltip("미리 보이는 탄의 불투명도 (0 = 투명, 1 = 실제 탄과 같음)")]
+    [Range(0f, 1f)] public float bulletPreviewAlpha = 0.6f;
     [Tooltip("모든 탄 속도에 곱하는 배율. 1 = 패턴에 적은 속도 그대로, 낮을수록 느림")]
     [Range(0.2f, 2f)] public float bulletSpeedScale = 0.7f;
     [Tooltip("발사 템포 배율. 1 = 패턴에 적은 간격 그대로, 낮을수록 천천히(간격이 1/배율 배로 늘어남). 경고 시간은 그대로")]
@@ -271,8 +395,6 @@ public class BattleSettings
     public Vector2 enemyBalloonPos = new Vector2(0f, 175f);
     [Tooltip("아군 말풍선 위치(픽셀): 아군 얼굴 중심 기준. X=0 이면 꼬리가 얼굴 중심 바로 위를 가리킨다. X를 키우면 왼쪽 아군은 오른쪽으로, 오른쪽 아군은 왼쪽으로(화면 가운데 쪽) 밀린다")]
     public Vector2 partyBalloonPos = new Vector2(0f, 190f);
-    [Tooltip("켜면 적 턴 시작 대사 때 아군 말풍선의 꼬리를 숨긴다 (이때는 아군이 화면 가장자리에 있어 꼬리가 얼굴을 못 가리키므로)")]
-    public bool hidePartyTailAtEnemyTurnStart = true;
 
     [Header("칸 표시")]
     [Tooltip("플레이어가 서 있는 칸의 색. 이 색의 A 값이 그대로 불투명도가 된다 (0 = 투명, 255 = 불투명)")]
@@ -313,6 +435,24 @@ public class BattleSettings
     [Range(0.1f, 1f)] public float flatGridScaleY = 0.38f;
     [Tooltip("행동 메뉴창이 화면 옆에서 미끄러져 들어오는 시간(초)")]
     public float menuSlideSeconds = 0.25f;
+
+    [Header("얼굴 / 적 이미지 (상태별 이미지 설정은 Party 의 Faces, Enemy 의 Faces)")]
+    [Tooltip("체크하면 상태에 따라 얼굴/적 이미지의 색조가 바뀐다 (이미지가 없어도 색 동그라미/네모의 색이 바뀌어서 테스트하기 좋다)")]
+    public bool faceTintEnabled = true;
+    [Tooltip("상태별 색조 (아군·적 공통). 흰색 = 변화 없음. 이미지를 넣은 뒤에도 그대로 곱해진다")]
+    public FaceTintSet faceTints = new FaceTintSet();
+    [Tooltip("HP 가 최대 HP 의 이 비율 이하이면 'HP 낮음' 이미지를 쓴다 (0.3 = 30%)")]
+    [Range(0f, 1f)] public float lowHpRatio = 0.3f;
+    [Tooltip("피격 이미지가 보이는 시간(초)")]
+    public float faceHitSeconds = 0.6f;
+    [Tooltip("적 이미지가 그려지는 크기(픽셀). 이미지 비율은 유지된다")]
+    public Vector2 enemyImageSize = new Vector2(220f, 125f);
+
+    [Header("대화에서 시작된 전투")]
+    [Tooltip("승리/패배 문구를 보여준 뒤 필드로 돌아가기까지 기다리는 시간(초)")]
+    public float encounterEndHoldSeconds = 1.5f;
+    [Tooltip("전투 화면 Canvas 의 Sorting Order. 필드 쪽 UI 위에 덮이려면 크게 둔다")]
+    public int canvasSortingOrder = 1000;
 
     [Header("상태창 (상태이상 칸 / MP / Enter 버튼)")]
     [Tooltip("상태이상(속성) 칸 한 개의 크기(픽셀). 적/아군 모두 같은 크기")]
@@ -376,12 +516,21 @@ public static class BattleDefaults
                 fromRound = 1,
                 party = new List<ActorLine>
                 {
-                    new ActorLine { actorName = "하율", turnStart = "좋아, 이제 내 차례야!", enemyTurnStart = "조심해!", waiting = "어떻게 할까?", attack = "내 공격을 받아라!", skill = "{skill}!", guard = "버텨 볼게!" },
-                    new ActorLine { actorName = "라임", turnStart = "힘내 보자!", enemyTurnStart = "피해야 해!", waiting = "음… 뭘 하지?", attack = "에잇!", skill = "{skill}~!", guard = "조심해야지." },
+                    new ActorLine { actorName = "하율", waiting = "어떻게 할까?", attack = "내 공격을 받아라!", skill = "{skill}!", guard = "버텨 볼게!" },
+                    new ActorLine { actorName = "라임", waiting = "음… 뭘 하지?", attack = "에잇!", skill = "{skill}~!", guard = "조심해야지." },
                 },
                 enemyReaction = "으윽, 너무 강하잖아!",
-                enemyAtPlayerTurnStart = "",
-                enemyAtEnemyTurnStart = "이번엔 내 차례다!",
+                playerTurnStart = new List<SequenceLine>
+                {
+                    new SequenceLine { speaker = LineSpeaker.Party, actorName = "하율", text = "좋아, 이제 내 차례야!" },
+                    new SequenceLine { speaker = LineSpeaker.Party, actorName = "라임", text = "힘내 보자!" },
+                },
+                enemyTurnStart = new List<SequenceLine>
+                {
+                    new SequenceLine { speaker = LineSpeaker.Enemy, text = "이번엔 내 차례다!" },
+                    new SequenceLine { speaker = LineSpeaker.Party, actorName = "하율", text = "조심해!", hideTail = true },
+                    new SequenceLine { speaker = LineSpeaker.Party, actorName = "라임", text = "피해야 해!", hideTail = true },
+                },
             },
         };
     }
@@ -436,12 +585,36 @@ public static class BattleDefaults
 public class ActorLine
 {
     [Tooltip("아군 이름 (Party 의 Name 과 같아야 한다)")] public string actorName = "";
-    [TextArea(1, 3)] [Tooltip("플레이어 턴 시작 대사: UI 이동이 끝난 뒤, 행동 메뉴가 열리기 전에 잠깐 뜬다 (다른 아군/적 대사와 동시에)")] public string turnStart = "";
-    [TextArea(1, 3)] [Tooltip("적 턴 시작 대사: UI 이동이 끝난 뒤, 적 공격이 시작되기 전에 잠깐 뜬다 (적 대사와 동시에)")] public string enemyTurnStart = "";
     [TextArea(1, 3)] [Tooltip("이 아군이 행동을 고르는 중(메뉴가 열려 있는 동안) 계속 떠 있는 대사")] public string waiting = "";
     [TextArea(1, 3)] [Tooltip("공격 선택 시 대사")] public string attack = "";
     [TextArea(1, 3)] [Tooltip("스킬 사용 시 대사 ({skill} = 스킬 이름)")] public string skill = "";
     [TextArea(1, 3)] [Tooltip("방어 선택 시 대사")] public string guard = "";
+}
+
+/// <summary>누가 말하는지.</summary>
+public enum LineSpeaker
+{
+    [InspectorName("적")] Enemy,
+    [InspectorName("아군")] Party,
+}
+
+/// <summary>턴 시작 대사 한 줄이 넘어가는 방식.</summary>
+public enum LineAdvance
+{
+    [InspectorName("입력 대기 (키/클릭으로 넘김)")] WaitInput,
+    [InspectorName("동시에 표시 (시간이 지나면 사라짐)")] Timed,
+}
+
+/// <summary>턴 시작 대사 목록의 한 줄. 목록 순서대로 하나씩 뜬다. {enemy} {actor} 사용 가능.</summary>
+[Serializable]
+public class SequenceLine
+{
+    [Tooltip("말하는 쪽. 적이면 적에게, 아군이면 아래 Actor Name 의 아군에게 말풍선이 뜬다")] public LineSpeaker speaker = LineSpeaker.Enemy;
+    [Tooltip("Speaker 가 '아군'일 때 누가 말하는지 (Party 의 Name 과 같아야 한다). 쓰러진 아군의 줄은 건너뛴다")] public string actorName = "";
+    [TextArea(1, 3)] [Tooltip("대사. 비우면 이 줄은 건너뛴다. 줄바꿈은 \\n 또는 <br>")] public string text = "";
+    [Tooltip("체크하면 이 줄의 말풍선 꼬리를 숨긴다")] public bool hideTail = false;
+    [Tooltip("입력 대기: 이 줄만 뜨고, 진행 키(Enter/Z/Space/클릭)를 누르면 다음 줄로 넘어간다.\n동시에 표시: 목록에서 바로 이어지는 '동시에 표시' 줄들이 한꺼번에 뜨고, Settings 의 Balloon Hold Seconds 만큼 머문 뒤 함께 사라진다")]
+    public LineAdvance advance = LineAdvance.WaitInput;
 }
 
 /// <summary>
@@ -455,10 +628,10 @@ public class RoundLines
     [Tooltip("플레이어 턴 행동 중 아군 대사")] public List<ActorLine> party = new List<ActorLine>();
     [TextArea(1, 3)] [Tooltip("플레이어 턴이 끝난 뒤 적이 하는 반응 대사 (적 턴 배너 직전). {enemy} 사용 가능")]
     public string enemyReaction = "";
-    [TextArea(1, 3)] [Tooltip("플레이어 턴 시작 때 적도 함께 하는 대사 (아군의 Turn Start 대사와 동시에 뜨고, 그동안 적 이름/HP 바가 숨겨진다)")]
-    public string enemyAtPlayerTurnStart = "";
-    [TextArea(1, 3)] [Tooltip("적 턴 시작 때 적이 하는 대사 (아군의 Enemy Turn Start 대사와 동시에 뜬다)")]
-    public string enemyAtEnemyTurnStart = "";
+    [Tooltip("플레이어 턴 시작 대사 목록. 위에서부터 한 줄씩 차례로 뜨고, 진행 키(Enter/Z/Space/클릭)를 누르면 다음 줄로 넘어간다. 전부 끝나면 행동 메뉴가 열린다. 적이 말하는 줄에서는 적 이름/HP 바가 숨겨진다")]
+    public List<SequenceLine> playerTurnStart = new List<SequenceLine>();
+    [Tooltip("적 턴 시작 대사 목록. 방식은 위와 같고, 전부 끝나면 적 공격이 시작된다")]
+    public List<SequenceLine> enemyTurnStart = new List<SequenceLine>();
 }
 
 /// <summary>"이 라운드부터 이 플레이어 턴 안내 문구를 쓴다". 가장 큰 fromRound(현재 라운드 이하)가 적용된다.</summary>

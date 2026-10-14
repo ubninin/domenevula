@@ -321,6 +321,9 @@ MonoBehaviour:
     arenaMaxWidth: 900
     arenaMaxHeight: 520
     soulSpeed: 500
+    soulAcceleration: 2400
+    soulStartSpeed: 60
+    soulDeceleration: 0
     soulHitRadius: 10
     bulletRadius: 16
     invincibleSeconds: 0.8
@@ -330,6 +333,8 @@ MonoBehaviour:
     warningAlphaMin: 0.127
     warningAlphaMax: 0.221
     warningBlinkPerSecond: 1.17
+    bulletPreview: 1
+    bulletPreviewAlpha: 0.6
     bulletSpeedScale: 0.994
     patternTempoScale: 0.332
     hitTarget: 0
@@ -352,6 +357,7 @@ MonoBehaviour:
     inputFlashAlphaMax: 0.186
     inputFlashAlphaMin: 0.029
     inputFlashSeconds: 0.25
+    gridMorphSeconds: 0.35
     soulColor: {r: 1, g: 0.25, b: 0.3, a: 1}
     soulAttackColor: {r: 1, g: 0.82, b: 0.3, a: 0.18039216}
     soulMoveColor: {r: 0.45, g: 0.95, b: 0.6, a: 0.21176471}
@@ -375,6 +381,23 @@ MonoBehaviour:
     enemyAttackDelaySeconds: 0.5
     flatGridScaleY: 0.38
     menuSlideSeconds: 0.25
+    faceTintEnabled: 1
+    faceTints:
+      idle: {r: 1, g: 1, b: 1, a: 1}
+      selecting: {r: 1, g: 0.95, b: 0.65, a: 1}
+      attack: {r: 1, g: 0.6, b: 0.45, a: 1}
+      skill: {r: 0.7, g: 0.7, b: 1, a: 1}
+      guard: {r: 0.6, g: 0.9, b: 1, a: 1}
+      hit: {r: 1, g: 0.3, b: 0.3, a: 1}
+      lowHp: {r: 1, g: 0.85, b: 0.4, a: 1}
+      dead: {r: 0.4, g: 0.4, b: 0.4, a: 1}
+      status: {r: 0.8, g: 0.5, b: 1, a: 1}
+      element: {r: 0.5, g: 1, b: 0.6, a: 1}
+    lowHpRatio: 0.3
+    faceHitSeconds: 0.6
+    enemyImageSize: {x: 220, y: 125}
+    encounterEndHoldSeconds: 1.5
+    canvasSortingOrder: 0
     statusIconPx: 64
     statusSlotCount: 5
     statusSlotColor: {r: 0, g: 0, b: 0, a: 0.45}
@@ -390,6 +413,17 @@ MonoBehaviour:
     attack: 9
     color: {r: 0.6, g: 1, b: 0.5, a: 1}
     face: {fileID: 0}
+    faces:
+      idle: {fileID: 0}
+      selecting: {fileID: 0}
+      attack: {fileID: 0}
+      skill: {fileID: 0}
+      guard: {fileID: 0}
+      hit: {fileID: 0}
+      lowHp: {fileID: 0}
+      dead: {fileID: 0}
+      status: {fileID: 0}
+      element: {fileID: 0}
     maxMP: 30
     skills:
     - name: "\uCE58\uC720"
@@ -402,6 +436,17 @@ MonoBehaviour:
     attack: 12
     color: {r: 1, g: 0.6, b: 0.7, a: 1}
     face: {fileID: 0}
+    faces:
+      idle: {fileID: 0}
+      selecting: {fileID: 0}
+      attack: {fileID: 0}
+      skill: {fileID: 0}
+      guard: {fileID: 0}
+      hit: {fileID: 0}
+      lowHp: {fileID: 0}
+      dead: {fileID: 0}
+      status: {fileID: 0}
+      element: {fileID: 0}
     maxMP: 30
     skills:
     - name: "\uAC15\uD0C0"
@@ -560,6 +605,14 @@ MonoBehaviour:
         speed: 380
         damage: 10
         element: 2
+    faces:
+      idle: {fileID: 0}
+      attack: {fileID: 0}
+      hit: {fileID: 0}
+      lowHp: {fileID: 0}
+      dead: {fileID: 0}
+      status: {fileID: 0}
+      element: {fileID: 0}
   wordTiers:
   - name: "\uC790\uC74C"
     words:
@@ -804,6 +857,58 @@ MonoBehaviour:
       skill: '{skill}~!'
       guard: "\uC870\uC2EC\uD574\uC57C\uC9C0."
     enemyReaction: "\uC73C\uC73D, \uB108\uBB34 \uAC15\uD558\uC796\uC544!"
+    playerTurnStart:
+    - speaker: 1
+      actorName: "\uD558\uC728"
+      text: "\uC88B\uC544, \uC774\uC81C \uB0B4 \uCC28\uB840\uC57C!"
+      hideTail: 0
+      advance: 0
+    - speaker: 1
+      actorName: "\uD558\uC728"
+      text: "\uB0B4\uCC28\uB844\uAC00?"
+      hideTail: 0
+      advance: 0
+    - speaker: 1
+      actorName: "\uB77C\uC784"
+      text: "\uD798\uB0B4 \uBCF4\uC790!"
+      hideTail: 0
+      advance: 1
+    - speaker: 1
+      actorName: "\uD558\uC728"
+      text: "\uBBF8\uCE5C\uBBF8\uCE5C!!"
+      hideTail: 0
+      advance: 1
+    enemyTurnStart:
+    - speaker: 0
+      actorName: 
+      text: "\uC774\uBC88\uC5D4 \uB0B4 \uCC28\uB840\uB2E4!"
+      hideTail: 0
+      advance: 0
+    - speaker: 1
+      actorName: "\uD558\uC728"
+      text: "\uC870\uC2EC\uD574!"
+      hideTail: 1
+      advance: 0
+    - speaker: 1
+      actorName: "\uB77C\uC784"
+      text: "\uD53C\uD574\uC57C \uD574!"
+      hideTail: 1
+      advance: 0
+  - fromRound: 2
+    party:
+    - actorName: "\uD558\uC728"
+      waiting: "\uC5B4\uB5BB\uAC8C \uD560\uAE4C?"
+      attack: "\uB0B4 \uACF5\uACA9\uC744 \uBC1B\uC544\uB77C!"
+      skill: '{skill}!'
+      guard: "\uBC84\uD168 \uBCFC\uAC8C!"
+    - actorName: "\uB77C\uC784"
+      waiting: "\uC74C\u2026 \uBB58 \uD558\uC9C0?"
+      attack: "\uC5D0\uC787!"
+      skill: '{skill}~!'
+      guard: "\uC870\uC2EC\uD574\uC57C\uC9C0."
+    enemyReaction: 
+    playerTurnStart: []
+    enemyTurnStart: []
   roundMessages: []
   roundLayouts:
   - fromRound: 1

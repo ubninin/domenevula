@@ -83,14 +83,29 @@ public class BattleManager : MonoBehaviour
     private bool battleOver;
     private bool victory;
     private bool enemyPhaseActive;
+    private bool encounterMode; // 대화에서 BattleLauncher 로 시작된 전투인가 (false = 전투 씬 단독 재생)
 
     // ───────────────────────── 시작 ─────────────────────────
 
     private void Start()
     {
+        encounterMode = BattleLauncher.Active;
+        if (encounterMode && BattleLauncher.Pending != null) ApplyEncounter(BattleLauncher.Pending);
         EnsureEventSystem();
         BuildAll();
         StartCoroutine(Run());
+    }
+
+    /// <summary>BattleEncounter 에셋의 내용으로 이 전투의 적/단어/라운드 설정을 바꿔치기한다.</summary>
+    private void ApplyEncounter(BattleEncounter e)
+    {
+        if (e.enemy != null) enemy = e.enemy;
+        if (e.background != null) battleBackground = e.background;
+        if (e.wordTiers != null && e.wordTiers.Count > 0) wordTiers = e.wordTiers;
+        roundLayouts = e.roundLayouts ?? new List<RoundLayout>();
+        roundMessages = e.roundMessages ?? new List<RoundMessage>();
+        roundLines = e.roundLines ?? new List<RoundLines>();
+        Debug.Log($"[Battle] 인카운터 적용: {e.name} (적 {enemy.name})");
     }
 
     private static void EnsureEventSystem()
@@ -127,7 +142,13 @@ public class BattleManager : MonoBehaviour
 
     private void ResetState()
     {
-        foreach (BattleActor a in party) { a.hp = a.maxHP; a.mp = a.maxMP; a.guarding = false; }
+        foreach (BattleActor a in party)
+        {
+            // 대화에서 시작한 전투는 지난 전투의 HP 를 이어받는다 (0 이하면 1). 단독 재생은 항상 풀 HP.
+            a.hp = encounterMode ? BattleLauncher.GetStartHp(a) : a.maxHP;
+            a.mp = a.maxMP;
+            a.guarding = false;
+        }
         enemy.hp = enemy.maxHP;
         tp = 0;
         round = 0;
@@ -155,6 +176,7 @@ public class BattleManager : MonoBehaviour
             arena.SetRunning(false);
             arena.ResetSoul();
             ui.HideResult();
+            ui.ResetFaces();
             ui.SetLayoutInstant(false); // 플레이어 턴 배치로 시작
             Refresh();
             yield return ui.SayFor(BattleMessages.Fill(messages.encounter, enemy: enemy.name), 1.2f);
@@ -181,6 +203,7 @@ public class BattleManager : MonoBehaviour
             }
 
             yield return Finish();
+            if (encounterMode) yield break; // 대화에서 시작한 전투는 한 번 끝나면 그걸로 끝 (다시 시작 없음)
         }
     }
 
@@ -193,6 +216,16 @@ public class BattleManager : MonoBehaviour
 
         BattleFinished?.Invoke(victory);
         ui.Say(victory ? BattleMessages.Fill(messages.victory, enemy: enemy.name) : BattleMessages.Fill(messages.defeat, enemy: enemy.name));
+
+        if (encounterMode)
+        {
+            // 결과 화면/재시작 없이 문구만 잠깐 보여준 뒤 필드(대화)로 돌아간다.
+            BattleLauncher.SaveHp(party);
+            yield return new WaitForSeconds(settings.encounterEndHoldSeconds);
+            BattleLauncher.Report(victory);
+            yield break;
+        }
+
         yield return new WaitForSeconds(0.8f);
         ui.ShowResult(victory);
         yield return ui.WaitForConfirm();
@@ -308,6 +341,9 @@ public class BattleManager : MonoBehaviour
             if (battleOver) yield break;
             if (!p.actor.IsAlive) continue;
 
+            int pIdx = party.IndexOf(p.actor);
+            ui.HoldPartyFace(pIdx, p.kind == ActionKind.Attack ? FaceState.Attack : p.kind == ActionKind.Skill ? FaceState.Skill : FaceState.Guard);
+
             yield return PlayerLine(p); // 행동 시작 전 말풍선 대사
 
             switch (p.kind)
@@ -326,6 +362,7 @@ public class BattleManager : MonoBehaviour
                     yield return DoSkill(p.actor, p.actor.skills[p.skillIndex]);
                     break;
             }
+            ui.ClearPartyFace(pIdx); // 행동 중 얼굴 해제 (방어 상태는 guarding 으로 계속 유지됨)
 
             if (enemy.hp <= 0)
             {
@@ -354,38 +391,55 @@ public class BattleManager : MonoBehaviour
         return found;
     }
 
-    /// <summary>플레이어 턴 시작 대사: 살아 있는 아군(Turn Start)과 적(Enemy At Player Turn Start)이 동시에 말한다.</summary>
+    /// <summary>플레이어 턴 시작 대사: 목록 순서대로 한 줄씩, 진행 키로 넘긴다.</summary>
     private IEnumerator PlayerTurnStartLines()
     {
         RoundLines lines = CurrentLines();
-        if (lines == null) yield break;
-        var specs = new List<BattleUI.BalloonSpec>();
-        if (lines.party != null)
-            foreach (BattleActor a in party)
-            {
-                if (!a.IsAlive) continue;
-                ActorLine al = lines.party.Find(x => x != null && x.actorName == a.name);
-                if (al != null) specs.Add(BattleUI.BalloonSpec.Party(party.IndexOf(a), BattleMessages.Fill(al.turnStart, enemy: enemy.name, actor: a.name)));
-            }
-        specs.Add(BattleUI.BalloonSpec.Enemy(BattleMessages.Fill(lines.enemyAtPlayerTurnStart, enemy: enemy.name)));
-        yield return ui.BalloonGroup(specs);
+        if (lines != null) yield return PlaySequence(lines.playerTurnStart);
     }
 
-    /// <summary>적 턴 시작 대사: 적(Enemy At Enemy Turn Start)과 살아 있는 아군(Enemy Turn Start)이 동시에 말한다.</summary>
+    /// <summary>적 턴 시작 대사: 목록 순서대로 한 줄씩, 진행 키로 넘긴다.</summary>
     private IEnumerator EnemyTurnStartLines()
     {
         RoundLines lines = CurrentLines();
-        if (lines == null) yield break;
-        var specs = new List<BattleUI.BalloonSpec>();
-        if (lines.party != null)
-            foreach (BattleActor a in party)
+        if (lines != null) yield return PlaySequence(lines.enemyTurnStart);
+    }
+
+    /// <summary>
+    /// 대사 목록 재생. 입력 대기 줄은 하나씩 뜨고 키/클릭으로 넘어가며,
+    /// 목록에서 바로 이어지는 '동시에 표시' 줄들은 한 묶음으로 같이 떴다가 시간이 지나면 함께 사라진다.
+    /// </summary>
+    private IEnumerator PlaySequence(List<SequenceLine> seq)
+    {
+        if (seq == null || seq.Count == 0) yield break;
+        var timedGroup = new List<BattleUI.BalloonSpec>();
+        foreach (SequenceLine l in seq)
+        {
+            if (l == null || string.IsNullOrWhiteSpace(l.text)) continue;
+
+            BattleUI.BalloonSpec spec;
+            if (l.speaker == LineSpeaker.Enemy)
             {
-                if (!a.IsAlive) continue;
-                ActorLine al = lines.party.Find(x => x != null && x.actorName == a.name);
-                if (al != null) specs.Add(BattleUI.BalloonSpec.Party(party.IndexOf(a), BattleMessages.Fill(al.enemyTurnStart, enemy: enemy.name, actor: a.name), settings.hidePartyTailAtEnemyTurnStart));
+                spec = BattleUI.BalloonSpec.Enemy(BattleMessages.Fill(l.text, enemy: enemy.name));
             }
-        specs.Add(BattleUI.BalloonSpec.Enemy(BattleMessages.Fill(lines.enemyAtEnemyTurnStart, enemy: enemy.name)));
-        yield return ui.BalloonGroup(specs);
+            else
+            {
+                BattleActor a = party.Find(x => x.name == l.actorName);
+                if (a == null) { Debug.LogWarning($"[Battle] 대사 목록의 아군 '{l.actorName}' 을(를) Party 에서 찾지 못했습니다."); continue; }
+                if (!a.IsAlive) continue;
+                spec = BattleUI.BalloonSpec.Party(party.IndexOf(a), BattleMessages.Fill(l.text, enemy: enemy.name, actor: a.name), l.hideTail);
+            }
+
+            if (l.advance == LineAdvance.Timed)
+            {
+                timedGroup.Add(spec);
+                continue;
+            }
+
+            if (timedGroup.Count > 0) { yield return ui.BalloonGroup(timedGroup); timedGroup.Clear(); }
+            yield return ui.BalloonSequence(new[] { spec });
+        }
+        if (timedGroup.Count > 0) yield return ui.BalloonGroup(timedGroup);
     }
 
     private void ShowWaitingLine(BattleActor actor)
@@ -571,6 +625,7 @@ public class BattleManager : MonoBehaviour
         if (settings.enemyAttackDelaySeconds > 0f) yield return new WaitForSeconds(settings.enemyAttackDelaySeconds);
 
         arena.SetRunning(true);
+        ui.HoldEnemyFace(FaceState.Attack); // 적 턴 동안 공격 이미지
         ui.SetTypingMode(true, instant);
         runner.Begin(arena, enemy.patterns, settings.enemyTurnSeconds, settings.patternGapSeconds,
                      settings.bulletSpeedScale, settings.patternTempoScale);
@@ -580,6 +635,7 @@ public class BattleManager : MonoBehaviour
         // 턴이 끝나면 남은 탄/경고를 전부 지운다 (입력이 막힌 뒤에 도착하는 억울한 피격 방지)
         runner.Cancel();
         arena.SetRunning(false);
+        ui.ClearEnemyFace();
         ui.SetTypingMode(false);
         enemyPhaseActive = false;
 
@@ -695,7 +751,11 @@ public class BattleManager : MonoBehaviour
 
         // 피격 연출: 플레이어 커서 + 피해 입은 파티원 상태창 흔들기
         arena.HitFeedback();
-        foreach (BattleActor target in hitTargets) ui.ShakePartySlot(party.IndexOf(target));
+        foreach (BattleActor target in hitTargets)
+        {
+            ui.ShakePartySlot(party.IndexOf(target));
+            ui.FlashPartyFace(party.IndexOf(target), FaceState.Hit, settings.faceHitSeconds);
+        }
 
         if (!party.Exists(a => a.IsAlive))
         {

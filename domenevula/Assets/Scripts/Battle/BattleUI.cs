@@ -86,6 +86,14 @@ public class BattleUI : MonoBehaviour
         public Image[] slotIcons;  // 칸 안에 뜨는 아이콘 (상태가 있을 때만 켜짐)
         public float halfWidth;
         public float faceSide;
+        // 얼굴 이미지 상태
+        public BattleActor actor;
+        public Sprite defaultSprite;
+        public Sprite shownSprite;
+        public Color shownTint = new Color(-1f, -1f, -1f, -1f); // 첫 프레임에 반드시 적용되도록
+        public bool dead, lowHp, guarding;
+        public int holdState = -1, flashState = -1, ailmentState = -1;
+        public float flashUntil;
     }
     private static readonly Color CursorColor = new Color(1f, 0.88f, 0.35f, 1f);
     private int activeSlot = -1;
@@ -111,6 +119,14 @@ public class BattleUI : MonoBehaviour
     private readonly List<PartySlotUI> slots = new List<PartySlotUI>();
     private TextMeshProUGUI enemyNameText, enemyHpText, roundText, tpText, messageText, hintText;
     private RectTransform enemyHpFill, tpFill, enemyBody;
+    // 적 이미지 상태
+    private Image enemyImage;
+    private BattleEnemy enemyData;
+    private Sprite enemyShownSprite;
+    private Color enemyShownTint = new Color(-1f, -1f, -1f, -1f);
+    private bool enemyDead, enemyLowHp;
+    private int enemyHoldState = -1, enemyFlashState = -1, enemyAilmentState = -1;
+    private float enemyFlashUntil;
 
     // 커맨드 메뉴
     private GameObject menuPanel;
@@ -147,6 +163,7 @@ public class BattleUI : MonoBehaviour
         canvasGo.transform.SetParent(transform, false);
         var canvas = canvasGo.GetComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = battleSettings.canvasSortingOrder; // 필드 씬의 UI 위에 덮이도록
         var scaler = canvasGo.GetComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1600f, 900f);
@@ -200,6 +217,10 @@ public class BattleUI : MonoBehaviour
 
         var body = BattleUIFactory.MakeImage("EnemyBody", CanvasRect, EnemyPosP, EnemySize, enemy.color);
         enemyBody = body.rectTransform;
+        enemyImage = body;
+        enemyData = enemy;
+        enemyBody.sizeDelta = settings.enemyImageSize;
+        body.preserveAspect = true;
 
         enemyNameText = BattleUIFactory.MakeText("EnemyName", CanvasRect, new Vector2(-255f, EnemyRowYP), new Vector2(170f, 40f),
                                                  enemy.name, 30f, Color.white, font, TextAlignmentOptions.Left);
@@ -420,16 +441,128 @@ public class BattleUI : MonoBehaviour
             PartySlotUI slot = slots[i];
             slot.face = BattleUIFactory.MakeImage("Face" + (i + 1), faceLayer, Vector2.zero, new Vector2(FaceSize, FaceSize),
                                                   a.color, BattleUIFactory.CircleSprite);
-            if (a.face != null) { slot.face.sprite = a.face; slot.face.color = Color.white; slot.face.preserveAspect = true; }
+            slot.face.preserveAspect = true;
+            slot.actor = a;
+            slot.defaultSprite = slot.face.sprite; // 이미지가 없을 때 보이는 캐릭터 색 동그라미
+            slot.shownSprite = slot.face.sprite;
         }
         UpdateFaces();
     }
 
     private void UpdateFaces()
     {
-        foreach (PartySlotUI s in slots)
-            if (s.face != null)
-                s.face.rectTransform.anchoredPosition = s.root.anchoredPosition + new Vector2(s.faceSide * FaceOffsetX, FaceOffsetY);
+        for (int i = 0; i < slots.Count; i++)
+        {
+            PartySlotUI s = slots[i];
+            if (s.face == null) continue;
+            s.face.rectTransform.anchoredPosition = s.root.anchoredPosition + new Vector2(s.faceSide * FaceOffsetX, FaceOffsetY);
+            ApplyPartyFaceSprite(s, i);
+        }
+        ApplyEnemySprite();
+    }
+
+    // ───────────────────────── 상태별 얼굴 / 적 이미지 ─────────────────────────
+
+    private static bool Has(int state) { return state >= 0; }
+
+    private readonly List<FaceState> faceBuf = new List<FaceState>();
+
+    private Color TintOf(FaceState st)
+    {
+        return settings.faceTintEnabled && settings.faceTints != null ? settings.faceTints.Get(st) : Color.white;
+    }
+
+    /// <summary>우선순위: 피격 > 행동 중(공격/스킬/방어) > 쓰러짐 > 상태이상/속성 > 방어 중 > HP 낮음 > 행동 선택 중 > 대기</summary>
+    private void ApplyPartyFaceSprite(PartySlotUI s, int index)
+    {
+        if (s.actor == null) return;
+        FaceSet f = s.actor.faces ?? new FaceSet();
+
+        // 지금 해당하는 상태를 우선순위 순으로 모은다
+        faceBuf.Clear();
+        if (Has(s.flashState) && Time.time < s.flashUntil) faceBuf.Add((FaceState)s.flashState);
+        if (Has(s.holdState)) faceBuf.Add((FaceState)s.holdState);
+        if (s.dead) faceBuf.Add(FaceState.Dead);
+        if (Has(s.ailmentState)) faceBuf.Add((FaceState)s.ailmentState);
+        if (s.guarding) faceBuf.Add(FaceState.Guard);
+        if (s.lowHp) faceBuf.Add(FaceState.LowHp);
+        if (activeSlot == index) faceBuf.Add(FaceState.Selecting);
+
+        Sprite pick = null;
+        foreach (FaceState st in faceBuf) { pick = f.Get(st); if (pick != null) break; }
+        if (pick == null) pick = f.idle != null ? f.idle : s.actor.face;
+        Color tint = TintOf(faceBuf.Count > 0 ? faceBuf[0] : FaceState.Idle); // 색조는 가장 우선순위가 높은 상태 기준
+
+        if (pick == s.shownSprite && tint == s.shownTint) return;
+        s.shownSprite = pick; s.shownTint = tint;
+        if (pick != null) { s.face.sprite = pick; s.face.color = tint; }
+        else { s.face.sprite = s.defaultSprite; s.face.color = s.actor.color * tint; }
+    }
+
+    /// <summary>우선순위: 피격 > 공격(적 턴) > 쓰러짐 > 상태이상/속성 > HP 낮음 > 대기</summary>
+    private void ApplyEnemySprite()
+    {
+        if (enemyImage == null || enemyData == null) return;
+        EnemyFaceSet f = enemyData.faces ?? new EnemyFaceSet();
+
+        faceBuf.Clear();
+        if (Has(enemyFlashState) && Time.time < enemyFlashUntil) faceBuf.Add((FaceState)enemyFlashState);
+        if (Has(enemyHoldState)) faceBuf.Add((FaceState)enemyHoldState);
+        if (enemyDead) faceBuf.Add(FaceState.Dead);
+        if (Has(enemyAilmentState)) faceBuf.Add((FaceState)enemyAilmentState);
+        if (enemyLowHp) faceBuf.Add(FaceState.LowHp);
+
+        Sprite pick = null;
+        foreach (FaceState st in faceBuf) { pick = f.Get(st); if (pick != null) break; }
+        if (pick == null) pick = f.idle;
+        Color tint = TintOf(faceBuf.Count > 0 ? faceBuf[0] : FaceState.Idle);
+
+        if (pick == enemyShownSprite && tint == enemyShownTint) return;
+        enemyShownSprite = pick; enemyShownTint = tint;
+        if (pick != null) { enemyImage.sprite = pick; enemyImage.color = tint; }
+        else { enemyImage.sprite = null; enemyImage.color = enemyData.color * tint; }
+    }
+
+    /// <summary>아군 얼굴을 잠깐(seconds 초) 해당 상태로 바꾼다 (피격 등).</summary>
+    public void FlashPartyFace(int index, FaceState state, float seconds)
+    {
+        if (index < 0 || index >= slots.Count) return;
+        slots[index].flashState = (int)state;
+        slots[index].flashUntil = Time.time + Mathf.Max(0f, seconds);
+    }
+
+    /// <summary>아군 얼굴을 ClearPartyFace 를 부르기 전까지 해당 상태로 유지한다 (행동 중 공격/스킬/방어).</summary>
+    public void HoldPartyFace(int index, FaceState state)
+    {
+        if (index >= 0 && index < slots.Count) slots[index].holdState = (int)state;
+    }
+
+    public void ClearPartyFace(int index)
+    {
+        if (index >= 0 && index < slots.Count) slots[index].holdState = -1;
+    }
+
+    /// <summary>상태이상/속성 이미지를 켜고 끈다 (state 는 Status 또는 Element). 해당 시스템이 생기면 여기에 연결한다.</summary>
+    public void SetPartyAilmentFace(int index, FaceState state, bool on)
+    {
+        if (index >= 0 && index < slots.Count) slots[index].ailmentState = on ? (int)state : -1;
+    }
+
+    public void FlashEnemyFace(FaceState state, float seconds)
+    {
+        enemyFlashState = (int)state;
+        enemyFlashUntil = Time.time + Mathf.Max(0f, seconds);
+    }
+
+    public void HoldEnemyFace(FaceState state) { enemyHoldState = (int)state; }
+    public void ClearEnemyFace() { enemyHoldState = -1; }
+    public void SetEnemyAilmentFace(FaceState state, bool on) { enemyAilmentState = on ? (int)state : -1; }
+
+    /// <summary>전투를 처음부터 다시 시작할 때 남은 상태를 전부 지운다.</summary>
+    public void ResetFaces()
+    {
+        foreach (PartySlotUI s in slots) { s.holdState = -1; s.flashState = -1; s.ailmentState = -1; }
+        enemyHoldState = -1; enemyFlashState = -1; enemyAilmentState = -1;
     }
 
     private void BuildMenu()
@@ -535,6 +668,36 @@ public class BattleUI : MonoBehaviour
         if (hasEnemy) SetEnemyInfoVisible(true);
     }
 
+    /// <summary>
+    /// 말풍선을 목록 순서대로 한 번에 하나씩 띄운다 (맵의 대사 시스템처럼).
+    /// 글자가 나오는 중에 진행 키를 누르면 끝까지 보여주고, 다 나온 뒤 한 번 더 누르면 다음 줄로 넘어간다.
+    /// 적이 말하는 줄에서는 적 이름/HP 바와 안내 메시지가 숨겨진다.
+    /// </summary>
+    public IEnumerator BalloonSequence(IList<BalloonSpec> specs)
+    {
+        foreach (BalloonSpec sp in specs)
+        {
+            if (string.IsNullOrWhiteSpace(sp.text)) continue;
+            SpeechBalloonController b = sp.enemy ? GetBalloon("Enemy", enemyCur, settings.enemyBalloonPos) : GetPartyBalloon(sp.partyIndex);
+            if (b == null) continue;
+            b.Show(new DialogueLine { text = sp.text.Replace("\\n", "\n").Replace("<br>", "\n") });
+            SetTailVisible(b, !sp.hideTail);
+            if (sp.enemy) SetEnemyInfoVisible(false);
+
+            yield return null; // 이 줄로 넘어오게 한 키 입력이 바로 스킵으로 처리되지 않도록
+            while (b.IsRevealing)
+            {
+                if (PressedConfirm() || PressedClick()) b.SkipReveal();
+                yield return null;
+            }
+            yield return null;
+            while (!(PressedConfirm() || PressedClick())) yield return null;
+
+            b.Hide();
+            if (sp.enemy) SetEnemyInfoVisible(true);
+        }
+    }
+
     /// <summary>아군 한 명이 말풍선으로 대사를 한다.</summary>
     public IEnumerator PartyBalloon(int index, string text)
     {
@@ -552,7 +715,8 @@ public class BattleUI : MonoBehaviour
     {
         if (enemyPanelRt != null) enemyPanelRt.gameObject.SetActive(visible);
         if (enemyRowItems != null) foreach (RectTransform r in enemyRowItems) r.gameObject.SetActive(visible);
-        if (messageRoot != null) messageRoot.gameObject.SetActive(visible);
+        // 안내 메시지는 플레이어 턴 배치(위쪽 적 패널에 붙어 있을 때)에서만 같이 숨긴다. 적 턴에는 아래쪽에 계속 보인다.
+        if (messageRoot != null) messageRoot.gameObject.SetActive(visible || layoutT >= 0.5f);
     }
 
     private SpeechBalloonController waitBalloon;
@@ -891,6 +1055,9 @@ public class BattleUI : MonoBehaviour
             ui.hpText.text = $"{a.hp}/{a.maxHP}";
             BattleUIFactory.SetBarRatio(ui.hpFill, a.maxHP > 0 ? (float)a.hp / a.maxHP : 0f);
             ui.statusText.text = !a.IsAlive ? "전투불능" : "";
+            ui.dead = !a.IsAlive;
+            ui.guarding = a.IsAlive && a.guarding;
+            ui.lowHp = a.IsAlive && a.maxHP > 0 && a.hp <= a.maxHP * settings.lowHpRatio;
             if (ui.slotIcons != null) ui.slotIcons[0].gameObject.SetActive(a.IsAlive && a.guarding);
             if (ui.mpFill != null) BattleUIFactory.SetBarRatio(ui.mpFill, a.maxMP > 0 ? (float)a.mp / a.maxMP : 0f);
             if (ui.mpText != null) ui.mpText.text = a.maxMP > 0 ? $"MP {a.mp}/{a.maxMP}" : "";
@@ -901,6 +1068,8 @@ public class BattleUI : MonoBehaviour
 
         enemyNameText.text = enemy.name;
         enemyHpText.text = $"{enemy.hp}/{enemy.maxHP}";
+        enemyDead = enemy.hp <= 0;
+        enemyLowHp = enemy.hp > 0 && enemy.maxHP > 0 && enemy.hp <= enemy.maxHP * settings.lowHpRatio;
         BattleUIFactory.SetBarRatio(enemyHpFill, enemy.maxHP > 0 ? (float)enemy.hp / enemy.maxHP : 0f);
 
         tpText.text = $"{tp}/{tpMax}";
@@ -962,7 +1131,11 @@ public class BattleUI : MonoBehaviour
         activeSlot = (index >= 0 && index < slots.Count) ? index : -1;
     }
 
-    public void ShakeEnemy() { StartCoroutine(ShakeRoutine()); }
+    public void ShakeEnemy()
+    {
+        FlashEnemyFace(FaceState.Hit, settings.faceHitSeconds); // 피격 이미지
+        StartCoroutine(ShakeRoutine());
+    }
 
     /// <summary>피해를 입은 파티원의 상태창을 살짝 흔들고 붉게 번쩍인다.</summary>
     public void ShakePartySlot(int index)
