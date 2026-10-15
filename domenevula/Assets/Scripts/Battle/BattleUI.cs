@@ -1043,12 +1043,14 @@ public class BattleUI : MonoBehaviour
         return (i - (cap - 1) * 0.5f) * step;
     }
 
-    /// <summary>i번째 칸의 중심. 가로: 왼쪽이 0번(먼저 발사).  세로(스택): 위쪽이 0번.</summary>
+    /// <summary>i번째 "칸(슬롯)"의 중심 좌표 — i는 배열 index가 아니라 화면상 슬롯 위치(0 = 맨 아래 칸).
+    /// 가로 배치는 발사 순서(배열 index)를 그대로 슬롯 위치로 쓰지만, 세로(스택)는 그렇지 않다 —
+    /// 호출하는 쪽(ShowMagazine)에서 발사 순서와 화면 슬롯 위치를 따로 계산해서 넘긴다.</summary>
     private Vector2 MagSlotPos(int i, Magazine m)
     {
         if (!MagVertical(m)) return new Vector2(MagSlotX(i, m.Capacity), MagHSlotY);
         float step = settings.magazineStackSlotSize.y + settings.magazineSlotGap;
-        return new Vector2(MagVX, ((m.Capacity - 1) * 0.5f - i) * step - 12f);
+        return new Vector2(MagVX, (i - (m.Capacity - 1) * 0.5f) * step - 12f);
     }
 
     private T MagTrack<T>(T img) where T : Component { magObjs.Add(img.gameObject); return img; }
@@ -1109,7 +1111,12 @@ public class BattleUI : MonoBehaviour
                                                settings.magazineSlotColor, settings.magazineSlotSprite));
         for (int i = 0; i < mag.Count; i++)
         {
-            Vector2 p = MagSlotPos(i, mag);
+            // 스택은 항상 index 0(배열 맨 앞)에 새 탄이 꽂히므로, 배열 index를 그대로 슬롯 번호로 쓰면
+            // 넣을 때마다 "가장 오래된 탄"의 자리가 위아래로 밀려 보인다. 실제로 쌓아올린 것처럼 보이려면
+            // "나이"(오래된 탄일수록 아래) 기준 슬롯을 써야 한다: index 0(가장 최근 = 가장 먼저 발사)이 지금
+            // 채워진 칸 중 가장 위, index count-1(가장 오래됨)이 항상 맨 아래에 고정된다.
+            int slot = vert ? (mag.Count - 1 - i) : i;
+            Vector2 p = MagSlotPos(slot, mag);
             MakeMagBullet(mag, mag.Bullets[i], p);
             // 발사 순서 번호 (1 = 가장 먼저)
             Vector2 np = vert ? new Vector2(p.x - ss.x * 0.5f - 26f, p.y) : new Vector2(p.x, p.y - ss.y * 0.5f - 18f);
@@ -1129,9 +1136,10 @@ public class BattleUI : MonoBehaviour
         else
         {
             float x = MagVX + ss.x * 0.5f + 60f;
-            Vector2 top = MagSlotPos(0, mag), bot = MagSlotPos(cap - 1, mag);
-            float yTop = top.y + ss.y * 0.5f, yBot = bot.y - ss.y * 0.5f;
-            MagArrow(new Vector2(x, yTop), yTop - yBot, 90f);                  // 위를 향함 = 맨 위부터 발사
+            // 0번 칸(먼저 발사)이 이제 맨 아래이므로, 화살표는 0번 칸 쪽(아래)에서 마지막 칸 쪽(위)으로 그린다.
+            Vector2 bottomSlot = MagSlotPos(0, mag), topSlot = MagSlotPos(cap - 1, mag);
+            float yTop = topSlot.y + ss.y * 0.5f, yBot = bottomSlot.y - ss.y * 0.5f;
+            MagArrow(new Vector2(x, yTop), yTop - yBot, 90f);                  // 위를 향함 = 아래(0번)부터 쌓여 위로 발사
             MagTrack(BattleUIFactory.MakeText("FireLabel", magRoot, new Vector2(x + 4f, yTop + 24f), new Vector2(160f, 30f),
                                               "발사", 22f, settings.magazineArrowColor, font));
         }
@@ -1618,6 +1626,7 @@ public class BattleUI : MonoBehaviour
     public IEnumerator RunTiming(float sweepsPerSecond, float timeoutSeconds)
     {
         timingPanel.SetActive(true);
+        timingMarker.gameObject.SetActive(true); // 탄창 사격(RunTimingStream)이 꺼놨을 수 있으니 기본 커서를 다시 켠다
         timingTitleText.text = TimingTitleDefault;
         timingResultText.text = "";
         SetHint("");
@@ -1670,6 +1679,7 @@ public class BattleUI : MonoBehaviour
     {
         int n = bullets.Count;
         timingPanel.SetActive(true);
+        timingMarker.gameObject.SetActive(false); // 탄창 사격 때는 탄마다 생기는 색깔 커서만 쓰고, 기본 흰색 커서는 숨긴다
         timingResultText.text = "";
         SetHint("");
         var names = new List<string>();

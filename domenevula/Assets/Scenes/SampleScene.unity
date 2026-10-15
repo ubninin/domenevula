@@ -395,23 +395,43 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 563fd6cae0de43f4b8391f1463b4f4eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trigger: 0
   interactRange: 1.2
   promptIndicator: {fileID: 0}
-  requiredSwitch: 
-  requiredValue: 1
-  requiredSelfSwitch: 
-  requiredSelfSwitchValue: 0
-  commands:
-  - rid: 909972673846313042
+  spriteRenderer: {fileID: 0}
+  pages:
+  - requiredSwitch: 
+    requiredValue: 1
+    requiredSelfSwitch: 
+    requiredSelfSwitchValue: 0
+    sprite: {fileID: -988485426, guid: 7fcb31c15c4cca447a1c1de91c24d24a, type: 3}
+    trigger: 0
+    commands:
+    - rid: 909972674920317009
+    - rid: 909972674920317010
+    - rid: 909972674920317013
+  - requiredSwitch: 
+    requiredValue: 1
+    requiredSelfSwitch: A
+    requiredSelfSwitchValue: 1
+    sprite: {fileID: 0}
+    trigger: 0
+    commands: []
   references:
     version: 2
     RefIds:
-    - rid: 909972673846313042
+    - rid: 909972674920317009
       type: {class: ShowDialogueCommand, ns: , asm: Assembly-CSharp}
       data:
         sequence: {fileID: 11400000, guid: 88017ef151042274cacf6eb25fbd5c0a, type: 2}
         useSelfAsBalloonAnchor: 1
+    - rid: 909972674920317010
+      type: {class: SetSelfSwitchCommand, ns: , asm: Assembly-CSharp}
+      data:
+        selfSwitchKey: A
+        value: 1
+    - rid: 909972674920317013
+      type: {class: DeactivateSelfCommand, ns: , asm: Assembly-CSharp}
+      data: 
 --- !u!61 &299621145
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -879,23 +899,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 563fd6cae0de43f4b8391f1463b4f4eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trigger: 0
   interactRange: 1.2
   promptIndicator: {fileID: 0}
-  requiredSwitch: 
-  requiredValue: 1
-  requiredSelfSwitch: 
-  requiredSelfSwitchValue: 0
-  commands:
-  - rid: 909972673846313058
+  spriteRenderer: {fileID: 0}
+  pages:
+  - requiredSwitch: 
+    requiredValue: 1
+    requiredSelfSwitch: 
+    requiredSelfSwitchValue: 0
+    sprite: {fileID: 0}
+    trigger: 0
+    commands: []
   references:
     version: 2
-    RefIds:
-    - rid: 909972673846313058
-      type: {class: StartBattleCommand, ns: , asm: Assembly-CSharp}
-      data:
-        encounter: {fileID: 11400000, guid: 21b8958869dc4b54fb2ccde523690fe5, type: 2}
-        allowDefeat: 1
+    RefIds: []
 --- !u!50 &548466495
 Rigidbody2D:
   serializedVersion: 5
