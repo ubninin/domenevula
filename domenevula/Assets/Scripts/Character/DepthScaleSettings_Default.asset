@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   minY: -7
   maxY: 0
-  closeScale: 1.7
-  farScale: 0.1
+  closeScale: 1
+  farScale: 0.7

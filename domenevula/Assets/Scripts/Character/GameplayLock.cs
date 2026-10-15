@@ -12,6 +12,11 @@ public static class GameplayLock
         if (DialogueManager.Instance != null && DialogueManager.Instance.IsDialogueActive)
             return true;
 
+        // MapEvent(ActionButton/PlayerTouch/Autorun)가 실행 중이면 컷신처럼 조작을 막는다.
+        // Parallel 타입은 RunningEventCount에 포함되지 않으므로(배경 연출용) 영향 없음.
+        if (MapEvent.RunningEventCount > 0)
+            return true;
+
         // 나중에 메뉴가 열려 있을 때도 이동을 막고 싶어지면 여기에 조건을 추가.
         // 메뉴는 대사 중에도 열 수 있어야 한다는 요구사항이 있으니, 이동 잠금에 메뉴 상태를
         // 넣을지는 별개로 결정할 것.
