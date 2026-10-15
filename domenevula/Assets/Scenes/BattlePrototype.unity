@@ -311,7 +311,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fontAsset: {fileID: 11400000, guid: 5dd4a6b057c6e124d9b231fd5e1344e1, type: 2}
-  battleBackground: {fileID: -2475749987389609028, guid: bac6ed991d3b548459cc1d89be9d6ac7, type: 3}
+  battleBackground: {fileID: -7785848334896591529, guid: 937c5f52490e0d0468fc63962a33eecd, type: 3}
   backgroundFit: 0
   backgroundTint: {r: 1, g: 1, b: 1, a: 1}
   settings:
@@ -345,6 +345,49 @@ MonoBehaviour:
     standDamage: 6
     timingSweepsPerSecond: 0.9
     timingTimeoutSeconds: 3
+    bulletTypes:
+    - name: "\uD654\uC5FC\uD0C4"
+      element: 1
+      power: 1
+      color: {r: 0, g: 0, b: 0, a: 0}
+    - name: "\uBB3C\uD0C4"
+      element: 2
+      power: 1
+      color: {r: 0, g: 0, b: 0, a: 0}
+    - name: "\uBC14\uB78C\uD0C4"
+      element: 3
+      power: 1
+      color: {r: 0, g: 0, b: 0, a: 0}
+    - name: "\uB300\uC9C0\uD0C4"
+      element: 4
+      power: 1
+      color: {r: 0, g: 0, b: 0, a: 0}
+    startingBullets:
+    - bulletName: "\uD654\uC5FC\uD0C4"
+      count: 4
+    - bulletName: "\uBB3C\uD0C4"
+      count: 4
+    - bulletName: "\uBC14\uB78C\uD0C4"
+      count: 3
+    - bulletName: "\uB300\uC9C0\uD0C4"
+      count: 3
+    shotsPerAttack: 0
+    bulletCrossSeconds: 1.1
+    bulletCursorInterval: 0.4
+    magazineVisual: 1
+    magazineOffset: {x: 0, y: -22}
+    magazineFrameSprite: {fileID: 0}
+    magazineSlotSprite: {fileID: 0}
+    bulletSprite: {fileID: 0}
+    bulletTintByElement: 1
+    magazineSlotSize: {x: 76, y: 130}
+    magazineBulletSize: {x: 54, y: 108}
+    magazineStackSlotSize: {x: 170, y: 40}
+    magazineStackBulletSize: {x: 150, y: 30}
+    magazineArrowColor: {r: 1, g: 0.88, b: 0.35, a: 1}
+    magazineSlotGap: 10
+    magazineFrameColor: {r: 0.06, g: 0.07, b: 0.12, a: 0.95}
+    magazineSlotColor: {r: 0.22, g: 0.24, b: 0.32, a: 1}
     perfectMultiplier: 2
     goodMultiplier: 1.5
     normalMultiplier: 1
@@ -431,6 +474,9 @@ MonoBehaviour:
       tpCost: 40
       power: 35
       useTiming: 0
+    useMagazine: 1
+    magazineKind: 0
+    magazineCapacity: 6
   - name: "\uD558\uC728"
     maxHP: 80
     attack: 12
@@ -454,6 +500,9 @@ MonoBehaviour:
       tpCost: 30
       power: 2.2
       useTiming: 1
+    useMagazine: 1
+    magazineKind: 1
+    magazineCapacity: 6
   enemy:
     name: "\uC2DC\uD5D8\uC6A9 \uC801"
     maxHP: 160
@@ -823,6 +872,8 @@ MonoBehaviour:
     actionUse: "{actor}\uC758 {action}!"
     heal: "{target}\uC758 HP\uAC00 {amount} \uD68C\uBCF5\uB418\uC5C8\uB2E4."
     damageDealt: "{grade}{enemy}\uC5D0\uAC8C {damage}\uC758 \uB370\uBBF8\uC9C0!"
+    magazineResult: "{actor}\uC758 \uC0AC\uACA9!  {amount}\uBC1C, \uCD1D {damage}\uC758
+      \uB370\uBBF8\uC9C0!"
     victory: "{enemy}\uC744(\uB97C) \uC4F0\uB7EC\uB728\uB838\uB2E4!"
     defeat: "\uD30C\uD2F0\uAC00 \uC804\uBA78\uD588\uB2E4..."
     notAvailable: "\uC9C0\uAE08\uC740 \uACE0\uB97C \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."

@@ -15,7 +15,7 @@ using UnityEngine.UI;
 /// </summary>
 public class BattleUI : MonoBehaviour
 {
-    private const int MaxMenuItems = 6;
+    private const int MaxMenuItems = 9;
     private const float TimingBarWidth = 700f;
 
     /// <summary>타자 입력창에서 Enter를 눌렀을 때 (입력한 문자열).</summary>
@@ -137,6 +137,7 @@ public class BattleUI : MonoBehaviour
     private GameObject timingPanel;
     private RectTransform timingMarker;
     private TextMeshProUGUI timingResultText;
+    private TextMeshProUGUI timingTitleText;
 
     // 타자 입력
     private GameObject typingRoot;
@@ -193,6 +194,7 @@ public class BattleUI : MonoBehaviour
         balloonLayer = BattleUIFactory.MakeRect("BalloonLayer", CanvasRect, Vector2.zero, Vector2.zero);
         BattleUIFactory.Stretch(balloonLayer); // 말풍선은 얼굴/메뉴보다도 위
         BuildTiming();
+        BuildMagazineView();
         BuildResult();
         BuildTurnBanner(); // 맨 위에 그려지도록 마지막에
     }
@@ -1007,13 +1009,203 @@ public class BattleUI : MonoBehaviour
         rt.anchoredPosition = new Vector2(0f, -yFromTop);
     }
 
+
+    // ───────────────────────── 탄창 그림 (장전 연출) ─────────────────────────
+
+    private GameObject magPanel;
+    private RectTransform magRoot;
+    private TextMeshProUGUI magLabel;
+    private readonly List<GameObject> magObjs = new List<GameObject>(); // 칸·총알·번호·화살표 전부 (다시 그릴 때 한꺼번에 지움)
+
+    /// <summary>PickMagazinePosition 의 결과 (취소 = -1)</summary>
+    public int LastMagPick { get; private set; }
+
+    private void BuildMagazineView()
+    {
+        Vector2 pos = ArenaCenter + settings.magazineOffset;
+        Image frame = BattleUIFactory.MakeImage("MagazinePanel", CanvasRect, pos, new Vector2(900f, 380f),
+                                                settings.magazineFrameColor, settings.magazineFrameSprite);
+        magPanel = frame.gameObject;
+        magRoot = frame.rectTransform;
+        magLabel = BattleUIFactory.MakeText("MagazineLabel", magRoot, new Vector2(0f, 150f), new Vector2(860f, 36f),
+                                            "", 24f, Color.white, font);
+        magPanel.SetActive(false);
+    }
+
+    private static bool MagVertical(Magazine m) { return m.Kind == MagazineKind.Stack; }   // 스택만 세로로 쌓는다
+    private Vector2 MagSlotSize(Magazine m) { return MagVertical(m) ? settings.magazineStackSlotSize : settings.magazineSlotSize; }
+    private Vector2 MagBulletSize(Magazine m) { return MagVertical(m) ? settings.magazineStackBulletSize : settings.magazineBulletSize; }
+    private const float MagHSlotY = -35f, MagVX = -40f;
+
+    private float MagSlotX(int i, int cap)
+    {
+        float step = settings.magazineSlotSize.x + settings.magazineSlotGap;
+        return (i - (cap - 1) * 0.5f) * step;
+    }
+
+    /// <summary>i번째 칸의 중심. 가로: 왼쪽이 0번(먼저 발사).  세로(스택): 위쪽이 0번.</summary>
+    private Vector2 MagSlotPos(int i, Magazine m)
+    {
+        if (!MagVertical(m)) return new Vector2(MagSlotX(i, m.Capacity), MagHSlotY);
+        float step = settings.magazineStackSlotSize.y + settings.magazineSlotGap;
+        return new Vector2(MagVX, ((m.Capacity - 1) * 0.5f - i) * step - 12f);
+    }
+
+    private T MagTrack<T>(T img) where T : Component { magObjs.Add(img.gameObject); return img; }
+
+    private Image MakeMagBullet(Magazine m, BulletDef b, Vector2 pos)
+    {
+        Color c = settings.bulletTintByElement || settings.bulletSprite == null ? b.CursorColor : Color.white;
+        return MagTrack(BattleUIFactory.MakeImage("Bullet", magRoot, pos, MagBulletSize(m), c, settings.bulletSprite));
+    }
+
+    private void SetMagLabel(Magazine mag)
+    {
+        magLabel.text = $"{Magazine.KindLabel(mag.Kind)}  {mag.Count}/{mag.Capacity}";
+    }
+
+    /// <summary>선(막대) 하나. angle 은 반시계 방향 도.</summary>
+    private Image MagLine(Vector2 center, float length, float angle)
+    {
+        Image l = MagTrack(BattleUIFactory.MakeImage("Arrow", magRoot, center, new Vector2(length, 6f), settings.magazineArrowColor));
+        l.rectTransform.localRotation = Quaternion.Euler(0f, 0f, angle);
+        return l;
+    }
+
+    /// <summary>화살표 (그림 글자 없이 막대로 만든다). tip = 화살촉 끝, dirAngle = 가리키는 방향(도, 0=오른쪽 90=위 180=왼쪽).</summary>
+    private void MagArrow(Vector2 tip, float length, float dirAngle)
+    {
+        float r = dirAngle * Mathf.Deg2Rad;
+        Vector2 dir = new Vector2(Mathf.Cos(r), Mathf.Sin(r));
+        MagLine(tip - dir * (length * 0.5f), length, dirAngle);          // 몸통
+        const float head = 30f, spread = 35f;
+        for (int sgn = -1; sgn <= 1; sgn += 2)
+        {
+            float a = dirAngle + 180f + sgn * spread;                    // 촉 끝에서 뒤로 벌어지는 두 선
+            float ar = a * Mathf.Deg2Rad;
+            Vector2 c = tip + new Vector2(Mathf.Cos(ar), Mathf.Sin(ar)) * (head * 0.5f);
+            MagLine(c, head, a);
+        }
+    }
+
+    /// <summary>탄창 그림을 현재 내용 그대로 보여준다 (칸 + 총알 + 발사 순서 번호 + 발사 방향 화살표).</summary>
+    public void ShowMagazine(Magazine mag)
+    {
+        if (!settings.magazineVisual || mag == null) return;
+        ClearMagazineView();
+        int cap = mag.Capacity;
+        bool vert = MagVertical(mag);
+        Vector2 ss = MagSlotSize(mag);
+        float gap = settings.magazineSlotGap;
+
+        float w, h;
+        if (!vert) { w = cap * ss.x + (cap - 1) * gap + 80f; h = ss.y + 330f; }
+        else { w = ss.x + 300f; h = cap * (ss.y + gap) + 144f; }
+        magRoot.sizeDelta = new Vector2(Mathf.Max(w, 460f), h);
+        magLabel.rectTransform.anchoredPosition = new Vector2(0f, h * 0.5f - 26f);
+
+        for (int i = 0; i < cap; i++)
+            MagTrack(BattleUIFactory.MakeImage("Slot" + (i + 1), magRoot, MagSlotPos(i, mag), ss,
+                                               settings.magazineSlotColor, settings.magazineSlotSprite));
+        for (int i = 0; i < mag.Count; i++)
+        {
+            Vector2 p = MagSlotPos(i, mag);
+            MakeMagBullet(mag, mag.Bullets[i], p);
+            // 발사 순서 번호 (1 = 가장 먼저)
+            Vector2 np = vert ? new Vector2(p.x - ss.x * 0.5f - 26f, p.y) : new Vector2(p.x, p.y - ss.y * 0.5f - 18f);
+            MagTrack(BattleUIFactory.MakeText("Order" + (i + 1), magRoot, np, new Vector2(44f, 30f),
+                                              (i + 1).ToString(), 24f, settings.magazineArrowColor, font));
+        }
+
+        // 발사 방향 화살표
+        if (!vert)
+        {
+            float left = MagSlotX(0, cap) - ss.x * 0.5f, right = MagSlotX(cap - 1, cap) + ss.x * 0.5f;
+            float y = MagHSlotY - ss.y * 0.5f - 58f;
+            MagArrow(new Vector2(left, y), right - left, 180f);                // 왼쪽을 향함 = 왼쪽부터 발사
+            MagTrack(BattleUIFactory.MakeText("FireLabel", magRoot, new Vector2((left + right) * 0.5f, y - 26f), new Vector2(300f, 30f),
+                                              "발사 방향 (1번부터)", 22f, settings.magazineArrowColor, font));
+        }
+        else
+        {
+            float x = MagVX + ss.x * 0.5f + 60f;
+            Vector2 top = MagSlotPos(0, mag), bot = MagSlotPos(cap - 1, mag);
+            float yTop = top.y + ss.y * 0.5f, yBot = bot.y - ss.y * 0.5f;
+            MagArrow(new Vector2(x, yTop), yTop - yBot, 90f);                  // 위를 향함 = 맨 위부터 발사
+            MagTrack(BattleUIFactory.MakeText("FireLabel", magRoot, new Vector2(x + 4f, yTop + 24f), new Vector2(160f, 30f),
+                                              "발사", 22f, settings.magazineArrowColor, font));
+        }
+
+        MagTrack(BattleUIFactory.MakeText("OrderGuide", magRoot, new Vector2(0f, -h * 0.5f + 18f), new Vector2(560f, 26f),
+                                          "숫자가 작을수록 먼저 발사됩니다", 18f, new Color(0.8f, 0.82f, 0.9f), font));
+        SetMagLabel(mag);
+        magPanel.SetActive(true);
+    }
+
+    public void HideMagazine()
+    {
+        if (magPanel == null) return;
+        ClearMagazineView();
+        magPanel.SetActive(false);
+    }
+
+    private void ClearMagazineView()
+    {
+        foreach (GameObject g in magObjs) if (g != null) Destroy(g);
+        magObjs.Clear();
+    }
+
+    /// <summary>
+    /// 탄창 그림 위에서 ←→(A/D)로 넣을 위치를 고른다. Z/Enter/클릭 = 결정, X/우클릭 = 취소.
+    /// positions 는 Magazine.InsertPositions() 의 값. 결과는 LastMagPick (취소 -1).
+    /// </summary>
+    public IEnumerator PickMagazinePosition(Magazine mag, BulletDef bullet, IList<int> positions)
+    {
+        LastMagPick = -1;
+        if (positions.Count == 0) yield break;
+        if (!settings.magazineVisual || magPanel == null || !magPanel.activeSelf) { LastMagPick = positions[0]; yield break; }
+
+        Vector2 ss = MagSlotSize(mag);
+        float step = ss.x + settings.magazineSlotGap;
+        Image marker = MagTrack(BattleUIFactory.MakeImage("InsertMarker", magRoot, Vector2.zero, new Vector2(8f, ss.y + 24f),
+                                                          settings.magazineArrowColor));
+        Image ghost = MakeMagBullet(mag, bullet, Vector2.zero);
+        Color gc = ghost.color; gc.a = 0.6f; ghost.color = gc;
+        magLabel.text = "←→ 위치 선택    Z 결정    X 취소";
+
+        int ci = 0;
+        bool first = true;
+        while (true)
+        {
+            // 마커: 넣을 위치(= 그 칸의 왼쪽 경계). 넣을 총알은 그 위에 반투명으로 보인다
+            float x = MagSlotX(positions[ci], mag.Capacity) - step * 0.5f;
+            marker.rectTransform.anchoredPosition = new Vector2(x, MagHSlotY);
+            ghost.rectTransform.anchoredPosition = new Vector2(x, MagHSlotY + ss.y * 0.5f + MagBulletSize(mag).y * 0.5f + 14f);
+
+            yield return null;
+            if (first) { first = false; continue; }
+
+            Mouse mouse = Mouse.current;
+            if (PressedLeft()) ci = Mathf.Max(0, ci - 1);
+            else if (PressedRight()) ci = Mathf.Min(positions.Count - 1, ci + 1);
+            else if (PressedConfirm() || PressedClick()) { LastMagPick = positions[ci]; break; }
+            else if (PressedCancel() || (mouse != null && mouse.rightButton.wasPressedThisFrame)) break;
+        }
+
+        magObjs.Remove(marker.gameObject); Destroy(marker.gameObject);
+        magObjs.Remove(ghost.gameObject); Destroy(ghost.gameObject);
+        SetMagLabel(mag);
+    }
+
+    private const string TimingTitleDefault = "초록 구간에서 Z / Enter / Space / 클릭으로 멈추세요!";
+
     private void BuildTiming()
     {
         var panel = BattleUIFactory.MakeImage("TimingPanel", CanvasRect, ArenaCenter, new Vector2(840f, 220f),
                                               new Color(0f, 0f, 0f, 0.88f));
         timingPanel = panel.gameObject;
-        BattleUIFactory.MakeText("Title", panel.transform, new Vector2(0f, 75f), new Vector2(800f, 40f),
-                                 "초록 구간에서 Z / Enter / Space / 클릭으로 멈추세요!", 26f, Color.white, font);
+        timingTitleText = BattleUIFactory.MakeText("Title", panel.transform, new Vector2(0f, 75f), new Vector2(800f, 40f),
+                                 TimingTitleDefault, 26f, Color.white, font);
 
         BattleUIFactory.MakeImage("Bar", panel.transform, Vector2.zero, new Vector2(TimingBarWidth, 36f),
                                   new Color(0.2f, 0.2f, 0.25f));
@@ -1196,6 +1388,8 @@ public class BattleUI : MonoBehaviour
     private static bool PressedCancel() { return Pressed(Key.X, Key.Escape, Key.Backspace); }
     private static bool PressedUp() { return Pressed(Key.UpArrow, Key.W); }
     private static bool PressedDown() { return Pressed(Key.DownArrow, Key.S); }
+    private static bool PressedLeft() { return Pressed(Key.LeftArrow, Key.A); }
+    private static bool PressedRight() { return Pressed(Key.RightArrow, Key.D); }
 
     // ───────────────────────── 커맨드 메뉴 (RPG 만들기 MV식) ─────────────────────────
 
@@ -1203,7 +1397,7 @@ public class BattleUI : MonoBehaviour
     /// 목록에서 하나를 고른다. ↑↓ 이동, Z/Enter/Space 결정, X/Esc 취소.
     /// 결과는 LastChoice (취소 -1). enabled[i]가 false인 항목은 회색이며 고를 수 없다.
     /// </summary>
-    public IEnumerator Choose(string header, IList<string> labels, IList<bool> enabled, bool canCancel)
+    public IEnumerator Choose(string header, IList<string> labels, IList<bool> enabled, bool canCancel, int startIndex = 0)
     {
         LastChoice = -1;
         int n = Mathf.Min(labels.Count, MaxMenuItems);
@@ -1218,7 +1412,7 @@ public class BattleUI : MonoBehaviour
         menuHint.text = "↑↓·마우스 선택  Z·클릭 결정" + (canCancel ? "  X·우클릭 취소" : "");
         lastMouse = Mouse.current != null ? Mouse.current.position.ReadValue() : Vector2.zero;
 
-        int cursor = 0;
+        int cursor = Mathf.Clamp(startIndex, 0, n - 1);
         while (cursor < n - 1 && !enabled[cursor]) cursor++;
         DrawMenu(labels, enabled, n, cursor, true);
 
@@ -1424,6 +1618,7 @@ public class BattleUI : MonoBehaviour
     public IEnumerator RunTiming(float sweepsPerSecond, float timeoutSeconds)
     {
         timingPanel.SetActive(true);
+        timingTitleText.text = TimingTitleDefault;
         timingResultText.text = "";
         SetHint("");
 
@@ -1462,6 +1657,79 @@ public class BattleUI : MonoBehaviour
         timingResultText.text = GradeLabel(LastGrade);
         timingResultText.color = GradeColor(LastGrade);
         yield return new WaitForSeconds(0.6f);
+        timingPanel.SetActive(false);
+    }
+
+
+    /// <summary>
+    /// 탄창 사격: 탄 하나당 커서 하나가 왼쪽에서 줄 서서 연달아 나와 막대를 가로지른다.
+    /// 누를 때마다 가장 앞(오른쪽)에 있는 커서가 판정되고, 끝까지 가도록 못 누른 커서는 Miss.
+    /// onResolve(번호, 등급) 은 커서 하나가 판정될 때마다 불리며, true 를 돌려주면 남은 커서를 접고 끝낸다 (적이 쓰러졌을 때).
+    /// </summary>
+    public IEnumerator RunTimingStream(IList<BulletDef> bullets, float crossSeconds, float interval, System.Func<int, TimingGrade, bool> onResolve)
+    {
+        int n = bullets.Count;
+        timingPanel.SetActive(true);
+        timingResultText.text = "";
+        SetHint("");
+        var names = new List<string>();
+        foreach (BulletDef b in bullets) names.Add(b.name);
+        timingTitleText.text = string.Join(" → ", names);
+
+        float half = TimingBarWidth * 0.5f;
+        crossSeconds = Mathf.Max(0.2f, crossSeconds);
+        interval = Mathf.Max(0.05f, interval);
+
+        var cursors = new RectTransform[n];
+        for (int i = 0; i < n; i++)
+        {
+            Image img = BattleUIFactory.MakeImage("BulletCursor" + (i + 1), timingPanel.transform, new Vector2(-half, 0f),
+                                                  new Vector2(8f, 64f), bullets[i].CursorColor);
+            img.raycastTarget = false;
+            cursors[i] = img.rectTransform;
+            cursors[i].gameObject.SetActive(false);
+        }
+
+        int next = 0;      // 아직 판정 안 된 가장 앞 커서
+        float t = 0f;
+        bool abort = false;
+        while (next < n && !abort)
+        {
+            yield return null;
+            t += Time.deltaTime;
+
+            for (int i = next; i < n; i++)
+            {
+                float age = t - i * interval;
+                if (age < 0f) break;
+                cursors[i].gameObject.SetActive(true);
+                cursors[i].anchoredPosition = new Vector2(-half + age / crossSeconds * TimingBarWidth, 0f);
+            }
+
+            bool pressed = PressedConfirm() || PressedClick();
+            float frontAge = t - next * interval;
+            bool passed = frontAge >= crossSeconds;
+            if (!pressed && !passed) continue;
+
+            TimingGrade g = TimingGrade.Miss;
+            if (pressed && frontAge >= 0f && !passed)
+            {
+                float d = Mathf.Abs(-half + frontAge / crossSeconds * TimingBarWidth) / half;
+                if (d <= 0.10f) g = TimingGrade.Perfect;
+                else if (d <= 0.35f) g = TimingGrade.Good;
+                else if (d <= 0.70f) g = TimingGrade.Normal;
+            }
+            else if (pressed && frontAge < 0f) continue; // 아직 나오지 않은 커서 — 입력 무시
+
+            cursors[next].gameObject.SetActive(false);
+            timingResultText.text = GradeLabel(g);
+            timingResultText.color = GradeColor(g);
+            if (onResolve != null && onResolve(next, g)) abort = true;
+            next++;
+        }
+
+        yield return new WaitForSeconds(0.6f);
+        for (int i = 0; i < n; i++) if (cursors[i] != null) Destroy(cursors[i].gameObject);
         timingPanel.SetActive(false);
     }
 
