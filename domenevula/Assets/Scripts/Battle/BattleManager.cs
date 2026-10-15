@@ -149,6 +149,9 @@ public class BattleManager : MonoBehaviour
             a.mp = a.maxMP;
             a.guarding = false;
         }
+        // 탄 재고: 대화에서 시작한 전투는 이어받고, 단독 재생은 매번 설정값에서 시작
+        if (!encounterMode) BattleInventory.Reset();
+        BattleInventory.InitStock(settings.startingBullets);
         enemy.hp = enemy.maxHP;
         tp = 0;
         round = 0;
@@ -308,6 +311,13 @@ public class BattleManager : MonoBehaviour
         {
             var labels = new List<string> { "공격", "스킬", "방어" };
             var enabled = new List<bool> { true, hasSkills, true };
+            Magazine mag = actor.useMagazine ? MagazineOf(actor) : null;
+            if (mag != null)
+            {
+                labels[0] = mag.Count > 0 ? $"공격  (탄 {mag.Count}발)" : "공격  (기본 레이저)";
+                labels.Add($"장전  ({Magazine.KindLabel(mag.Kind)} {mag.Count}/{mag.Capacity})");
+                enabled.Add(!mag.IsFull && AnyStock());
+            }
             yield return ui.Choose($"{actor.name}의 행동", labels, enabled, true);
 
             int pick = ui.LastChoice;
@@ -315,6 +325,7 @@ public class BattleManager : MonoBehaviour
 
             if (pick == 0) { plan.kind = ActionKind.Attack; yield break; }
             if (pick == 2) { plan.kind = ActionKind.Guard; yield break; }
+            if (pick == 3) { yield return LoadMagazine(actor, mag); continue; } // 장전: 턴/TP 를 쓰지 않는다
 
             // 스킬 목록
             var skillLabels = new List<string>();
@@ -357,7 +368,8 @@ public class BattleManager : MonoBehaviour
                     break;
 
                 case ActionKind.Attack:
-                    yield return DoDamage(p.actor, "공격", 1f, true);
+                    if (p.actor.useMagazine) yield return DoMagazineAttack(p.actor);
+                    else yield return DoDamage(p.actor, "공격", 1f, true);
                     break;
 
                 case ActionKind.Skill:
@@ -508,6 +520,104 @@ public class BattleManager : MonoBehaviour
         {
             yield return DoDamage(actor, skill.name, skill.power, skill.useTiming);
         }
+    }
+
+
+    // ───────────────────────── 탄창 ─────────────────────────
+
+    private List<BulletDef> BulletTypeList()
+    {
+        return settings.bulletTypes != null && settings.bulletTypes.Count > 0 ? settings.bulletTypes : BattleDefaults.BulletTypes();
+    }
+
+    private Magazine MagazineOf(BattleActor actor)
+    {
+        return BattleInventory.GetMagazine(actor.name, actor.magazineKind, actor.magazineCapacity);
+    }
+
+    private bool AnyStock()
+    {
+        foreach (BulletDef b in BulletTypeList())
+            if (BattleInventory.GetCount(b.name) > 0) return true;
+        return false;
+    }
+
+    /// <summary>장전: 탄을 고르고, 탄창 종류에 따라 넣을 위치를 고른다. 가득 차거나 취소할 때까지 반복.</summary>
+    private IEnumerator LoadMagazine(BattleActor actor, Magazine mag)
+    {
+        ui.ShowMagazine(mag);
+        yield return LoadMagazineLoop(actor, mag);
+        ui.HideMagazine();
+    }
+
+    private IEnumerator LoadMagazineLoop(BattleActor actor, Magazine mag)
+    {
+        string lastBullet = null; // 방금 고른 탄 — 메뉴를 다시 열 때 커서를 그대로 둔다
+        while (!mag.IsFull)
+        {
+            var types = new List<BulletDef>();
+            var labels = new List<string>();
+            var enabled = new List<bool>();
+            foreach (BulletDef b in BulletTypeList())
+            {
+                int have = BattleInventory.GetCount(b.name);
+                if (have <= 0) continue;
+                types.Add(b);
+                labels.Add($"{b.name}  ×{have}");
+                enabled.Add(true);
+            }
+            if (types.Count == 0) yield break;
+
+            int startAt = 0;
+            for (int k = 0; k < types.Count; k++) if (types[k].name == lastBullet) startAt = k;
+            yield return ui.Choose($"장전  ({mag.Count}/{mag.Capacity})", labels, enabled, true, startAt);
+            int t = ui.LastChoice;
+            if (t < 0) yield break;
+            lastBullet = types[t].name;
+
+            List<int> positions = mag.InsertPositions();
+            int pos = positions[0];
+            if (positions.Count > 1) // 리스트/덱: 탄창 그림 위에서 커서로 위치를 고른다
+            {
+                yield return ui.PickMagazinePosition(mag, types[t], positions);
+                if (ui.LastMagPick < 0) continue; // 취소 → 탄 고르기로
+                pos = ui.LastMagPick;
+            }
+
+            if (BattleInventory.TryConsume(types[t].name) && mag.TryInsert(types[t], pos))
+                ui.ShowMagazine(mag); // 그림을 현재 내용으로 갱신 (바로 그 칸에 나타남)
+        }
+    }
+
+    /// <summary>탄창 사격. 탄이 있으면 탄마다 커서 하나(줄 서서 연달아), 비어 있으면 기본 레이저(예전 방식).</summary>
+    private IEnumerator DoMagazineAttack(BattleActor actor)
+    {
+        Magazine mag = MagazineOf(actor);
+        if (mag.Count == 0)
+        {
+            yield return DoDamage(actor, "공격", 1f, true);
+            yield break;
+        }
+
+        yield return ui.SayFor(BattleMessages.Fill(messages.actionUse, enemy: enemy.name, actor: actor.name, action: "사격", skill: "사격"), 0.5f);
+
+        List<BulletDef> shots = mag.TakeForFire(settings.shotsPerAttack);
+        int total = 0, fired = 0;
+        yield return ui.RunTimingStream(shots, settings.bulletCrossSeconds, settings.bulletCursorInterval, (i, grade) =>
+        {
+            BulletDef b = shots[i];
+            float mult = GradeMultiplier(grade) * ElementChart.Multiplier(b.element, BattleElement.None);
+            int dmg = Mathf.Max(1, Mathf.RoundToInt(actor.attack * b.power * mult));
+            enemy.hp = Mathf.Max(0, enemy.hp - dmg);
+            total += dmg; fired++;
+            ui.ShakeEnemy();
+            ui.FloatAtEnemy(dmg.ToString(), BattleUI.GradeColor(grade));
+            Refresh();
+            return enemy.hp <= 0;
+        });
+
+        string msg = BattleMessages.Fill(messages.magazineResult, enemy: enemy.name, actor: actor.name, amount: fired, damage: total);
+        yield return ui.SayFor(msg, 0.9f);
     }
 
     private IEnumerator DoDamage(BattleActor actor, string actionName, float power, bool useTiming)

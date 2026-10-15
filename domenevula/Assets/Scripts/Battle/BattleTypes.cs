@@ -265,6 +265,14 @@ public class BattleActor
     public int maxMP = 30;
     public List<BattleSkill> skills = new List<BattleSkill>();
 
+    [Header("탄창 (총을 쓰는 캐릭터만)")]
+    [Tooltip("체크하면 '공격'이 탄창의 탄을 쏘고, 행동 메뉴에 '장전'이 생긴다. 탄창이 비어 있으면 기본 레이저(커서 1개, 무속성)")]
+    public bool useMagazine = false;
+    [Tooltip("탄창 종류 (전투 중에는 못 바꾼다. 맵 씬에서는 BattleInventory.SetMagazineKind 로 바꾼다)")]
+    public MagazineKind magazineKind = MagazineKind.Queue;
+    [Tooltip("탄창 최대 용량 (1~8). 이보다 적게 채워도 된다")]
+    [Range(1, 8)] public int magazineCapacity = 6;
+
     [NonSerialized] public int hp;
     [NonSerialized] public int mp;
     [NonSerialized] public bool guarding;
@@ -349,6 +357,42 @@ public class BattleSettings
     [Header("타이밍 타격")]
     public float timingSweepsPerSecond = 0.9f;
     public float timingTimeoutSeconds = 3f;
+
+    [Header("탄창 / 탄")]
+    [Tooltip("탄 종류 목록. 비어 있으면 기본 4종(화염·물·바람·대지)을 쓴다")]
+    public List<BulletDef> bulletTypes = BattleDefaults.BulletTypes();
+    [Tooltip("전투 시작 때 가지고 있는 탄 개수 (처음 한 번만 적용, 이후 전투 사이에 이어짐). 단독 재생은 매번 이 값으로 시작")]
+    public List<BulletStock> startingBullets = BattleDefaults.StartingBullets();
+    [Tooltip("한 번 공격할 때 쏘는 최대 발수. 0 = 탄창에 든 탄 전부")]
+    public int shotsPerAttack = 0;
+    [Tooltip("탄 커서가 막대를 가로지르는 데 걸리는 시간(초). 짧을수록 어렵다")]
+    public float bulletCrossSeconds = 1.1f;
+    [Tooltip("커서가 줄 서서 나오는 간격(초)")]
+    public float bulletCursorInterval = 0.4f;
+
+    [Header("장전 연출 (탄창 그림)  — 이미지는 나중에 Sprite 칸에 넣으면 도형 대신 쓰인다")]
+    public bool magazineVisual = true;
+    [Tooltip("탄창 그림의 위치 (화면 중앙이 (0,0)). 왼쪽 메뉴와 겹치면 옮기세요")]
+    public Vector2 magazineOffset = new Vector2(0f, -22f);
+    [Tooltip("탄창 틀(전체를 감싸는 판) 이미지. 비우면 어두운 사각형")]
+    public Sprite magazineFrameSprite;
+    [Tooltip("칸 하나의 이미지. 비우면 사각형")]
+    public Sprite magazineSlotSprite;
+    [Tooltip("총알 이미지. 비우면 속성 색 사각형. 이미지를 넣어도 속성 색이 곱해지니, 원본 색을 쓰려면 Bullet Tint By Element 를 끄세요")]
+    public Sprite bulletSprite;
+    public bool bulletTintByElement = true;
+    public Vector2 magazineSlotSize = new Vector2(76f, 130f);
+    public Vector2 magazineBulletSize = new Vector2(54f, 108f);
+    [Tooltip("스택(세로로 쌓임)일 때 칸 크기")]
+    public Vector2 magazineStackSlotSize = new Vector2(170f, 40f);
+    [Tooltip("스택(세로로 쌓임)일 때 총알 크기")]
+    public Vector2 magazineStackBulletSize = new Vector2(150f, 30f);
+    [Tooltip("발사 방향 화살표와 발사 순서 번호의 색")]
+    public Color magazineArrowColor = new Color(1f, 0.88f, 0.35f);
+    [Tooltip("칸 사이 간격")]
+    public float magazineSlotGap = 10f;
+    public Color magazineFrameColor = new Color(0.06f, 0.07f, 0.12f, 0.95f);
+    public Color magazineSlotColor = new Color(0.22f, 0.24f, 0.32f, 1f);
     public float perfectMultiplier = 2f;
     public float goodMultiplier = 1.5f;
     public float normalMultiplier = 1f;
@@ -490,20 +534,42 @@ public static class BattleDefaults
         };
     }
 
+    /// <summary>하율 = 근접 서포터/힐러, 라임 = 총(탄창)을 쓰는 사수.</summary>
     public static List<BattleActor> Party()
     {
         return new List<BattleActor>
         {
             new BattleActor
             {
-                name = "하율", maxHP = 80, attack = 12, color = new Color(1f, 0.6f, 0.7f),
-                skills = new List<BattleSkill> { new BattleSkill("강타", SkillKind.Damage, 30, 2.2f, true) }
+                name = "하율", maxHP = 80, attack = 9, color = new Color(1f, 0.6f, 0.7f),
+                skills = new List<BattleSkill> { new BattleSkill("치유", SkillKind.Heal, 40, 35f, false) }
             },
             new BattleActor
             {
-                name = "라임", maxHP = 70, attack = 9, color = new Color(0.6f, 1f, 0.5f),
-                skills = new List<BattleSkill> { new BattleSkill("치유", SkillKind.Heal, 40, 35f, false) }
+                name = "라임", maxHP = 70, attack = 12, color = new Color(0.6f, 1f, 0.5f),
+                useMagazine = true, magazineKind = MagazineKind.Queue, magazineCapacity = 6,
+                skills = new List<BattleSkill> { new BattleSkill("조준 사격", SkillKind.Damage, 30, 2.2f, true) }
             },
+        };
+    }
+
+    public static List<BulletDef> BulletTypes()
+    {
+        return new List<BulletDef>
+        {
+            new BulletDef("화염탄", BattleElement.Fire),
+            new BulletDef("물탄", BattleElement.Water),
+            new BulletDef("바람탄", BattleElement.Wind),
+            new BulletDef("대지탄", BattleElement.Earth),
+        };
+    }
+
+    public static List<BulletStock> StartingBullets()
+    {
+        return new List<BulletStock>
+        {
+            new BulletStock("화염탄", 4), new BulletStock("물탄", 4),
+            new BulletStock("바람탄", 3), new BulletStock("대지탄", 3),
         };
     }
 
@@ -718,6 +784,8 @@ public class BattleMessages
     public string heal = "{target}의 HP가 {amount} 회복되었다.";
     [Tooltip("적에게 피해를 줬을 때.  {grade} {enemy} {damage}")]
     public string damageDealt = "{grade}{enemy}에게 {damage}의 데미지!";
+    [Tooltip("탄창 사격이 끝났을 때.  {actor} {enemy} {amount}=쏜 발수 {damage}=총 데미지")]
+    public string magazineResult = "{actor}의 사격!  {amount}발, 총 {damage}의 데미지!";
     [Tooltip("승리했을 때.  {enemy}")]
     public string victory = "{enemy}을(를) 쓰러뜨렸다!";
     [Tooltip("패배했을 때")]
