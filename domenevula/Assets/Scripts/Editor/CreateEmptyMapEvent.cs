@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// 빈 MapEvent 오브젝트를 한 번에 만들어주는 메뉴.
 /// NPC_Example에 쓰던 세팅(스프라이트, Box Collider 2D Is Trigger, Rigidbody2D Kinematic,
-/// Sorting Layer "Characters")을 기본값으로 깔아두고, 애니메이터와 커맨드는 비워둔다.
+/// Sorting Layer "Characters", DepthScale)을 기본값으로 깔아두고, 애니메이터와 커맨드는 비워둔다.
 /// 이후 Sprite만 원하는 캐릭터 그림으로 바꾸고, MapEvent의 "+ 커맨드 추가"로 내용을 채우면 됨.
 ///
 /// 붙이는 곳: Assets/Scripts/Editor/
@@ -43,7 +43,9 @@ public static class CreateEmptyMapEvent
         rb.bodyType = RigidbodyType2D.Kinematic;
         rb.useFullKinematicContacts = true;
 
-        go.AddComponent<MapEvent>();
+        go.AddComponent<DepthScale>();
+        go.AddComponent<CharacterSpriteAnimator>();
+        go.AddComponent<MapEvent>(); // MapEvent.Reset()이 같은 오브젝트의 CharacterSpriteAnimator를 자동으로 찾아 연결해준다
 
         Undo.RegisterCreatedObjectUndo(go, "빈 이벤트 오브젝트 생성");
         Selection.activeGameObject = go;

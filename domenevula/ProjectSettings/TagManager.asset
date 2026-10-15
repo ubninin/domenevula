@@ -50,5 +50,8 @@ TagManager:
   - name: UI
     uniqueID: 2471078487
     locked: 0
+  - name: SpeechBalloon
+    uniqueID: 1509209829
+    locked: 0
   m_RenderingLayers:
   - Default

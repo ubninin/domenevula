@@ -1,6 +1,8 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -31,6 +33,13 @@ public class MapEventEditor : Editor
         { nameof(TeleportPlayerCommand), "플레이어 이동(순간이동)" },
         { nameof(PlayEffectCommand), "이펙트 재생" },
         { nameof(DeactivateSelfCommand), "이 이벤트 비활성화" },
+        { nameof(PlayCharacterAnimationCommand), "캐릭터 애니메이션 한 번 재생" },
+        { nameof(SetCharacterMotionCommand), "캐릭터 대기/걷기 모션 변경" },
+        { nameof(MoveRouteCommand), "이동 루트 설정" },
+        { nameof(PlayMotionPresetCommand), "모션 프리셋 재생" },
+        { nameof(StopMotionPresetCommand), "모션 프리셋 정지" },
+        { nameof(FadeOutCommand), "화면 페이드아웃 (어두워짐)" },
+        { nameof(FadeInCommand), "화면 페이드인 (밝아짐)" },
     };
 
     private static string ToKorean(Type type) =>
@@ -105,8 +114,31 @@ public class MapEventEditor : Editor
         EditorGUILayout.PropertyField(page.FindPropertyRelative("requiredSelfSwitchValue"));
 
         EditorGUILayout.Space(4);
-        EditorGUILayout.LabelField("모습 / 동작", EditorStyles.miniBoldLabel);
+        EditorGUILayout.LabelField("모습", EditorStyles.miniBoldLabel);
+        EditorGUILayout.PropertyField(page.FindPropertyRelative("visible"));
         EditorGUILayout.PropertyField(page.FindPropertyRelative("sprite"));
+
+        SerializedProperty overrideMotion = page.FindPropertyRelative("overrideMotion");
+        EditorGUILayout.PropertyField(overrideMotion);
+        if (overrideMotion.boolValue)
+        {
+            EditorGUI.indentLevel++;
+            EditorGUILayout.PropertyField(page.FindPropertyRelative("idleMotion"), true);
+            EditorGUILayout.PropertyField(page.FindPropertyRelative("walkMotion"), true);
+            EditorGUI.indentLevel--;
+        }
+
+        SerializedProperty overrideDirection = page.FindPropertyRelative("overrideDirection");
+        EditorGUILayout.PropertyField(overrideDirection);
+        if (overrideDirection.boolValue)
+        {
+            EditorGUI.indentLevel++;
+            EditorGUILayout.PropertyField(page.FindPropertyRelative("direction"));
+            EditorGUI.indentLevel--;
+        }
+
+        EditorGUILayout.Space(4);
+        EditorGUILayout.LabelField("동작", EditorStyles.miniBoldLabel);
         EditorGUILayout.PropertyField(page.FindPropertyRelative("trigger"));
 
         EditorGUILayout.Space(4);
@@ -124,10 +156,17 @@ public class MapEventEditor : Editor
         page.FindPropertyRelative("requiredValue").boolValue = true;
         page.FindPropertyRelative("requiredSelfSwitch").stringValue = "";
         page.FindPropertyRelative("requiredSelfSwitchValue").boolValue = false;
+        page.FindPropertyRelative("visible").boolValue = true;
         page.FindPropertyRelative("sprite").objectReferenceValue = null;
+        page.FindPropertyRelative("overrideMotion").boolValue = false;
+        page.FindPropertyRelative("overrideDirection").boolValue = false;
+        page.FindPropertyRelative("direction").enumValueIndex = 0;
         page.FindPropertyRelative("trigger").enumValueIndex = 0;
         page.FindPropertyRelative("commands").ClearArray();
     }
+
+    /// <summary>커맨드 복사/붙여넣기용 클립보드. 에디터 세션 동안(페이지/이벤트가 달라도) 유지된다.</summary>
+    private static EventCommand clipboard;
 
     private void DrawCommandList(SerializedProperty commandsProp)
     {
@@ -144,6 +183,35 @@ public class MapEventEditor : Editor
                 commandsProp.MoveArrayElement(i, i - 1);
             if (GUILayout.Button("▼", GUILayout.Width(24)) && i < commandsProp.arraySize - 1)
                 commandsProp.MoveArrayElement(i, i + 1);
+
+            if (GUILayout.Button("복제", GUILayout.Width(42)))
+            {
+                EventCommand clone = CloneCommand(element.managedReferenceValue as EventCommand);
+                commandsProp.InsertArrayElementAtIndex(i + 1);
+                commandsProp.GetArrayElementAtIndex(i + 1).managedReferenceValue = clone;
+                commandsProp.serializedObject.ApplyModifiedProperties();
+                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.EndVertical();
+                return; // 바로 아래에 복제본이 끼어들어서 리스트가 바뀌었으니 이번 Draw는 여기서 중단
+            }
+            if (GUILayout.Button("복사", GUILayout.Width(42)))
+            {
+                clipboard = CloneCommand(element.managedReferenceValue as EventCommand);
+            }
+            GUI.enabled = clipboard != null;
+            if (GUILayout.Button("붙여넣기", GUILayout.Width(66)))
+            {
+                EventCommand pasted = CloneCommand(clipboard);
+                commandsProp.InsertArrayElementAtIndex(i + 1);
+                commandsProp.GetArrayElementAtIndex(i + 1).managedReferenceValue = pasted;
+                commandsProp.serializedObject.ApplyModifiedProperties();
+                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.EndVertical();
+                return; // 바로 아래에 붙여넣어서 리스트가 바뀌었으니 이번 Draw는 여기서 중단
+            }
+            GUI.enabled = true;
+            if (GUILayout.Button("+ 추가", GUILayout.Width(50)))
+                ShowAddCommandMenu(commandsProp, i + 1); // 이 커맨드 바로 아래에 새 커맨드를 끼워 넣는다
             if (GUILayout.Button("삭제", GUILayout.Width(50)))
             {
                 commandsProp.DeleteArrayElementAtIndex(i);
@@ -162,11 +230,74 @@ public class MapEventEditor : Editor
             EditorGUILayout.EndVertical();
         }
 
+        EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("+ 커맨드 추가", GUILayout.Height(24)))
-            ShowAddCommandMenu(commandsProp);
+            ShowAddCommandMenu(commandsProp, commandsProp.arraySize);
+
+        GUI.enabled = clipboard != null;
+        if (GUILayout.Button("+ 붙여넣기 (맨 끝에)", GUILayout.Height(24), GUILayout.Width(140)))
+        {
+            EventCommand pasted = CloneCommand(clipboard);
+            int index = commandsProp.arraySize;
+            commandsProp.InsertArrayElementAtIndex(index);
+            commandsProp.GetArrayElementAtIndex(index).managedReferenceValue = pasted;
+        }
+        GUI.enabled = true;
+        EditorGUILayout.EndHorizontal();
     }
 
-    private static void ShowAddCommandMenu(SerializedProperty commandsProp)
+    /// <summary>
+    /// EventCommand 하나를 (중첩된 조건 분기의 then/else 목록까지) 깊은 복사한다.
+    /// EditorJsonUtility로 복사하면 Transform/MapEvent 같은 연결된 오브젝트 참조가 끊어지길래,
+    /// 리플렉션으로 필드를 직접 복사하는 방식으로 바꿨다 - UnityEngine.Object 참조는 복제하지 않고
+    /// 그대로 같은 오브젝트를 계속 가리키게 두고, 나머지(값 형식, 중첩 리스트)만 실제로 복사한다.
+    /// </summary>
+    private static EventCommand CloneCommand(EventCommand src)
+    {
+        return (EventCommand)DeepCopy(src);
+    }
+
+    private static object DeepCopy(object src)
+    {
+        if (src == null) return null;
+        Type type = src.GetType();
+
+        // 오브젝트 참조(Transform, MapEvent, MotionPreset 에셋 등)는 복제하지 않고 그대로 연결 유지
+        if (typeof(UnityEngine.Object).IsAssignableFrom(type))
+            return src;
+
+        if (type.IsPrimitive || type.IsEnum || src is string)
+            return src;
+
+        if (type.IsArray)
+        {
+            Array srcArr = (Array)src;
+            Array dstArr = Array.CreateInstance(type.GetElementType(), srcArr.Length);
+            for (int i = 0; i < srcArr.Length; i++)
+                dstArr.SetValue(DeepCopy(srcArr.GetValue(i)), i);
+            return dstArr;
+        }
+
+        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+        {
+            var list = (IList)Activator.CreateInstance(type);
+            foreach (object item in (IEnumerable)src)
+                list.Add(DeepCopy(item));
+            return list;
+        }
+
+        // 나머지는 [Serializable] 클래스/구조체로 보고 필드를 하나씩 복사 (EventCommand 자신, MoveRouteStep 등)
+        object copy = Activator.CreateInstance(type);
+        foreach (FieldInfo field in type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+        {
+            if (field.IsStatic || field.IsNotSerialized) continue;
+            field.SetValue(copy, DeepCopy(field.GetValue(src)));
+        }
+        return copy;
+    }
+
+    /// <summary>insertIndex 자리에 새 커맨드를 끼워 넣는다 (목록 끝에 추가하려면 arraySize를 넘기면 됨).</summary>
+    private static void ShowAddCommandMenu(SerializedProperty commandsProp, int insertIndex)
     {
         GenericMenu menu = new GenericMenu();
         foreach (Type type in GetCommandTypes())
@@ -175,7 +306,7 @@ public class MapEventEditor : Editor
             menu.AddItem(new GUIContent(label), false, () =>
             {
                 commandsProp.serializedObject.Update();
-                int index = commandsProp.arraySize;
+                int index = Mathf.Clamp(insertIndex, 0, commandsProp.arraySize);
                 commandsProp.InsertArrayElementAtIndex(index);
                 SerializedProperty newElement = commandsProp.GetArrayElementAtIndex(index);
                 newElement.managedReferenceValue = Activator.CreateInstance(type);

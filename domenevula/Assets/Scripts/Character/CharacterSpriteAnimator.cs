@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 /// <summary>
@@ -26,19 +27,52 @@ public class CharacterSpriteAnimator : MonoBehaviour
     [Tooltip("UpdateFromInput()으로 한 번도 움직인 적 없을 때(NPC 등) 기본으로 바라보는 방향")]
     [SerializeField] private FacingDirection initialDirection = FacingDirection.Down;
 
-    [Header("모션별 방향 프레임 (Run은 Walk 프레임을 재사용)")]
-    [SerializeField] private DirectionalFrameSet idle;
-    [SerializeField] private DirectionalFrameSet walk;
+    [Header("모션 에셋 (Project 창에서 Create → 도메네뷸라 → Character Motion으로 생성)")]
+    [Tooltip("대기 모션. 방향별 프레임/재생속도/크기 배율을 이 에셋 하나로 관리한다")]
+    [SerializeField] private MotionPreset idleMotion;
+    [Tooltip("걷기 모션 (Run은 이 프레임을 더 빠른 속도로 재사용해서 재생한다)")]
+    [SerializeField] private MotionPreset walkMotion;
 
-    [Header("재생 속도 (초당 프레임 수)")]
-    [SerializeField] private float idleFrameRate = 6f;
-    [SerializeField] private float walkFrameRate = 15f;
+    [Header("Run 전용 배속 (Walk 모션 에셋의 프레임을 이 속도로 재생)")]
     [SerializeField] private float runFrameRate = 20f;
+
+    [Tooltip("자주 나오는 주요 인물이면 연결 (선택). 위 Idle/Walk Motion을 비워두면 " +
+             "이 캐릭터 에셋에 등록된 모션을 대신 쓴다. 우선순위가 가장 낮아서, 위 Idle/Walk Motion을 " +
+             "따로 채워두면 그쪽이 항상 이긴다.")]
+    [SerializeField] private CharacterDefinition characterDefinition;
+
+    private MotionPreset ResolvedIdleMotion =>
+        idleMotion != null ? idleMotion : (characterDefinition != null ? characterDefinition.idleMotion : null);
+    private MotionPreset ResolvedWalkMotion =>
+        walkMotion != null ? walkMotion : (characterDefinition != null ? characterDefinition.walkMotion : null);
+
+    // DepthScale이 같이 붙어있으면 각 모션 에셋의 크기 배율 위에 거리 가중치를 곱해서 적용한다.
+    // DepthScale이 없으면 이 스크립트가 직접 Transform.localScale에 반영한다.
+    private DirectionalFrameSet idle => ResolvedIdleMotion != null ? ResolvedIdleMotion.frames : null;
+    private DirectionalFrameSet walk => ResolvedWalkMotion != null ? ResolvedWalkMotion.frames : null;
+    private float idleFrameRate => ResolvedIdleMotion != null ? ResolvedIdleMotion.frameRate : 6f;
+    private float walkFrameRate => ResolvedWalkMotion != null ? ResolvedWalkMotion.frameRate : 15f;
+    private Vector3 idleScale => ResolvedIdleMotion != null ? ResolvedIdleMotion.scale : Vector3.one;
+    private Vector3 walkScale => ResolvedWalkMotion != null ? ResolvedWalkMotion.scale : Vector3.one;
 
     private FacingDirection currentDirection;
     private MotionState currentMotion = MotionState.Idle;
     private int frameIndex;
     private float frameTimer;
+    private Vector3 baseLocalScale;
+    private DepthScale depthScale;
+
+    /// <summary>지금 프리셋이 재생 중이면 그 프리셋, 아니면 null.</summary>
+    private MotionPreset activePreset;
+    private Coroutine presetRoutine;
+
+    /// <summary>지금 모션에 해당하는 크기 배율. DepthScale이 이 값을 읽어서 가중치를 곱한다.</summary>
+    public Vector3 CurrentMotionScale =>
+        activePreset != null ? activePreset.scale : (currentMotion == MotionState.Idle ? idleScale : walkScale);
+
+    /// <summary>true인 동안은 Update()의 평소 idle/walk 재생을 멈추고, 한 번 재생 중인
+    /// 커스텀 애니메이션(PlayOnceRoutine/프리셋)이 직접 SpriteRenderer를 조작한다.</summary>
+    private bool playingOneShot;
 
     private void Reset()
     {
@@ -49,6 +83,8 @@ public class CharacterSpriteAnimator : MonoBehaviour
     {
         if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
         currentDirection = initialDirection;
+        baseLocalScale = transform.localScale;
+        depthScale = GetComponent<DepthScale>();
     }
 
     /// <summary>
@@ -89,9 +125,118 @@ public class CharacterSpriteAnimator : MonoBehaviour
         ResetFrame();
     }
 
+    /// <summary>
+    /// 대기/걷기 모션 에셋 자체를 통째로 바꾼다 (이벤트 페이지 전환 등에서 사용).
+    /// 프레임뿐 아니라 그 에셋에 설정된 재생 속도/크기 배율까지 같이 바뀐다. null로 넘긴 쪽은 그대로 유지된다.
+    /// </summary>
+    public void SetMotionSets(MotionPreset idlePreset, MotionPreset walkPreset)
+    {
+        if (idlePreset != null) idleMotion = idlePreset;
+        if (walkPreset != null) walkMotion = walkPreset;
+        ResetFrame();
+    }
+
+    /// <summary>
+    /// 지정한 모션을 한 번(처음부터 끝까지 한 바퀴)만 재생하고, 끝나면 원래 하던 idle/walk 재생으로 돌아간다.
+    /// 재생하는 동안은 UpdateFromInput()을 불러도 무시된다(끝날 때까지 기다렸다가 반영됨).
+    /// </summary>
+    public IEnumerator PlayOnceRoutine(DirectionalFrameSet motion, float frameRate, FacingDirection? direction = null)
+    {
+        if (motion == null) yield break;
+
+        FacingDirection dir = direction ?? currentDirection;
+        Sprite[] frames = motion.Get(dir);
+        if (frames == null || frames.Length == 0) yield break;
+
+        playingOneShot = true;
+        float frameDuration = 1f / Mathf.Max(0.01f, frameRate);
+        for (int i = 0; i < frames.Length; i++)
+        {
+            if (frames[i] != null) spriteRenderer.sprite = frames[i];
+            yield return new WaitForSeconds(frameDuration);
+        }
+        playingOneShot = false;
+        ResetFrame();
+    }
+
+    /// <summary>PlayOnceRoutine을 기다리지 않고 바로 재생만 시작하고 싶을 때.</summary>
+    public void PlayOnce(DirectionalFrameSet motion, float frameRate, FacingDirection? direction = null)
+    {
+        StartCoroutine(PlayOnceRoutine(motion, frameRate, direction));
+    }
+
+    /// <summary>
+    /// MotionPreset 에셋을 직접 넘겨서 재생한다 (Project 창의 모션 에셋을 그대로 끌어다 쓰면 됨).
+    /// Loop 프리셋은 StopPreset()을 부를 때까지 계속 재생되고, Loop가 꺼진 프리셋은 한 바퀴 돌면
+    /// 자동으로 평소 대기/걷기 재생으로 돌아간다. 돌려주는 Coroutine에 yield return하면
+    /// (Loop가 꺼진 프리셋에 한해) 끝날 때까지 기다릴 수 있다.
+    /// </summary>
+    public Coroutine PlayPreset(MotionPreset preset, FacingDirection? direction = null)
+    {
+        if (preset == null)
+        {
+            Debug.LogWarning($"CharacterSpriteAnimator({name}): 재생할 모션 프리셋 에셋이 비어 있습니다.");
+            return null;
+        }
+
+        StopPreset();
+        presetRoutine = StartCoroutine(PlayPresetRoutine(preset, direction ?? currentDirection));
+        return presetRoutine;
+    }
+
+    /// <summary>재생 중인 프리셋을 멈추고 평소 대기/걷기 재생(UpdateFromInput 기준)으로 돌아간다.</summary>
+    public void StopPreset()
+    {
+        if (presetRoutine != null) { StopCoroutine(presetRoutine); presetRoutine = null; }
+        if (activePreset != null)
+        {
+            activePreset = null;
+            playingOneShot = false;
+            ResetFrame();
+        }
+    }
+
+    private IEnumerator PlayPresetRoutine(MotionPreset preset, FacingDirection dir)
+    {
+        Sprite[] frames = preset.frames != null ? preset.frames.Get(dir) : null;
+        if (frames == null || frames.Length == 0)
+        {
+            Debug.LogWarning($"CharacterSpriteAnimator({name}): 프리셋 '{preset.name}'(에셋)에 {dir} 방향 프레임이 없습니다.");
+            yield break;
+        }
+
+        activePreset = preset;
+        playingOneShot = true; // 평소 idle/walk Update 루프를 멈춘다
+        float frameDuration = 1f / Mathf.Max(0.01f, preset.frameRate);
+        int i = 0;
+
+        while (true)
+        {
+            if (frames[i] != null) spriteRenderer.sprite = frames[i];
+            if (depthScale == null) transform.localScale = Vector3.Scale(baseLocalScale, preset.scale);
+
+            yield return new WaitForSeconds(frameDuration);
+
+            i++;
+            if (i >= frames.Length)
+            {
+                if (preset.loop) i = 0;
+                else break;
+            }
+        }
+
+        activePreset = null;
+        playingOneShot = false;
+        presetRoutine = null;
+        ResetFrame();
+    }
+
     private void Update()
     {
+        if (playingOneShot) return; // 커스텀 1회 애니메이션 재생 중에는 평소 idle/walk 갱신을 건너뛴다
+
         DirectionalFrameSet activeSet = currentMotion == MotionState.Idle ? idle : walk;
+        if (activeSet == null) return; // 모션 에셋이 비어있으면 재생하지 않고 지금 스프라이트를 그대로 둔다
         Sprite[] frames = activeSet.Get(currentDirection);
         if (frames == null || frames.Length == 0) return;
 
@@ -112,6 +257,11 @@ public class CharacterSpriteAnimator : MonoBehaviour
 
         Sprite target = frames[frameIndex];
         if (target != null) spriteRenderer.sprite = target;
+
+        // DepthScale이 있으면 그쪽 LateUpdate가 모션 배율 위에 거리 가중치까지 곱해서 최종 적용하므로
+        // 여기서는 건드리지 않는다 (두 스크립트가 같은 프레임에 서로 다른 값으로 localScale을 덮어쓰는 걸 방지).
+        if (depthScale == null)
+            transform.localScale = Vector3.Scale(baseLocalScale, CurrentMotionScale);
     }
 
     private void ResetFrame()

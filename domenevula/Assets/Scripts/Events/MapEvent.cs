@@ -27,9 +27,26 @@ public class MapEventPage
     public bool requiredSelfSwitchValue = false;
 
     [Header("이 페이지일 때의 모습")]
-    [Tooltip("비워두면 스프라이트를 숨김(안 보임). 트리거/커맨드는 그대로 동작하므로 " +
+    [Tooltip("체크 해제하면 이 페이지에서는 안 보임. 트리거/커맨드는 그대로 동작하므로 " +
              "'안 보이는 트리거 영역'을 만들 때도 쓸 수 있다")]
+    public bool visible = true;
+
+    [Tooltip("MapEvent에 Character Animator가 연결되어 있지 않을 때(정적인 오브젝트)만 쓰이는 스프라이트. " +
+             "Character Animator가 있으면 이 필드는 무시되고 아래 모션 설정이 그려진다")]
     public Sprite sprite;
+
+    [Header("캐릭터 모션 (MapEvent에 Character Animator가 연결되어 있을 때만 적용됨)")]
+    [Tooltip("체크하면 이 페이지가 활성화될 때 아래 대기/걷기 모션으로 바꾼다. " +
+             "체크 해제하면 모션은 이전 페이지 상태 그대로 유지된다(모션을 안 바꾸고 싶을 때)")]
+    public bool overrideMotion = false;
+    [Tooltip("이 페이지의 대기(idle) 모션 에셋 (Create → 도메네뷸라 → Character Motion). 비워두면 바꾸지 않음")]
+    public MotionPreset idleMotion;
+    [Tooltip("이 페이지의 걷기(walk) 모션 에셋. 비워두면 바꾸지 않음")]
+    public MotionPreset walkMotion;
+
+    [Tooltip("체크하면 이 페이지가 활성화될 때 아래 방향으로 바라보게 고정한다. 체크 해제하면 바라보던 방향 그대로 유지")]
+    public bool overrideDirection = false;
+    public FacingDirection direction = FacingDirection.Down;
 
     [Header("이 페이지의 동작")]
     public TriggerType trigger = TriggerType.ActionButton;
@@ -75,6 +92,13 @@ public class MapEvent : MonoBehaviour
     [Tooltip("페이지 모습을 바꿀 때 쓸 SpriteRenderer. 비워두면 같은 오브젝트에서 자동으로 찾는다")]
     [SerializeField] private SpriteRenderer spriteRenderer;
 
+    [Tooltip("페이지별로 대기/걷기 모션을 바꾸고 싶을 때 연결. 정적인 오브젝트(상자 등)는 비워두면 됨")]
+    [SerializeField] private CharacterSpriteAnimator characterAnimator;
+
+    [Tooltip("자주 나오는 주요 인물이면 연결 (선택). 이 캐릭터의 기본 Idle/Walk Motion이 적용되지만 " +
+             "우선순위가 제일 낮아서, 아래 페이지에서 Override Motion을 따로 체크해두면 그쪽이 항상 이긴다")]
+    [SerializeField] private CharacterDefinition characterDefinition;
+
     [Header("페이지 (RPG Maker 이벤트 페이지와 동일한 개념)")]
     [Tooltip("위에서부터 검사해서 조건을 만족하는 '마지막' 페이지가 활성화된다. 1번 페이지는 조건 없이 기본 모습으로 두는 걸 추천")]
     [SerializeField] private List<MapEventPage> pages = new List<MapEventPage> { new MapEventPage() };
@@ -88,6 +112,7 @@ public class MapEvent : MonoBehaviour
 
     private readonly Dictionary<string, bool> selfSwitches = new Dictionary<string, bool>();
     private bool isRunning;
+    private bool currentRunLocksMovement;
     private Transform player;
     private int activePageIndex = -1;
     private Coroutine passiveRoutine;
@@ -96,17 +121,46 @@ public class MapEvent : MonoBehaviour
         (activePageIndex >= 0 && activePageIndex < pages.Count) ? pages[activePageIndex] : null;
 
     private void OnEnable() => All.Add(this);
-    private void OnDisable() => All.Remove(this);
+
+    private void OnDisable()
+    {
+        All.Remove(this);
+
+        // '이 이벤트 비활성화' 커맨드처럼 실행 중에 자기 자신을 끄는 경우, 유니티가 그 순간
+        // RunCommands 코루틴을 강제로 멈춰버려서 맨 끝의 RunningEventCount-- 가 실행되지 못한다.
+        // 그대로 두면 GameplayLock이 영원히 "이벤트 실행 중"으로 잠긴 채 남으므로 여기서 대신 풀어준다.
+        if (isRunning && currentRunLocksMovement)
+        {
+            RunningEventCount--;
+            isRunning = false;
+        }
+    }
+
+    private void Reset()
+    {
+        // 컴포넌트를 처음 추가할 때, 같은 오브젝트에 Character Sprite Animator가 있으면 자동으로 연결해준다.
+        // (Character Animator를 비워두면 ApplyAppearance가 페이지의 스프라이트를 직접 집어넣는데,
+        //  같은 오브젝트에 애니메이터가 따로 있으면 그쪽이 매 프레임 자기 모션으로 덮어써버려서
+        //  "모션 바꿨는데 잠깐 떴다가 원래대로 돌아온다"는 증상이 생긴다. 없으면 그대로 None으로 둔다.)
+        if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
+        if (characterAnimator == null) characterAnimator = GetComponent<CharacterSpriteAnimator>();
+    }
 
     private void Awake()
     {
         if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
+        if (characterAnimator == null) characterAnimator = GetComponent<CharacterSpriteAnimator>();
     }
 
     private void Start()
     {
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null) player = playerObj.transform;
+
+        // 캐릭터 에셋의 모션은 우선순위가 가장 낮은 "기본값"이라, 페이지의 Override Motion이
+        // 덮어쓸 수 있도록 페이지를 적용하기 전에 먼저 깔아둔다.
+        if (characterAnimator != null && characterDefinition != null)
+            characterAnimator.SetMotionSets(characterDefinition.idleMotion, characterDefinition.walkMotion);
 
         SetPrompt(false);
         RefreshActivePage(force: true);
@@ -162,9 +216,18 @@ public class MapEvent : MonoBehaviour
 
     private void ApplyAppearance(MapEventPage page)
     {
-        if (spriteRenderer == null) return;
-        spriteRenderer.sprite = page.sprite;
-        spriteRenderer.enabled = page.sprite != null;
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.enabled = page.visible;
+            // Character Animator가 있으면 그쪽이 매 프레임 알아서 스프라이트를 넣으므로 건드리지 않는다.
+            if (characterAnimator == null) spriteRenderer.sprite = page.sprite;
+        }
+
+        if (characterAnimator != null && page.overrideMotion)
+            characterAnimator.SetMotionSets(page.idleMotion, page.walkMotion);
+
+        if (characterAnimator != null && page.overrideDirection)
+            characterAnimator.SetFacing(page.direction);
     }
 
     private void RestartPassiveRoutine(MapEventPage page)
@@ -208,6 +271,7 @@ public class MapEvent : MonoBehaviour
         // ActionButton/PlayerTouch/Autorun은 컷신처럼 플레이어 조작을 막는다.
         // Parallel(배경 연출)만 조작을 막지 않는다.
         bool locksMovement = page.trigger != MapEventPage.TriggerType.Parallel;
+        currentRunLocksMovement = locksMovement;
         if (locksMovement) RunningEventCount++;
 
         var ctx = new EventExecutionContext { Self = this, Player = player };
@@ -218,6 +282,7 @@ public class MapEvent : MonoBehaviour
             yield return cmd.Execute(ctx);
         }
 
+        // 여기까지 정상적으로 왔다면(= 중간에 OnDisable로 끊기지 않았다면) 평소처럼 풀어준다.
         if (locksMovement) RunningEventCount--;
         isRunning = false;
     }

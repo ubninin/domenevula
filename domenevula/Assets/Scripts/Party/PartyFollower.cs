@@ -47,6 +47,15 @@ public class PartyFollower : MonoBehaviour, IPartyMovementState
 
     private void Update()
     {
+        // 대사/이벤트 중에는 플레이어도 멈춰 있으니, 아직 followDistance만큼 안 따라붙었어도
+        // 파티원이 계속 쫓아오며 걷는 모션을 재생하지 않도록 같이 멈춘다.
+        if (GameplayLock.IsActionLocked())
+        {
+            IsRunning = false;
+            animator?.UpdateFromInput(Vector2.zero, false);
+            return;
+        }
+
         if (target == null)
         {
             IsRunning = false;

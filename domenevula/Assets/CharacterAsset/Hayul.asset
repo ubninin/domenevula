@@ -10,8 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e81636b26a62b96448280e5e37900b02, type: 3}
-  m_Name: Lime
+  m_Name: Hayul
   m_EditorClassIdentifier: 
-  displayName: "\uAD6C\uB77C"
+  displayName: 
   portrait: {fileID: 0}
   isPartyMember: 1
+  windowBackground: {fileID: 0}
+  windowFrame: {fileID: 0}
+  balloonBubble: {fileID: 0}
+  balloonTail: {fileID: 0}
+  idleMotion: {fileID: 11400000, guid: dac59fcbd9da4fe43b6a25e0f33d5291, type: 2}
+  walkMotion: {fileID: 11400000, guid: 3e0a959f03163734a813cc1f0a404325, type: 2}

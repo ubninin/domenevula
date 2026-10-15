@@ -57,7 +57,7 @@ MonoBehaviour:
     allowDefeat: 0
     onVictory: {fileID: 0}
     onDefeat: {fileID: 0}
-  - kind: 1
+  - kind: 0
     speaker: {fileID: 11400000, guid: 6c8a073a93f880e45b82f0c7d966b06e, type: 2}
     text: "\uAD50\uC218\uB2D8 \uC9D1\uC5D0\uBCF4\uB0B4\uC8FC\uC138\uC694"
     portraitOverride: {fileID: -8548035357666841804, guid: 7ff829ba5dce61e48aabad8e5cc329cf, type: 3}

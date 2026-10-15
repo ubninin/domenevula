@@ -33,4 +33,12 @@ public class CharacterDefinition : ScriptableObject
 
     [Tooltip("이 캐릭터 전용 말풍선 꼬리 이미지 (위와 동일한 우선순위)")]
     public Sprite balloonTail;
+
+    [Header("맵 위에서의 기본 모션 (선택)")]
+    [Tooltip("자주 나오는 주요 인물의 대기/걷기 모션을 여기 한 번 등록해두면, MapEvent의 " +
+             "Character Definition 슬롯에 이 에셋을 연결한 모든 이벤트가 이 모션을 기본으로 쓴다.\n" +
+             "우선순위가 가장 낮아서, 각 MapEvent 페이지에서 Override Motion으로 따로 지정한 모션이 있으면 그쪽이 항상 이긴다.")]
+    public MotionPreset idleMotion;
+    [Tooltip("위와 동일 (걷기 모션)")]
+    public MotionPreset walkMotion;
 }

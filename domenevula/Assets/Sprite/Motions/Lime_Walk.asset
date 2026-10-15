@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8094cf0180ec4344dada5181792e7b40, type: 3}
+  m_Name: Lime_Walk
+  m_EditorClassIdentifier: 
+  frames:
+    down:
+    - {fileID: -1017840816, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: 633862307, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -198569881, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: 1521488045, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -854785936, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -1827017007, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: 1304558245, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: 1569140288, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -1049080786, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -223077549, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -334888114, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -85448247, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    left:
+    - {fileID: -740078222, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -580951763, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: 24554970, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: 1026886649, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -1464300519, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: 1500709886, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: 994866577, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -479836388, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -1769334312, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: 2064659258, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -1386631255, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -1768369934, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    right:
+    - {fileID: 878223751, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -1440375566, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -100238378, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -1263636702, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -1625230299, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -1461504142, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -1601788202, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -1857322473, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: 1587980883, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -1016049811, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -42743944, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -2097798228, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    up:
+    - {fileID: -554220669, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -273783932, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: 817891249, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: 415978460, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: 1025168889, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -1889156557, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: 2105399093, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -588599053, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -734813646, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -1877105941, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -1320614889, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+    - {fileID: -481155993, guid: 0553bc4e1a96880439c6dca0ec551cbb, type: 3}
+  frameRate: 15
+  loop: 1
+  scale: {x: 1, y: 1, z: 1}

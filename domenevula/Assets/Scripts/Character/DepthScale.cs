@@ -22,6 +22,12 @@ using UnityEngine;
 /// 1. Play 모드에서 캐릭터를 맵의 가장 아래쪽(화면 앞쪽)과 가장 위쪽(화면 안쪽)으로 이동시켜 본다.
 /// 2. DepthScaleSettings 에셋의 minY/maxY에 그 두 Y 좌표를 넣는다.
 /// 3. closeScale(가까울 때, 보통 1)과 farScale(멀 때, 보통 0.75~0.9 사이)을 눈으로 보면서 조정한다.
+///
+/// CharacterSpriteAnimator와 같이 붙어있으면, 거리에 따른 배율은 "원래 크기"가 아니라
+/// "그 애니메이터가 지금 모션(대기/걷기)에 맞춰 정한 크기" 위에 가중치로 곱해서 적용된다.
+/// 즉 DepthScale은 더 이상 자기만의 고정된 baseScale을 쓰지 않고, 매 프레임
+/// (원래 크기 × 모션별 배율) × 거리 가중치 순서로 계산한다 — 모션별 스케일이 바뀌어도
+/// 거리에 따라 작아지고 커지는 느낌은 그대로 유지된다.
 /// </summary>
 public class DepthScale : MonoBehaviour
 {
@@ -35,10 +41,12 @@ public class DepthScale : MonoBehaviour
     [SerializeField] private float farScale = 0.85f;
 
     private Vector3 baseScale;
+    private CharacterSpriteAnimator animator;
 
     private void Awake()
     {
         baseScale = transform.localScale;
+        animator = GetComponent<CharacterSpriteAnimator>();
     }
 
     private void LateUpdate()
@@ -49,7 +57,11 @@ public class DepthScale : MonoBehaviour
         float useFarScale = settings != null ? settings.farScale : farScale;
 
         float t = Mathf.InverseLerp(useMinY, useMaxY, transform.position.y); // 0(가까움)~1(멈)
-        float scale = Mathf.Lerp(useCloseScale, useFarScale, t);
-        transform.localScale = baseScale * scale;
+        float depthWeight = Mathf.Lerp(useCloseScale, useFarScale, t);
+
+        // CharacterSpriteAnimator가 있으면 그 모션(대기/걷기)별 배율을 먼저 곱하고,
+        // 그 위에 거리 가중치를 한 번 더 곱한다. 없으면 기존처럼 순수 거리 가중치만 적용.
+        Vector3 motionScale = animator != null ? animator.CurrentMotionScale : Vector3.one;
+        transform.localScale = Vector3.Scale(baseScale, motionScale) * depthWeight;
     }
 }

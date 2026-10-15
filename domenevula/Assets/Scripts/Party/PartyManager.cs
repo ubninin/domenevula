@@ -125,4 +125,21 @@ public class PartyManager : MonoBehaviour
         PartyMemberSlot last = members[members.Count - 1];
         return last.instance != null ? last.instance.transform : player;
     }
+
+    /// <summary>플레이어(리더)의 Transform.</summary>
+    public Transform Player => player;
+
+    /// <summary>
+    /// 지정한 Character Definition과 연결된 파티원의 실제(Play 중에 Instantiate된) Transform을 찾는다.
+    /// 씬에 미리 놓아둔 원본/비활성 오브젝트가 아니라 지금 화면에 보이는 그 복제본을 돌려준다.
+    /// 아직 파티에 없거나 인스턴스가 없으면 null.
+    /// </summary>
+    public Transform FindMemberTransform(CharacterDefinition character)
+    {
+        if (character == null) return null;
+        foreach (PartyMemberSlot slot in members)
+            if (slot.character == character && slot.instance != null)
+                return slot.instance.transform;
+        return null;
+    }
 }
