@@ -760,12 +760,13 @@ public class BattleManager : MonoBehaviour
     /// <summary>이 단계를 Enter 없이 키 하나로 입력하는 자리연습 방식으로 할지.</summary>
     private static bool UsesInstantKey(WordTier tier)
     {
-        bool allTypable = tier.words != null && tier.words.Length > 0;
+        string[] list = tier.UsesFixedWords ? tier.fixedWords : tier.words;
+        bool allTypable = list != null && list.Length > 0;
         if (allTypable)
         {
-            foreach (string w in tier.words)
+            foreach (string w in list)
             {
-                if (!HangulKeyboard.IsTypable(w)) { allTypable = false; break; }
+                if (!string.IsNullOrEmpty(w) && !HangulKeyboard.IsTypable(w)) { allTypable = false; break; }
             }
         }
 

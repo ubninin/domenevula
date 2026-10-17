@@ -29,6 +29,16 @@ public class BattleWordBoard
         }
     }
 
+    /// <summary>현재 단계가 단어 고정 모드인지 (칸 단어가 바뀌지 않는다).</summary>
+    public bool KeepWords
+    {
+        get
+        {
+            if (tiers == null || tiers.Count == 0) return false;
+            return tiers[Clamp(tier, 0, tiers.Count - 1)].UsesFixedWords;
+        }
+    }
+
     public int TierCount => tiers == null ? 0 : tiers.Count;
 
     public BattleWordBoard(IList<WordTier> tiers, int cellCount, int seed)
@@ -49,6 +59,8 @@ public class BattleWordBoard
     {
         for (int i = 0; i < words.Length; i++) words[i] = null;
 
+        if (KeepWords) { FillFixed(); return; }
+
         // 칸 순서를 섞어서 뽑아야 특정 칸만 불리해지지 않음
         var order = new List<int>();
         for (int i = 0; i < words.Length; i++) order.Add(i);
@@ -56,10 +68,32 @@ public class BattleWordBoard
         foreach (int cell in order) words[cell] = Draw(cell);
     }
 
-    /// <summary>한 칸의 단어만 새로 뽑는다 (그 칸 단어를 쳤을 때).</summary>
+    /// <summary>고정 모드: Fixed Words 를 칸 순서대로 놓는다. 비는 칸은 Words 에서 뽑는다.</summary>
+    private void FillFixed()
+    {
+        string[] fx = tiers[Clamp(tier, 0, tiers.Count - 1)].fixedWords;
+        var drawLater = new List<int>();
+        for (int i = 0; i < words.Length; i++)
+        {
+            if (i < fx.Length && !string.IsNullOrEmpty(fx[i])) words[i] = fx[i];
+            else drawLater.Add(i);
+        }
+        foreach (int cell in drawLater) words[cell] = Draw(cell);
+
+        for (int a = 0; a < words.Length; a++)
+            for (int b = a + 1; b < words.Length; b++)
+                if (words[a] == words[b] || HangulWordRules.Conflicts(words[a], words[b]))
+                {
+                    Warn?.Invoke($"고정 단어 '{words[a]}'(칸 {a})와 '{words[b]}'(칸 {b})는 입력할 때 서로 헷갈릴 수 있습니다.");
+                    return;
+                }
+    }
+
+    /// <summary>한 칸의 단어만 새로 뽑는다 (그 칸 단어를 쳤을 때). 고정 모드에서는 아무것도 하지 않는다.</summary>
     public void Refresh(int cell)
     {
         if (cell < 0 || cell >= words.Length) return;
+        if (KeepWords) return;
         words[cell] = Draw(cell);
     }
 

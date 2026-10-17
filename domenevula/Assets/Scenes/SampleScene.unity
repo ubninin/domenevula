@@ -394,6 +394,7 @@ MonoBehaviour:
       type: {class: MoveRouteCommand, ns: , asm: Assembly-CSharp}
       data:
         target: {fileID: 0}
+        partyMember: {fileID: 0}
         moveSpeed: 2
         animateWalking: 1
         steps:
@@ -408,6 +409,7 @@ MonoBehaviour:
       type: {class: MoveRouteCommand, ns: , asm: Assembly-CSharp}
       data:
         target: {fileID: 0}
+        partyMember: {fileID: 0}
         moveSpeed: 2
         animateWalking: 1
         steps:
@@ -422,6 +424,7 @@ MonoBehaviour:
       type: {class: MoveRouteCommand, ns: , asm: Assembly-CSharp}
       data:
         target: {fileID: 632063204}
+        partyMember: {fileID: 0}
         moveSpeed: 2
         animateWalking: 0
         steps:
@@ -435,7 +438,8 @@ MonoBehaviour:
     - rid: 909972674920317080
       type: {class: MoveRouteCommand, ns: , asm: Assembly-CSharp}
       data:
-        target: {fileID: 1861981602}
+        target: {fileID: 0}
+        partyMember: {fileID: 11400000, guid: 6c8a073a93f880e45b82f0c7d966b06e, type: 2}
         moveSpeed: 2
         animateWalking: 0
         steps:
