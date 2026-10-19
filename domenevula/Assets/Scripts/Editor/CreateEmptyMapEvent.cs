@@ -1,3 +1,4 @@
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -51,29 +52,47 @@ public static class CreateEmptyMapEvent
         Selection.activeGameObject = go;
     }
 
-    private static Sprite cachedPlaceholderSprite;
+    private const string PlaceholderPath = "Assets/Sprite/_placeholder_square.png";
 
     /// <summary>
     /// 유니티 버전/렌더 파이프라인에 따라 내장 "Sprites/Square.png"를 못 찾는 경우가 있어서
     /// (URP 프로젝트 등), 1x1 흰 텍스처로 직접 정사각형 스프라이트를 만들어 쓴다.
+    ///
+    /// 메모리상 임시 객체(HideFlags.DontSave)로 만들면, 그 스프라이트가 물린 SpriteRenderer를
+    /// 씬에 저장한 뒤 인스펙터가 다시 그릴 때 "영속 안 되는 객체를 영속 취급" 에러
+    /// (Assertion failed ... kDontSaveInEditor ... InspectorWindow:RedrawFromNative)가 나서,
+    /// 대신 실제 에셋 파일로 한 번만 저장해 영구적으로 쓴다.
     /// </summary>
     private static Sprite GetPlaceholderSquareSprite()
     {
-        if (cachedPlaceholderSprite != null) return cachedPlaceholderSprite;
+        Sprite existing = AssetDatabase.LoadAssetAtPath<Sprite>(PlaceholderPath);
+        if (existing != null) return existing;
 
         Texture2D tex = new Texture2D(1, 1, TextureFormat.RGBA32, false);
         tex.SetPixel(0, 0, Color.white);
         tex.Apply();
-        tex.hideFlags = HideFlags.DontSave;
+        byte[] png = tex.EncodeToPNG();
+        Object.DestroyImmediate(tex);
 
-        cachedPlaceholderSprite = Sprite.Create(
-            tex,
-            new Rect(0, 0, 1, 1),
-            new Vector2(0.5f, 0.5f),
-            1f // Pixels Per Unit = 1 → localScale로 크기를 조절해 쓰면 됨
-        );
-        cachedPlaceholderSprite.hideFlags = HideFlags.DontSave;
-        return cachedPlaceholderSprite;
+        string dir = Path.GetDirectoryName(PlaceholderPath);
+        if (!AssetDatabase.IsValidFolder(dir))
+            Directory.CreateDirectory(dir);
+
+        File.WriteAllBytes(PlaceholderPath, png);
+        AssetDatabase.ImportAsset(PlaceholderPath);
+
+        TextureImporter importer = AssetImporter.GetAtPath(PlaceholderPath) as TextureImporter;
+        if (importer != null)
+        {
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = 1f; // localScale로 크기를 조절해 쓰면 됨
+            importer.filterMode = FilterMode.Point;
+            importer.mipmapEnabled = false;
+            importer.SaveAndReimport();
+        }
+
+        return AssetDatabase.LoadAssetAtPath<Sprite>(PlaceholderPath);
     }
 
     private static bool SortingLayerExists(string name)

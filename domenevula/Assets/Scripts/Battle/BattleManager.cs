@@ -807,15 +807,37 @@ public class BattleManager : MonoBehaviour
     /// <summary>이 단계를 Enter 없이 키 하나로 입력하는 자리연습 방식으로 할지.</summary>
     private static bool UsesInstantKey(WordTier tier)
     {
-        string[] list = tier.UsesFixedWords ? tier.fixedWords : tier.words;
-        bool allTypable = list != null && list.Length > 0;
-        if (allTypable)
+        // Fixed Words 를 일부 칸만 채운 경우, 나머지 칸은 Words 풀에서 무작위로 뽑혀 실제 보드에 올라간다
+        // (BattleWordBoard.FillFixed 참고). 그래서 Fixed Words 가 전부 한 글자여도, Words 풀에 두 글자 이상
+        // 단어가 섞여 있으면 그 칸은 즉시입력(Enter 없이 키 하나)으로 영영 못 치는 상황이 생길 수 있다.
+        // → Fixed Words 를 쓸 때도 비어 있는 칸을 채울 Words 풀까지 같이 검사한다.
+        bool allTypable = true;
+        bool hasAny = false;
+
+        if (tier.UsesFixedWords)
         {
-            foreach (string w in list)
+            foreach (string w in tier.fixedWords)
             {
-                if (!string.IsNullOrEmpty(w) && !HangulKeyboard.IsTypable(w)) { allTypable = false; break; }
+                if (string.IsNullOrEmpty(w)) continue;
+                hasAny = true;
+                if (!HangulKeyboard.IsTypable(w)) allTypable = false;
             }
         }
+
+        // Fixed Words 는 칸 수보다 짧거나 빈 칸이 있으면 그 칸을 Words 풀에서 무작위로 채운다(BattleWordBoard.FillFixed).
+        // 여기서는 실제 칸 수를 모르므로, Fixed Words 를 쓰더라도 항상 Words 풀까지 같이 검사해서
+        // "지정한 칸은 전부 한 글자인데 무작위로 채워질 칸에 두 글자 이상이 섞여 영영 못 치는" 상황을 막는다.
+        if (tier.words != null)
+        {
+            foreach (string w in tier.words)
+            {
+                if (string.IsNullOrEmpty(w)) continue;
+                hasAny = true;
+                if (!HangulKeyboard.IsTypable(w)) allTypable = false;
+            }
+        }
+
+        allTypable = allTypable && hasAny;
 
         switch (tier.instantKey)
         {
