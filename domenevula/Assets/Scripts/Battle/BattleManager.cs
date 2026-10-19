@@ -771,6 +771,7 @@ public class BattleManager : MonoBehaviour
 
         tpGainedThisTurn = 0;
         standCooldownUntil = 0f;
+        moveCooldownUntil = 0f;
         enemyPhaseActive = true;
         Refresh();
 
@@ -830,6 +831,7 @@ public class BattleManager : MonoBehaviour
     }
 
     private float standCooldownUntil; // 서 있는 칸 공격 쿨타임이 끝나는 시각 (Time.time)
+    private float moveCooldownUntil;  // 이동 TP 획득 쿨타임이 끝나는 시각 (Time.time)
 
     private void OnWordSubmitted(string typed)
     {
@@ -881,22 +883,34 @@ public class BattleManager : MonoBehaviour
         return true;
     }
 
-    /// <summary>다른 칸의 단어: 그 칸을 향해 직선 이동하고 TP 상승 (피했는지와 무관).</summary>
+    /// <summary>다른 칸의 단어: 그 칸을 향해 직선 이동하고 TP 상승 (피했는지와 무관).
+    /// moveTpCooldown 이 0 초과면 쿨타임 중 이동 시 TP를 얻지 못한다.</summary>
     private void MoveTo(int idx)
     {
         arena.MoveSoulTo(idx);
 
-        int gain = settings.tpPerMove;
-        if (settings.maxTpGainPerEnemyTurn > 0)
-            gain = Mathf.Min(gain, settings.maxTpGainPerEnemyTurn - tpGainedThisTurn);
-        gain = Mathf.Max(0, gain);
+        bool onCooldown = settings.moveTpCooldown > 0f && Time.time < moveCooldownUntil;
+        if (onCooldown)
+        {
+            float left = moveCooldownUntil - Time.time;
+            arena.Float($"쿨타임 {left:0.0}", arena.CellCenter(idx) + new Vector2(0f, 40f), new Color(0.7f, 0.7f, 0.75f));
+        }
+        else
+        {
+            if (settings.moveTpCooldown > 0f) moveCooldownUntil = Time.time + settings.moveTpCooldown;
 
-        int before = tp;
-        tp = Mathf.Min(settings.tpMax, tp + gain);
-        tpGainedThisTurn += gain;
+            int gain = settings.tpPerMove;
+            if (settings.maxTpGainPerEnemyTurn > 0)
+                gain = Mathf.Min(gain, settings.maxTpGainPerEnemyTurn - tpGainedThisTurn);
+            gain = Mathf.Max(0, gain);
 
-        if (tp > before)
-            arena.Float("TP+" + (tp - before), arena.CellCenter(idx) + new Vector2(0f, 40f), new Color(0.4f, 0.9f, 1f));
+            int before = tp;
+            tp = Mathf.Min(settings.tpMax, tp + gain);
+            tpGainedThisTurn += gain;
+
+            if (tp > before)
+                arena.Float("TP+" + (tp - before), arena.CellCenter(idx) + new Vector2(0f, 40f), new Color(0.4f, 0.9f, 1f));
+        }
         Refresh();
     }
 

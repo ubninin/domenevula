@@ -343,6 +343,7 @@ MonoBehaviour:
     tpPerMove: 6
     maxTpGainPerEnemyTurn: 0
     standDamage: 6
+    standAttackCooldown: 0
     timingSweepsPerSecond: 0.9
     timingTimeoutSeconds: 3
     bulletTypes:
@@ -685,6 +686,8 @@ MonoBehaviour:
     - "\u3146"
     - "\u3149"
     instantKey: 0
+    keepWords: 1
+    fixedWords: []
   - name: "\uC790\uC74C\xB7\uBAA8\uC74C"
     words:
     - "\u3131"
@@ -712,6 +715,8 @@ MonoBehaviour:
     - "\u3161"
     - "\u3163"
     instantKey: 0
+    keepWords: 1
+    fixedWords: []
   - name: "\uD55C \uAE00\uC790"
     words:
     - "\uAC00"
@@ -771,6 +776,8 @@ MonoBehaviour:
     - "\uD478"
     - "\uD6C4"
     instantKey: 0
+    keepWords: 0
+    fixedWords: []
   - name: "\uB450 \uAE00\uC790"
     words:
     - "\uACF5\uACA9"
@@ -820,6 +827,8 @@ MonoBehaviour:
     - "\uD3B8\uC9C0"
     - "\uB098\uCE68\uBC18"
     instantKey: 0
+    keepWords: 0
+    fixedWords: []
   - name: "\uAE34 \uB2E8\uC5B4"
     words:
     - "\uB3C4\uC11C\uAD00"
@@ -858,6 +867,8 @@ MonoBehaviour:
     - "\uB124\uBDF8\uB77C\uC2DC\uD2F0"
     - "\uC5D0\uB374\uC758\uC528\uC557"
     instantKey: 0
+    keepWords: 0
+    fixedWords: []
   messages:
     encounter: "{enemy}\uC774(\uAC00) \uB098\uD0C0\uB0AC\uB2E4!"
     enemyTurnWord: "{enemy}\uC758 \uACF5\uACA9! \\n\uB2E8\uC5B4\uB97C \uCCD0\uC11C
@@ -961,6 +972,11 @@ MonoBehaviour:
     playerTurnStart: []
     enemyTurnStart: []
   roundMessages: []
+  roundCommands:
+  - fromRound: 0
+    allowed: 1
+  - fromRound: 2
+    allowed: 5
   roundLayouts:
   - fromRound: 1
     columns: 2

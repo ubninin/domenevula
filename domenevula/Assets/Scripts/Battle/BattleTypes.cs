@@ -378,6 +378,8 @@ public class BattleSettings
     public int standDamage = 6;
     [Tooltip("서 있는 칸 단어로 적을 때리는 공격의 쿨타임(초). 쿨타임 중에 서 있는 칸 단어를 치면 입력은 받아주지만 피해는 없고 '쿨타임' 글자만 뜬다. 0 = 쿨타임 없음. 적 턴이 시작될 때마다 쿨타임은 초기화된다")]
     [Min(0f)] public float standAttackCooldown = 0f;
+    [Tooltip("이동(TP 획득) 쿨타임(초). 쿨타임 중에 다른 칸 단어를 치면 이동은 하지만 TP를 얻지 못한다. 0 = 쿨타임 없음. 적 턴이 시작될 때마다 쿨타임은 초기화된다")]
+    [Min(0f)] public float moveTpCooldown = 0f;
 
     [Header("타이밍 타격")]
     public float timingSweepsPerSecond = 0.9f;
