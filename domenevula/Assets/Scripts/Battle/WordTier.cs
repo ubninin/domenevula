@@ -20,10 +20,10 @@ public class WordTier
     public InstantKeyMode instantKey = InstantKeyMode.Auto;
 
     [Header("단어 고정 (선택)")]
-    [Tooltip("켜면 칸의 단어가 바뀌지 않는다. 적 턴이 시작될 때 아래 'Fixed Words' 가 칸 순서대로 놓이고, 단어를 쳐서 이동/공격해도 그대로 남는다. 꺼 두면 지금까지처럼 위 Words 에서 무작위로 뽑고, 친 칸은 새 단어로 바뀐다")]
+    [Tooltip("켜면 칸의 단어가 바뀌지 않는다. 아래 'Fixed Words' 를 칸 순서대로 놓고(비워 두면 위 Words 에서 처음 한 번 무작위로 뽑은 단어들), 단어를 쳐서 이동/공격해도, 다음 적 턴에도 그대로 남는다. 꺼 두면 지금까지처럼 무작위로 뽑고 친 칸은 새 단어로 바뀐다")]
     public bool keepWords = false;
 
-    [Tooltip("Keep Words 가 켜졌을 때 칸에 놓일 단어. 칸 순서: 왼쪽 위부터 오른쪽으로, 줄이 끝나면 다음 줄 (Element 0 = 첫 칸). 칸 수보다 적으면 남는 칸은 위 Words 에서 무작위로 채우고, 많으면 남는 단어는 안 쓴다")]
+    [Tooltip("Keep Words 가 켜졌을 때 칸에 놓일 단어. 칸 순서: 왼쪽 위부터 오른쪽으로, 줄이 끝나면 다음 줄 (Element 0 = 첫 칸). 비워 두면 전부 무작위로 한 번 뽑아 고정. 칸 수보다 적으면 남는 칸만 무작위로 채우고, 많으면 남는 단어는 안 쓴다")]
     public string[] fixedWords;
 
     /// <summary>고정 모드가 켜져 있고 단어가 하나라도 적혀 있는지.</summary>

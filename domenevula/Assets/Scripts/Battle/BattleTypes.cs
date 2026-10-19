@@ -43,6 +43,29 @@ public enum SkillKind { Damage, Heal }
 
 public enum ActionKind { Attack, Skill, Guard }
 
+/// <summary>플레이어 행동 메뉴의 명령. 라운드별로 쓸 수 있는 명령을 고를 때 쓴다 (체크한 것만 메뉴에 보인다).</summary>
+[Flags]
+public enum BattleCommand
+{
+    [InspectorName("공격")] Attack = 1,
+    [InspectorName("스킬")] Skill = 2,
+    [InspectorName("방어")] Guard = 4,
+    [InspectorName("장전 (탄창을 쓰는 캐릭터만)")] Load = 8,
+}
+
+/// <summary>"이 라운드부터는 이 명령들을 쓸 수 있다".</summary>
+[Serializable]
+public class RoundCommands
+{
+    [Tooltip("이 라운드부터 적용 (다음 항목이 시작될 때까지)")]
+    public int fromRound = 1;
+    [Tooltip("메뉴에 나타날 명령. 체크하지 않은 명령은 메뉴에서 숨겨진다. 모두 해제하면(Nothing) 전부 허용으로 취급")]
+    public BattleCommand allowed = BattleCommand.Attack | BattleCommand.Skill | BattleCommand.Guard | BattleCommand.Load;
+
+    public RoundCommands() { }
+    public RoundCommands(int fromRound, BattleCommand allowed) { this.fromRound = fromRound; this.allowed = allowed; }
+}
+
 /// <summary>속성 상성 자리. 나중에 속성 시스템을 넣을 때 여기만 채우면 된다.</summary>
 public static class ElementChart
 {
@@ -353,6 +376,8 @@ public class BattleSettings
     public int maxTpGainPerEnemyTurn = 0;
     [Tooltip("서 있는 칸의 단어를 쳤을 때 적에게 주는 추가 데미지")]
     public int standDamage = 6;
+    [Tooltip("서 있는 칸 단어로 적을 때리는 공격의 쿨타임(초). 쿨타임 중에 서 있는 칸 단어를 치면 입력은 받아주지만 피해는 없고 '쿨타임' 글자만 뜬다. 0 = 쿨타임 없음. 적 턴이 시작될 때마다 쿨타임은 초기화된다")]
+    [Min(0f)] public float standAttackCooldown = 0f;
 
     [Header("타이밍 타격")]
     public float timingSweepsPerSecond = 0.9f;

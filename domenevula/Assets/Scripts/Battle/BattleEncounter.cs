@@ -36,6 +36,9 @@ public class BattleEncounter : ScriptableObject
     [Header("라운드별 플레이어 턴 안내 문구 (해당하는 항목이 없으면 적의 Description)")]
     public List<RoundMessage> roundMessages = new List<RoundMessage>();
 
+    [Header("라운드별 쓸 수 있는 행동 (비워두면 전부 허용. 예: 1라운드 = 공격만, 2라운드부터 = 공격+장전)")]
+    public List<RoundCommands> roundCommands = new List<RoundCommands>();
+
     [Header("라운드별 말풍선 대사")]
     public List<RoundLines> roundLines = BattleDefaults.DefaultRoundLines();
 }

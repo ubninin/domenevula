@@ -53,6 +53,10 @@ public class BattleManager : MonoBehaviour
     [Header("라운드별 플레이어 턴 안내 문구 (해당하는 항목이 없으면 Enemy 의 Description 이 쓰인다)")]
     public List<RoundMessage> roundMessages = new List<RoundMessage>();
 
+    [Header("라운드별 쓸 수 있는 행동 (비워두면 전부 허용)")]
+    [Tooltip("예: Element 0 = From Round 1, Allowed 공격   /   Element 1 = From Round 2, Allowed 공격+장전.  새로 쓸 수 있게 된 명령에는 그 라운드에 NEW 표시가 붙는다")]
+    public List<RoundCommands> roundCommands = new List<RoundCommands>();
+
     [Header("라운드별 칸 배치 (비워두면 Settings 의 Columns × Rows 고정)")]
     public List<RoundLayout> roundLayouts = new List<RoundLayout>
     {
@@ -104,6 +108,7 @@ public class BattleManager : MonoBehaviour
         if (e.wordTiers != null && e.wordTiers.Count > 0) wordTiers = e.wordTiers;
         roundLayouts = e.roundLayouts ?? new List<RoundLayout>();
         roundMessages = e.roundMessages ?? new List<RoundMessage>();
+        roundCommands = e.roundCommands ?? new List<RoundCommands>();
         roundLines = e.roundLines ?? new List<RoundLines>();
         Debug.Log($"[Battle] 인카운터 적용: {e.name} (적 {enemy.name})");
     }
@@ -302,30 +307,70 @@ public class BattleManager : MonoBehaviour
         return sum;
     }
 
+    private const BattleCommand AllCommands = BattleCommand.Attack | BattleCommand.Skill | BattleCommand.Guard | BattleCommand.Load;
+
+    /// <summary>round 라운드에 메뉴에 보이는 명령들. 설정이 없으면 전부.</summary>
+    private BattleCommand CommandsForRound(int r)
+    {
+        BattleCommand allowed = AllCommands;
+        int best = int.MinValue;
+        if (roundCommands != null)
+        {
+            foreach (RoundCommands c in roundCommands)
+            {
+                if (c == null || c.fromRound > r || c.fromRound < best) continue;
+                best = c.fromRound;
+                allowed = c.allowed & AllCommands;
+            }
+        }
+        if (allowed == 0) return AllCommands;
+        // 장전만 있으면 턴을 끝낼 방법이 없다 → 공격을 같이 허용
+        if ((allowed & (BattleCommand.Attack | BattleCommand.Skill | BattleCommand.Guard)) == 0)
+        {
+            Debug.LogWarning("[Battle] 이 라운드의 허용 행동에 턴을 끝내는 명령(공격/스킬/방어)이 없어 '공격'을 추가했습니다.");
+            allowed |= BattleCommand.Attack;
+        }
+        return allowed;
+    }
+
     private IEnumerator PlanOne(PlannedAction plan, int availableTp)
     {
         BattleActor actor = plan.actor;
         bool hasSkills = actor.skills != null && actor.skills.Count > 0;
+        int startAt = 0;
 
         while (true)
         {
-            var labels = new List<string> { "공격", "스킬", "방어" };
-            var enabled = new List<bool> { true, hasSkills, true };
+            BattleCommand allowed = CommandsForRound(round);
+            BattleCommand before = round > 1 ? CommandsForRound(round - 1) : allowed;   // 이번 라운드에 새로 생긴 명령에 NEW 표시
             Magazine mag = actor.useMagazine ? MagazineOf(actor) : null;
-            if (mag != null)
+
+            var cmds = new List<BattleCommand>();
+            var labels = new List<string>();
+            var enabled = new List<bool>();
+            Action<BattleCommand, string, bool> add = (cmd, label, on) =>
             {
-                labels[0] = mag.Count > 0 ? $"공격  (탄 {mag.Count}발)" : "공격  (기본 레이저)";
-                labels.Add($"장전  ({Magazine.KindLabel(mag.Kind)} {mag.Count}/{mag.Capacity})");
-                enabled.Add(!mag.IsFull && AnyStock());
-            }
-            yield return ui.Choose($"{actor.name}의 행동", labels, enabled, true);
+                if ((allowed & cmd) == 0) return;
+                cmds.Add(cmd);
+                labels.Add((before & cmd) == 0 ? label + "  NEW" : label);
+                enabled.Add(on);
+            };
+            string attackLabel = mag == null ? "공격" : (mag.Count > 0 ? $"공격  (탄 {mag.Count}발)" : "공격  (기본 레이저)");
+            add(BattleCommand.Attack, attackLabel, true);
+            add(BattleCommand.Skill, "스킬", hasSkills);
+            add(BattleCommand.Guard, "방어", true);
+            if (mag != null) add(BattleCommand.Load, $"장전  ({Magazine.KindLabel(mag.Kind)} {mag.Count}/{mag.Capacity})", !mag.IsFull && AnyStock());
+
+            yield return ui.Choose($"{actor.name}의 행동", labels, enabled, true, startAt);
 
             int pick = ui.LastChoice;
             if (pick < 0) { plan.cancelled = true; yield break; }
+            startAt = pick;
+            BattleCommand chosen = cmds[pick];
 
-            if (pick == 0) { plan.kind = ActionKind.Attack; yield break; }
-            if (pick == 2) { plan.kind = ActionKind.Guard; yield break; }
-            if (pick == 3) { yield return LoadMagazine(actor, mag); continue; } // 장전: 턴/TP 를 쓰지 않는다
+            if (chosen == BattleCommand.Attack) { plan.kind = ActionKind.Attack; yield break; }
+            if (chosen == BattleCommand.Guard) { plan.kind = ActionKind.Guard; yield break; }
+            if (chosen == BattleCommand.Load) { yield return LoadMagazine(actor, mag); continue; } // 장전: 턴/TP 를 쓰지 않는다
 
             // 스킬 목록
             var skillLabels = new List<string>();
@@ -725,6 +770,7 @@ public class BattleManager : MonoBehaviour
         arena.ResetSoul();
 
         tpGainedThisTurn = 0;
+        standCooldownUntil = 0f;
         enemyPhaseActive = true;
         Refresh();
 
@@ -783,6 +829,8 @@ public class BattleManager : MonoBehaviour
         }
     }
 
+    private float standCooldownUntil; // 서 있는 칸 공격 쿨타임이 끝나는 시각 (Time.time)
+
     private void OnWordSubmitted(string typed)
     {
         if (!enemyPhaseActive || battleOver) return;
@@ -798,7 +846,7 @@ public class BattleManager : MonoBehaviour
         ui.FlashInput(true);
 
         bool attack = idx == arena.SoulCell; // 서 있는 칸 = 공격, 다른 칸 = 이동
-        if (attack) StandingAttack(idx);
+        if (attack) attack = StandingAttack(idx); // 쿨타임 중이면 false (피해 없음)
         else MoveTo(idx);
 
         // 친 칸의 단어는 새 단어로 교체 (같은 단어 연타 방지)
@@ -808,8 +856,16 @@ public class BattleManager : MonoBehaviour
     }
 
     /// <summary>서 있는 칸의 단어: 이동 없이 적에게 추가 데미지.</summary>
-    private void StandingAttack(int idx)
+    private bool StandingAttack(int idx)
     {
+        if (Time.time < standCooldownUntil)
+        {
+            float left = standCooldownUntil - Time.time;
+            arena.Float($"쿨타임 {left:0.0}", arena.CellCenter(idx) + new Vector2(0f, 40f), new Color(0.7f, 0.7f, 0.75f));
+            return false;
+        }
+        standCooldownUntil = Time.time + settings.standAttackCooldown;
+
         int damage = settings.standDamage;
         enemy.hp = Mathf.Max(0, enemy.hp - damage);
         ui.ShakeEnemy();
@@ -822,6 +878,7 @@ public class BattleManager : MonoBehaviour
             battleOver = true;
             victory = true;
         }
+        return true;
     }
 
     /// <summary>다른 칸의 단어: 그 칸을 향해 직선 이동하고 TP 상승 (피했는지와 무관).</summary>

@@ -13,6 +13,7 @@ public class BattleWordBoard
     private readonly Random rng;
     private readonly string[] words;
     private int tier;
+    private readonly Dictionary<int, string[]> frozen = new Dictionary<int, string[]>(); // 단계별로 한 번 정해진 고정 단어
 
     public Action<string> Warn;
 
@@ -35,7 +36,7 @@ public class BattleWordBoard
         get
         {
             if (tiers == null || tiers.Count == 0) return false;
-            return tiers[Clamp(tier, 0, tiers.Count - 1)].UsesFixedWords;
+            return tiers[Clamp(tier, 0, tiers.Count - 1)].keepWords;
         }
     }
 
@@ -68,16 +69,27 @@ public class BattleWordBoard
         foreach (int cell in order) words[cell] = Draw(cell);
     }
 
-    /// <summary>고정 모드: Fixed Words 를 칸 순서대로 놓는다. 비는 칸은 Words 에서 뽑는다.</summary>
+    /// <summary>
+    /// 고정 모드: 이 단계에서 처음 한 번만 단어를 정하고 이후엔 같은 단어를 쓴다.
+    /// Fixed Words 가 있으면 칸 순서대로 놓고, 비는 칸(또는 Fixed Words 가 전부 비었을 때 모든 칸)은 Words 에서 무작위로 뽑는다.
+    /// </summary>
     private void FillFixed()
     {
-        string[] fx = tiers[Clamp(tier, 0, tiers.Count - 1)].fixedWords;
+        string[] saved;
+        if (frozen.TryGetValue(tier, out saved) && saved.Length == words.Length)
+        {
+            Array.Copy(saved, words, words.Length);
+            return;
+        }
+
+        string[] fx = tiers[Clamp(tier, 0, tiers.Count - 1)].fixedWords ?? new string[0];
         var drawLater = new List<int>();
         for (int i = 0; i < words.Length; i++)
         {
             if (i < fx.Length && !string.IsNullOrEmpty(fx[i])) words[i] = fx[i];
             else drawLater.Add(i);
         }
+        Shuffle(drawLater); // 무작위로 뽑을 칸의 순서를 섞어 특정 칸만 불리해지지 않게
         foreach (int cell in drawLater) words[cell] = Draw(cell);
 
         for (int a = 0; a < words.Length; a++)
@@ -85,8 +97,10 @@ public class BattleWordBoard
                 if (words[a] == words[b] || HangulWordRules.Conflicts(words[a], words[b]))
                 {
                     Warn?.Invoke($"고정 단어 '{words[a]}'(칸 {a})와 '{words[b]}'(칸 {b})는 입력할 때 서로 헷갈릴 수 있습니다.");
-                    return;
+                    a = words.Length; break;
                 }
+
+        frozen[tier] = (string[])words.Clone();
     }
 
     /// <summary>한 칸의 단어만 새로 뽑는다 (그 칸 단어를 쳤을 때). 고정 모드에서는 아무것도 하지 않는다.</summary>
