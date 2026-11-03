@@ -344,6 +344,7 @@ MonoBehaviour:
     maxTpGainPerEnemyTurn: 0
     standDamage: 6
     standAttackCooldown: 0
+    moveTpCooldown: 0
     timingSweepsPerSecond: 0.9
     timingTimeoutSeconds: 3
     bulletTypes:
@@ -440,6 +441,8 @@ MonoBehaviour:
     lowHpRatio: 0.3
     faceHitSeconds: 0.6
     enemyImageSize: {x: 220, y: 125}
+    faceSize: 200
+    faceUseNativeSize: 0
     encounterEndHoldSeconds: 1.5
     canvasSortingOrder: 0
     statusIconPx: 64
@@ -456,7 +459,7 @@ MonoBehaviour:
     maxHP: 70
     attack: 9
     color: {r: 0.6, g: 1, b: 0.5, a: 1}
-    face: {fileID: 0}
+    face: {fileID: 5204121869891066701, guid: c27b4d3b33c9863489afe51a4a50f501, type: 3}
     faces:
       idle: {fileID: 0}
       selecting: {fileID: 0}
@@ -482,7 +485,7 @@ MonoBehaviour:
     maxHP: 80
     attack: 12
     color: {r: 1, g: 0.6, b: 0.7, a: 1}
-    face: {fileID: 0}
+    face: {fileID: -8548035357666841804, guid: 7ff829ba5dce61e48aabad8e5cc329cf, type: 3}
     faces:
       idle: {fileID: 0}
       selecting: {fileID: 0}

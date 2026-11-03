@@ -518,6 +518,10 @@ public class BattleSettings
     public float faceHitSeconds = 0.6f;
     [Tooltip("적 이미지가 그려지는 크기(픽셀). 이미지 비율은 유지된다")]
     public Vector2 enemyImageSize = new Vector2(220f, 125f);
+    [Tooltip("아군 얼굴 이미지 크기(픽셀). Use Native Size 를 체크하면 이 값을 무시하고 원본 스프라이트 크기로 표시된다")]
+    public float faceSize = 170f;
+    [Tooltip("체크하면 faceSize 를 무시하고 스프라이트 원본 크기(픽셀 단위)를 그대로 쓴다")]
+    public bool faceUseNativeSize = false;
 
     [Header("대화에서 시작된 전투")]
     [Tooltip("승리/패배 문구를 보여준 뒤 필드로 돌아가기까지 기다리는 시간(초)")]

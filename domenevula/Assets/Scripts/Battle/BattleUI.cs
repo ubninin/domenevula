@@ -441,12 +441,14 @@ public class BattleUI : MonoBehaviour
         {
             BattleActor a = party[i];
             PartySlotUI slot = slots[i];
-            slot.face = BattleUIFactory.MakeImage("Face" + (i + 1), faceLayer, Vector2.zero, new Vector2(FaceSize, FaceSize),
+            float fs = settings.faceSize;
+            slot.face = BattleUIFactory.MakeImage("Face" + (i + 1), faceLayer, Vector2.zero, new Vector2(fs, fs),
                                                   a.color, BattleUIFactory.CircleSprite);
             slot.face.preserveAspect = true;
             slot.actor = a;
             slot.defaultSprite = slot.face.sprite; // 이미지가 없을 때 보이는 캐릭터 색 동그라미
             slot.shownSprite = slot.face.sprite;
+            ApplyFaceSize(slot);
         }
         UpdateFaces();
     }
@@ -499,6 +501,28 @@ public class BattleUI : MonoBehaviour
         s.shownSprite = pick; s.shownTint = tint;
         if (pick != null) { s.face.sprite = pick; s.face.color = tint; }
         else { s.face.sprite = s.defaultSprite; s.face.color = s.actor.color * tint; }
+        // 원본 크기 옵션: 실제 캐릭터 스프라이트가 들어간 경우에만 적용
+        ApplyFaceSize(s);
+    }
+
+    /// <summary>얼굴 이미지 크기를 settings 에 따라 적용한다.
+    /// faceUseNativeSize=true 이고 실제 캐릭터 스프라이트가 있을 때는 원본 픽셀 크기,
+    /// 아니면 settings.faceSize × faceSize 정사각형.</summary>
+    private void ApplyFaceSize(PartySlotUI s)
+    {
+        if (s.face == null) return;
+        bool hasRealSprite = s.face.sprite != null && s.face.sprite != s.defaultSprite;
+        if (settings.faceUseNativeSize && hasRealSprite)
+        {
+            Rect r = s.face.sprite.rect;
+            s.face.rectTransform.sizeDelta = new Vector2(r.width / s.face.sprite.pixelsPerUnit * 100f,
+                                                         r.height / s.face.sprite.pixelsPerUnit * 100f);
+        }
+        else
+        {
+            float fs = settings.faceSize;
+            s.face.rectTransform.sizeDelta = new Vector2(fs, fs);
+        }
     }
 
     /// <summary>우선순위: 피격 > 공격(적 턴) > 쓰러짐 > 상태이상/속성 > HP 낮음 > 대기</summary>
