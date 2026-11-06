@@ -14,9 +14,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lines:
   - kind: 0
-    speaker: {fileID: 11400000, guid: 6c8a073a93f880e45b82f0c7d966b06e, type: 2}
-    text: "\uC548\uB155 \uB09C NPC\uACE0 \n\uD2B9\uBCC4\uD55C\n\uB2A5\uB825\uC774
-      \uC788\uC5B4."
+    speaker: {fileID: 0}
+    text: "\uC548\uB155 \uD558\uC728\uC544 \uC798\uC9C0\uB0C8\uC5B4?"
+    portraitOverride: {fileID: -8548035357666841804, guid: 7ff829ba5dce61e48aabad8e5cc329cf, type: 3}
+    displayMode: 2
+    panelPosition: 0
+    windowBackgroundOverride: {fileID: 0}
+    windowFrameOverride: {fileID: 0}
+    balloonBubbleOverride: {fileID: 0}
+    balloonTailOverride: {fileID: 0}
+    battle: {fileID: 0}
+    allowDefeat: 0
+    onVictory: {fileID: 0}
+    onDefeat: {fileID: 0}
+  - kind: 0
+    speaker: {fileID: 0}
+    text: "\uC0BC\uCD0C\uC740 \uC790\uACA9\uC99D50\uAC1C\uB97C \uCDE8\uB4DD\uD558\uACE0\n\uCDE8\uBF40\uC5D0
+      \uC131\uACF5\uD588\uC5B4"
     portraitOverride: {fileID: -8548035357666841804, guid: 7ff829ba5dce61e48aabad8e5cc329cf, type: 3}
     displayMode: 2
     panelPosition: 0
@@ -30,39 +44,24 @@ MonoBehaviour:
     onDefeat: {fileID: 0}
   - kind: 0
     speaker: {fileID: 11400000, guid: 6c8a073a93f880e45b82f0c7d966b06e, type: 2}
-    text: "\uAC13 \uC0DD\uC744 \uC0AC\uB294\uAC8C \uC544\uB2C8\uB77C\r\n\uC9C0\uB09C\uB0A0\uC758
-      \uD3D0\uAE09\uC9D3\uC744 \uC218\uC2B5 \uD558\uB294\uAC70"
+    text: "(\uC528\uC775\uC6C3\uC73C\uBA70)\n\uB098\uD55C\uD14C \uD615\uB204\uB098\uC0BC\uCD0C\uC774\uC5B4\uB528\uC5B4\n\uC57D\uBA39\uC744\uC2DC\uAC04\uC774\uB124"
+    portraitOverride: {fileID: -8548035357666841804, guid: 7ff829ba5dce61e48aabad8e5cc329cf, type: 3}
+    displayMode: 1
+    panelPosition: 1
+    windowBackgroundOverride: {fileID: 0}
+    windowFrameOverride: {fileID: 0}
+    balloonBubbleOverride: {fileID: 0}
+    balloonTailOverride: {fileID: 0}
+    battle: {fileID: 0}
+    allowDefeat: 0
+    onVictory: {fileID: 0}
+    onDefeat: {fileID: 0}
+  - kind: 0
+    speaker: {fileID: 0}
+    text: "\uC57C\uB108..!(\uC0AC\uB77C\uC9C4\uB2E4)"
     portraitOverride: {fileID: -8548035357666841804, guid: 7ff829ba5dce61e48aabad8e5cc329cf, type: 3}
     displayMode: 2
     panelPosition: 0
-    windowBackgroundOverride: {fileID: 0}
-    windowFrameOverride: {fileID: 0}
-    balloonBubbleOverride: {fileID: 0}
-    balloonTailOverride: {fileID: 0}
-    battle: {fileID: 0}
-    allowDefeat: 0
-    onVictory: {fileID: 0}
-    onDefeat: {fileID: 0}
-  - kind: 0
-    speaker: {fileID: 11400000, guid: 6c8a073a93f880e45b82f0c7d966b06e, type: 2}
-    text: "\uADF8\uB807\uAD6C\uB098 \uBAB0\uB790\uC5B4"
-    portraitOverride: {fileID: -8548035357666841804, guid: 7ff829ba5dce61e48aabad8e5cc329cf, type: 3}
-    displayMode: 1
-    panelPosition: 1
-    windowBackgroundOverride: {fileID: 0}
-    windowFrameOverride: {fileID: 0}
-    balloonBubbleOverride: {fileID: 0}
-    balloonTailOverride: {fileID: 0}
-    battle: {fileID: 0}
-    allowDefeat: 0
-    onVictory: {fileID: 0}
-    onDefeat: {fileID: 0}
-  - kind: 0
-    speaker: {fileID: 11400000, guid: 6c8a073a93f880e45b82f0c7d966b06e, type: 2}
-    text: "\uAD50\uC218\uB2D8 \uC9D1\uC5D0\uBCF4\uB0B4\uC8FC\uC138\uC694"
-    portraitOverride: {fileID: -8548035357666841804, guid: 7ff829ba5dce61e48aabad8e5cc329cf, type: 3}
-    displayMode: 1
-    panelPosition: 1
     windowBackgroundOverride: {fileID: 0}
     windowFrameOverride: {fileID: 0}
     balloonBubbleOverride: {fileID: 0}
