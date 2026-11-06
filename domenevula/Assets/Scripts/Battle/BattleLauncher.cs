@@ -43,6 +43,17 @@ public static class BattleLauncher
     private static bool reported;
     private static bool reportedVictory;
 
+    // Domain Reload 가 꺼져 있으면 전투 도중 재생을 멈췄을 때 Active=true 가 다음 재생까지 남아 전투가 막힌다.
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics()
+    {
+        Active = false;
+        Pending = null;
+        CanStart = false;
+        reported = false;
+        reportedVictory = false;
+    }
+
     /// <summary>파티원 HP (이름 → HP). 전투와 전투 사이에 유지된다. 게임을 껐다 켜면 사라진다 (저장 기능은 아직 없음).</summary>
     private static readonly Dictionary<string, int> partyHp = new Dictionary<string, int>();
 
@@ -55,6 +66,14 @@ public static class BattleLauncher
         if (!partyHp.TryGetValue(actor.name, out hp)) hp = actor.maxHP;
         if (hp <= 0) hp = 1;
         return Mathf.Min(hp, actor.maxHP);
+    }
+
+    /// <summary>메뉴 상태창 표시용. 저장된 HP 가 없으면 최대 HP (0 이하는 그대로 0 으로 보여줌).</summary>
+    public static int GetSavedHp(string actorName, int maxHP)
+    {
+        int hp;
+        if (!partyHp.TryGetValue(actorName, out hp)) return maxHP;
+        return Mathf.Clamp(hp, 0, maxHP);
     }
 
     public static void SaveHp(IList<BattleActor> party)

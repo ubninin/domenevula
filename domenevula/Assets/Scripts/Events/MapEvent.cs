@@ -107,6 +107,15 @@ public class MapEvent : MonoBehaviour
     /// GameplayLock이 이 값을 보고 플레이어 입력을 막는다.</summary>
     public static int RunningEventCount { get; private set; }
 
+    // Enter Play Mode Options 에서 Domain Reload 가 꺼져 있으면 static 값이 재생을 껐다 켜도 남는다.
+    // 재생을 시작할 때마다 초기화해서 이전 재생의 찌꺼기가 잠금/해제를 어긋나게 하지 못하게 한다.
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics()
+    {
+        RunningEventCount = 0;
+        All.Clear();
+    }
+
     /// <summary>MapEvent 목록 (필요하면 다른 스크립트에서 순회용으로 사용).</summary>
     public static readonly List<MapEvent> All = new List<MapEvent>();
 
@@ -192,6 +201,7 @@ public class MapEvent : MonoBehaviour
         if (page.trigger != MapEventPage.TriggerType.PlayerTouch) return;
         if (isRunning) return;
         if (!other.CompareTag("Player")) return;
+        if (BattleLauncher.Active) return; // 전투 중에는 맵 이벤트가 시작되지 않는다
 
         StartCoroutine(RunCommands(page));
     }
@@ -246,6 +256,7 @@ public class MapEvent : MonoBehaviour
         // 보통 커맨드 안에서 SetSelfSwitchCommand로 조건을 바꿔 다른 페이지로 넘어가게 만든다.
         while (CurrentPage == page)
         {
+            if (BattleLauncher.Active) { yield return null; continue; } // 전투 중엔 대기
             if (!isRunning)
             {
                 yield return RunCommands(page);
@@ -259,7 +270,7 @@ public class MapEvent : MonoBehaviour
     {
         while (CurrentPage == page)
         {
-            if (!isRunning) yield return RunCommands(page);
+            if (!isRunning && !BattleLauncher.Active) yield return RunCommands(page);
             else yield return null;
         }
     }

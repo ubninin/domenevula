@@ -16,6 +16,9 @@ public class DialogueTestTrigger : MonoBehaviour
 
     private void Update()
     {
+        // 전투 중엔 타자 입력(T = ㅅ)이 이 테스트 키와 겹쳐서 대사가 튀어나오므로 막는다.
+        if (BattleLauncher.Active) return;
+
         if (Keyboard.current != null && Keyboard.current.tKey.wasPressedThisFrame)
         {
             DialogueManager.Instance.PlayDialogue(sequence, balloonAnchor);

@@ -2997,7 +2997,7 @@ MonoBehaviour:
     - rid: 909972674920317070
       type: {class: StartBattleCommand, ns: , asm: Assembly-CSharp}
       data:
-        encounter: {fileID: 11400000, guid: 21b8958869dc4b54fb2ccde523690fe5, type: 2}
+        encounter: {fileID: 11400000, guid: 2edffe3b0f2893d479511f54e462383b, type: 2}
         allowDefeat: 0
 --- !u!114 &2109991959
 MonoBehaviour:

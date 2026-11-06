@@ -208,6 +208,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1371818503}
   - component: {fileID: 1371818502}
+  - component: {fileID: 1371818504}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -281,6 +282,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1371818504
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1371818501}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_AllowHDROutput: 1
+  m_UseScreenCoordOverride: 0
+  m_ScreenSizeOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_Version: 2
+  m_TaaSettings:
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
 --- !u!1 &1558356989
 GameObject:
   m_ObjectHideFlags: 0
@@ -311,7 +356,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fontAsset: {fileID: 11400000, guid: 5dd4a6b057c6e124d9b231fd5e1344e1, type: 2}
-  battleBackground: {fileID: -7785848334896591529, guid: 937c5f52490e0d0468fc63962a33eecd, type: 3}
+  battleBackground: {fileID: 21300000, guid: 1401e324ef4d07a4db7cc00b7f7bfca7, type: 3}
   backgroundFit: 0
   backgroundTint: {r: 1, g: 1, b: 1, a: 1}
   settings:
@@ -689,7 +734,7 @@ MonoBehaviour:
     - "\u3146"
     - "\u3149"
     instantKey: 0
-    keepWords: 1
+    keepWords: 0
     fixedWords: []
   - name: "\uC790\uC74C\xB7\uBAA8\uC74C"
     words:
@@ -718,7 +763,7 @@ MonoBehaviour:
     - "\u3161"
     - "\u3163"
     instantKey: 0
-    keepWords: 1
+    keepWords: 0
     fixedWords: []
   - name: "\uD55C \uAE00\uC790"
     words:
@@ -917,27 +962,22 @@ MonoBehaviour:
       skill: '{skill}!'
       guard: "\uBC84\uD168 \uBCFC\uAC8C!"
     - actorName: "\uB77C\uC784"
-      waiting: "\uC74C\u2026 \uBB58 \uD558\uC9C0?"
-      attack: "\uC5D0\uC787!"
-      skill: '{skill}~!'
-      guard: "\uC870\uC2EC\uD574\uC57C\uC9C0."
-    enemyReaction: "\uC73C\uC73D, \uB108\uBB34 \uAC15\uD558\uC796\uC544!"
+      waiting: "(\uD310\uB2E8 \uB300\uAE30 \uC911...)"
+      attack: "(\uACF5\uACA9 \uBA85\uB839 \uC2E4\uD589...)"
+      skill: "({skill} \uC2E4\uD589...)"
+      guard: "(\uBC29\uC5B4 \uBA85\uB839 \uC2E4\uD589...)"
+    enemyReaction: "\uD06D \uB108\uBB34 \uC384\uAD70 \uC27D\uB2E4\uB354\uB2C8"
     playerTurnStart:
     - speaker: 1
       actorName: "\uD558\uC728"
-      text: "\uC88B\uC544, \uC774\uC81C \uB0B4 \uCC28\uB840\uC57C!"
+      text: "\uC800\uAC8C \uBB50\uC9C0?"
       hideTail: 0
       advance: 0
     - speaker: 1
       actorName: "\uD558\uC728"
-      text: "\uB0B4\uCC28\uB844\uAC00?"
+      text: "\uBAB0\uB77C! \uC77C\uB2E8 \uB54C\uB824 \uBCF4\uC790!"
       hideTail: 0
       advance: 0
-    - speaker: 1
-      actorName: "\uB77C\uC784"
-      text: "\uD798\uB0B4 \uBCF4\uC790!"
-      hideTail: 0
-      advance: 1
     - speaker: 1
       actorName: "\uD558\uC728"
       text: "\uBBF8\uCE5C\uBBF8\uCE5C!!"
@@ -946,17 +986,12 @@ MonoBehaviour:
     enemyTurnStart:
     - speaker: 0
       actorName: 
-      text: "\uC774\uBC88\uC5D4 \uB0B4 \uCC28\uB840\uB2E4!"
+      text: "\uACF5\uACA9 \uB300\uC0AC"
       hideTail: 0
       advance: 0
     - speaker: 1
       actorName: "\uD558\uC728"
       text: "\uC870\uC2EC\uD574!"
-      hideTail: 1
-      advance: 0
-    - speaker: 1
-      actorName: "\uB77C\uC784"
-      text: "\uD53C\uD574\uC57C \uD574!"
       hideTail: 1
       advance: 0
   - fromRound: 2
@@ -967,10 +1002,10 @@ MonoBehaviour:
       skill: '{skill}!'
       guard: "\uBC84\uD168 \uBCFC\uAC8C!"
     - actorName: "\uB77C\uC784"
-      waiting: "\uC74C\u2026 \uBB58 \uD558\uC9C0?"
-      attack: "\uC5D0\uC787!"
-      skill: '{skill}~!'
-      guard: "\uC870\uC2EC\uD574\uC57C\uC9C0."
+      waiting: "(\uD310\uB2E8 \uB300\uAE30 \uC911...)"
+      attack: "(\uACF5\uACA9 \uBA85\uB839 \uC2E4\uD589...)"
+      skill: "({skill} \uC2E4\uD589...)"
+      guard: "(\uBC29\uC5B4 \uBA85\uB839 \uC2E4\uD589...)"
     enemyReaction: 
     playerTurnStart: []
     enemyTurnStart: []

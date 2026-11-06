@@ -38,6 +38,11 @@ public static class HangulKeyboard
 
     private static HashSet<string> typable;
 
+    // 한 프레임(~16ms)에 자모 키 두 개 이상을 거의 동시에 누르면 전부 wasPressedThisFrame이 true가 되는데,
+    // 예전에는 Table에서 먼저 매칭되는 것 하나만 반환하고 나머지는 그냥 버렸다(연타 중 입력 누락).
+    // 이번 프레임에 눌린 자모를 전부 모아뒀다가 한 번에 하나씩, 다음 호출들에서 순서대로 내보낸다.
+    private static readonly Queue<string> pending = new Queue<string>();
+
     /// <summary>이 낱자를 키 하나로 칠 수 있는지 (단어 목록 검증용).</summary>
     public static bool IsTypable(string jamo)
     {
@@ -53,9 +58,14 @@ public static class HangulKeyboard
         return !string.IsNullOrEmpty(jamo) && typable.Contains(jamo);
     }
 
-    /// <summary>이번 프레임에 새로 눌린 자모 키가 있으면 그 자모를, 없으면 null.</summary>
+    /// <summary>
+    /// 이번 프레임에 새로 눌린 자모 키가 있으면 그 자모를, 없으면 null.
+    /// 직전 프레임에 여러 키를 거의 동시에 눌러서 아직 못 내보낸 자모가 쌓여있으면 그것부터 하나씩 내보낸다.
+    /// </summary>
     public static string ReadJamoPressedThisFrame()
     {
+        if (pending.Count > 0) return pending.Dequeue();
+
         Keyboard kb = Keyboard.current;
         if (kb == null) return null;
 
@@ -63,8 +73,9 @@ public static class HangulKeyboard
         foreach (Entry e in Table)
         {
             if (kb[e.key].wasPressedThisFrame)
-                return (shift && e.shifted != null) ? e.shifted : e.normal;
+                pending.Enqueue((shift && e.shifted != null) ? e.shifted : e.normal);
         }
-        return null;
+
+        return pending.Count > 0 ? pending.Dequeue() : null;
     }
 }
