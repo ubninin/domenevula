@@ -57,6 +57,14 @@ public static class BattleLauncher
         return Mathf.Min(hp, actor.maxHP);
     }
 
+    /// <summary>메뉴 상태창 등에서 현재 HP를 보여줄 때 쓴다. 저장된 값이 없으면 최대 HP (0은 0 그대로 = 전투불능).</summary>
+    public static int GetSavedHp(string actorName, int maxHp)
+    {
+        int hp;
+        if (!partyHp.TryGetValue(actorName, out hp)) return maxHp;
+        return Mathf.Clamp(hp, 0, maxHp);
+    }
+
     public static void SaveHp(IList<BattleActor> party)
     {
         foreach (BattleActor a in party) partyHp[a.name] = a.hp;

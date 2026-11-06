@@ -17,9 +17,11 @@ public static class GameplayLock
         if (MapEvent.RunningEventCount > 0)
             return true;
 
-        // 나중에 메뉴가 열려 있을 때도 이동을 막고 싶어지면 여기에 조건을 추가.
-        // 메뉴는 대사 중에도 열 수 있어야 한다는 요구사항이 있으니, 이동 잠금에 메뉴 상태를
-        // 넣을지는 별개로 결정할 것.
+        // 메뉴(ESC)가 열려 있는 동안 이동/상호작용을 막을지는 GameMenuController의
+        // lockMovementWhileOpen 인스펙터 값으로 결정한다 (기본 true). 메뉴를 "여는" 동작 자체는
+        // 대사 중에도 가능해야 해서 GameMenuController.Update()는 이 클래스를 거치지 않는다.
+        if (GameMenuController.Instance != null && GameMenuController.Instance.IsOpen && GameMenuController.Instance.LocksMovement)
+            return true;
 
         return false;
     }
