@@ -24,6 +24,19 @@ public enum PartyPanelPosition
     Top,
 }
 
+/// <summary>말풍선을 어느 오브젝트 위에 띄울지.</summary>
+public enum BalloonTarget
+{
+    [InspectorName("이 이벤트 / 대화 상대 (기본)")]
+    Self,
+    [InspectorName("플레이어 1")]
+    Player1,
+    [InspectorName("플레이어 2")]
+    Player2,
+    [InspectorName("다른 오브젝트 (이름으로 지정)")]
+    OtherObject,
+}
+
 /// <summary>이 줄이 하는 일.</summary>
 public enum DialogueLineKind
 {
@@ -64,6 +77,17 @@ public class DialogueLine
 
     [Tooltip("파티 대사창으로 표시될 때, 화면 위/아래 중 어디에 띄울지. 말풍선 표시에는 영향 없음")]
     public PartyPanelPosition panelPosition = PartyPanelPosition.Bottom;
+
+    [Header("말풍선 위치 (말풍선으로 표시될 때만 적용)")]
+    [Tooltip("말풍선을 띄울 대상. '이 이벤트 / 대화 상대'는 이 대사를 실행한 이벤트(NPC) 위. " +
+             "플레이어 1/2는 씬의 Player1 / Player2 오브젝트 위.")]
+    public BalloonTarget balloonTarget = BalloonTarget.Self;
+
+    [Tooltip("Balloon Target 이 '다른 오브젝트'일 때, 씬 Hierarchy 에 있는 그 오브젝트의 이름 (정확히 일치해야 함)")]
+    public string balloonTargetName;
+
+    [Tooltip("말풍선의 기본 위치에서 추가로 위(+)/아래(-)로 옮길 거리 (월드 단위, 타일 1칸 = 1). 0이면 기본 위치 그대로")]
+    public float balloonOffsetY = 0f;
 
     [Header("대사창/말풍선 이미지 교체 (선택, 비워두면 기본 스킨 그대로)")]
     [Tooltip("파티 대사창의 배경 이미지(PartyDialogueBg)를 이 줄에서만 교체")]

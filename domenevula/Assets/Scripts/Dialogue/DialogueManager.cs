@@ -32,6 +32,9 @@ public class DialogueManager : MonoBehaviour
 
     [SerializeField] private PartyDialoguePanelController partyPanel;
 
+    [Header("말풍선 프리팹 (Canvas_SpeechBalloon). 대화 상대 밑에 말풍선이 없으면 이걸 자동으로 만들어 붙인다. 비워두면 에디터가 알아서 채움")]
+    [SerializeField] private GameObject speechBalloonPrefab;
+
     [Header("파티 대사창 페이지 분할 (공백 포함 글자 수 기준)")]
     [SerializeField] private int maxCharsPerLine = DialogueTextWrapper.DefaultMaxCharsPerLine;
     [SerializeField] private int maxLinesPerPage = DialogueTextWrapper.DefaultMaxLinesPerPage;
@@ -46,6 +49,19 @@ public class DialogueManager : MonoBehaviour
 
     /// <summary>지금 화면에 떠 있는 대사 창(파티 패널 또는 말풍선). 타자 애니메이션 스킵 판단에 쓴다.</summary>
     private IDialogueDisplay activeDisplay;
+
+    // 줄마다 말풍선 위치가 바뀔 수 있어서, 이번 대화에서 쓴 말풍선을 기억해 두었다가 한꺼번에 끈다.
+    private readonly List<SpeechBalloonController> usedBalloons = new List<SpeechBalloonController>();
+    private readonly Dictionary<SpeechBalloonController, Vector3> balloonBaseLocalPos = new Dictionary<SpeechBalloonController, Vector3>();
+    private SpeechBalloonController shownBalloon;
+
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        if (speechBalloonPrefab == null)
+            speechBalloonPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Canvas_SpeechBalloon.prefab");
+    }
+#endif
 
     private void Awake()
     {
@@ -132,6 +148,8 @@ public class DialogueManager : MonoBehaviour
     {
         isPlaying = true;
         gameOver = false;
+        usedBalloons.Clear();
+        shownBalloon = null;
         startedOnFrame = Time.frameCount;
 
         // 말풍선 쪽 부모도 혹시 꺼져있으면 미리 깨워둔다 (partyPanel과 동일한 이유).
@@ -141,6 +159,22 @@ public class DialogueManager : MonoBehaviour
             ? balloonAnchor.GetComponentInChildren<SpeechBalloonController>(true)
             : null;
 
+        // 상대 오브젝트 밑에 말풍선이 없으면 프리팹을 만들어 붙인다.
+        if (balloonAnchor != null && balloon == null)
+        {
+            GameObject prefab = speechBalloonPrefab;
+#if UNITY_EDITOR
+            if (prefab == null)
+                prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Canvas_SpeechBalloon.prefab");
+#endif
+            if (prefab != null)
+            {
+                GameObject go = Instantiate(prefab, balloonAnchor, false);
+                go.name = "Canvas_SpeechBalloon";
+                balloon = go.GetComponentInChildren<SpeechBalloonController>(true);
+            }
+        }
+
         if (balloonAnchor != null && balloon == null)
             Debug.LogWarning($"DialogueManager: {balloonAnchor.name} 아래에서 SpeechBalloonController를 찾지 못했습니다.");
 
@@ -149,6 +183,7 @@ public class DialogueManager : MonoBehaviour
         activeDisplay = null;
         partyPanel.Hide();
         if (balloon != null) balloon.Hide();
+        HideAllBalloons();
 
         if (gameOver)
         {
@@ -177,6 +212,7 @@ public class DialogueManager : MonoBehaviour
 
                 // 전투 전에 떠 있는 창을 모두 정리하고, 전투가 끝날 때까지 기다린다.
                 if (balloon != null) balloon.Hide();
+                HideAllBalloons();
                 partyPanel.Hide();
                 activeDisplay = null;
 
@@ -197,6 +233,7 @@ public class DialogueManager : MonoBehaviour
             // 이전 줄이 말풍선이었다면, 파티 창으로 넘어가기 전에 말풍선부터 꺼준다.
             // (안 꺼주면 화자가 바뀌어도 말풍선이 화면에 계속 남아있음)
             if (balloon != null) balloon.Hide();
+            HideAllBalloons();
 
             // 파티 대사창은 한 줄 N자 / 페이지당 M줄로 자동 분할.
             // 페이지마다 한 번씩 진행 입력을 받는다 (한 DialogueLine이 여러 페이지로 보일 수 있음).
@@ -210,13 +247,18 @@ public class DialogueManager : MonoBehaviour
             }
             yield break;
         }
-        else if (balloon != null)
+        else if (ResolveBalloonFor(line, balloon) is SpeechBalloonController target)
         {
             // 이전 줄이 파티 창이었다면, 말풍선으로 넘어가기 전에 파티 창부터 꺼준다.
             partyPanel.Hide();
 
-            balloon.Show(line);
-            activeDisplay = balloon;
+            // 이전 줄의 말풍선이 다른 오브젝트 위에 있었다면 끈다.
+            if (shownBalloon != null && shownBalloon != target) shownBalloon.Hide();
+
+            ApplyBalloonOffset(target, line.balloonOffsetY);
+            target.Show(line);
+            shownBalloon = target;
+            activeDisplay = target;
         }
         else
         {
@@ -226,6 +268,100 @@ public class DialogueManager : MonoBehaviour
 
         advanceRequested = false;
         yield return new WaitUntil(() => advanceRequested);
+    }
+
+
+    // ───── 말풍선 위치 ─────
+
+    private void HideAllBalloons()
+    {
+        foreach (SpeechBalloonController b in usedBalloons)
+            if (b != null) b.Hide();
+        shownBalloon = null;
+    }
+
+    /// <summary>이 줄의 Balloon Target 에 맞는 말풍선을 찾아(없으면 만들어) 돌려준다. 못 찾으면 null.</summary>
+    private SpeechBalloonController ResolveBalloonFor(DialogueLine line, SpeechBalloonController defaultBalloon)
+    {
+        SpeechBalloonController result = null;
+
+        if (line.balloonTarget == BalloonTarget.Self)
+        {
+            result = defaultBalloon;
+        }
+        else
+        {
+            Transform t = null;
+            switch (line.balloonTarget)
+            {
+                case BalloonTarget.Player1: t = FindSceneTransform("Player1"); break;
+                case BalloonTarget.Player2: t = FindSceneTransform("Player2"); break;
+                case BalloonTarget.OtherObject:
+                    if (!string.IsNullOrWhiteSpace(line.balloonTargetName)) t = FindSceneTransform(line.balloonTargetName.Trim());
+                    break;
+            }
+
+            if (t == null)
+            {
+                Debug.LogWarning($"DialogueManager: 말풍선 대상({line.balloonTarget} {line.balloonTargetName})을 씬에서 찾지 못했습니다. 이 이벤트 위에 띄웁니다.");
+                result = defaultBalloon;
+            }
+            else
+            {
+                result = GetOrCreateBalloon(t);
+            }
+        }
+
+        if (result != null)
+        {
+            // 말풍선 캔버스가 꺼진 채 붙어 있어도(Awake 미실행 방지) 켜둔다. 말풍선 몸체는 컨트롤러가 따로 숨긴다.
+            EnsureAncestorsActive(result.transform);
+            if (!usedBalloons.Contains(result)) usedBalloons.Add(result);
+        }
+        return result;
+    }
+
+    private SpeechBalloonController GetOrCreateBalloon(Transform parent)
+    {
+        SpeechBalloonController b = parent.GetComponentInChildren<SpeechBalloonController>(true);
+        if (b != null) return b;
+
+        GameObject prefab = speechBalloonPrefab;
+#if UNITY_EDITOR
+        if (prefab == null)
+            prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Canvas_SpeechBalloon.prefab");
+#endif
+        if (prefab == null) return null;
+
+        GameObject go = Instantiate(prefab, parent, false);
+        go.name = "Canvas_SpeechBalloon";
+        return go.GetComponentInChildren<SpeechBalloonController>(true);
+    }
+
+    /// <summary>말풍선을 프리팹 기본 위치에서 offsetY(월드 단위)만큼 위/아래로 옮긴다.</summary>
+    private void ApplyBalloonOffset(SpeechBalloonController balloon, float offsetY)
+    {
+        Transform tr = balloon.transform;
+        if (!balloonBaseLocalPos.TryGetValue(balloon, out Vector3 basePos))
+        {
+            basePos = tr.localPosition;
+            balloonBaseLocalPos[balloon] = basePos;
+        }
+
+        float parentScaleY = tr.parent != null ? Mathf.Abs(tr.parent.lossyScale.y) : 1f;
+        if (parentScaleY < 0.0001f) parentScaleY = 1f;
+        tr.localPosition = basePos + new Vector3(0f, offsetY / parentScaleY, 0f);
+    }
+
+    private static Transform FindSceneTransform(string objectName)
+    {
+        GameObject exact = GameObject.Find(objectName);
+        if (exact != null) return exact.transform;
+
+        // "Player2(Clone)" 처럼 뒤에 붙은 이름도 허용
+        foreach (Transform t in FindObjectsByType<Transform>(FindObjectsSortMode.None))
+            if (t.name.StartsWith(objectName, StringComparison.Ordinal)) return t;
+        return null;
     }
 
     /// <summary>전투 줄 하나: 전투 실행 → 결과에 따라 승리/패배 대화 재생 (또는 게임오버).</summary>

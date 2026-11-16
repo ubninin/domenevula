@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: DepthScaleSettings_Default
   m_EditorClassIdentifier: 
   minY: -7
-  maxY: 0
-  closeScale: 1
+  maxY: -2
+  closeScale: 1.5
   farScale: 0.7

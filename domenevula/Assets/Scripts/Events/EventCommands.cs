@@ -14,7 +14,12 @@ using UnityEngine;
 [System.Serializable]
 public class ShowDialogueCommand : EventCommand
 {
+    [Tooltip("미리 만들어둔 대사 시퀀스 에셋. 비워두면 아래 '직접 적는 대사'를 쓴다. 둘 다 있으면 이 에셋이 우선.")]
     public DialogueSequence sequence;
+
+    [Tooltip("에셋 없이 여기서 바로 적는 대사. Sequence 가 비어 있을 때만 쓰인다. " +
+             "각 줄에 Speaker / Text / Display Mode 등을 에셋 안의 줄과 똑같이 지정할 수 있다.")]
+    public DialogueLine[] lines;
 
     [Tooltip("체크하면 이 이벤트가 붙은 오브젝트(예: NPC) 밑의 말풍선을 앵커로 쓴다. " +
              "파티 전용 대사만 있는 시퀀스면 체크 안 해도 됨")]
@@ -22,12 +27,25 @@ public class ShowDialogueCommand : EventCommand
 
     public override IEnumerator Execute(EventExecutionContext ctx)
     {
-        if (sequence == null || DialogueManager.Instance == null) yield break;
+        if (DialogueManager.Instance == null) yield break;
+
+        DialogueSequence toPlay = sequence;
+        DialogueSequence temp = null;
+        if (toPlay == null)
+        {
+            if (lines == null || lines.Length == 0) yield break;
+            // 직접 적은 대사는 재생 직전에 임시 시퀀스로 감싸서 기존 대사 재생 코드를 그대로 쓴다.
+            temp = ScriptableObject.CreateInstance<DialogueSequence>();
+            temp.lines = lines;
+            toPlay = temp;
+        }
 
         bool done = false;
         Transform anchor = useSelfAsBalloonAnchor && ctx.Self != null ? ctx.Self.transform : null;
-        DialogueManager.Instance.PlayDialogue(sequence, anchor, () => done = true);
+        DialogueManager.Instance.PlayDialogue(toPlay, anchor, () => done = true);
         yield return new WaitUntil(() => done);
+
+        if (temp != null) Object.Destroy(temp);
     }
 }
 

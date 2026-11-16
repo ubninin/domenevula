@@ -48,10 +48,24 @@ public static class CreateEmptyMapEvent
         go.AddComponent<CharacterSpriteAnimator>();
         go.AddComponent<MapEvent>(); // MapEvent.Reset()이 같은 오브젝트의 CharacterSpriteAnimator를 자동으로 찾아 연결해준다
 
+        // 말풍선 프리팹을 자식으로 붙인다 (평소엔 꺼둔다. 대사가 나올 때 DialogueManager가 켠다)
+        GameObject balloonPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(BalloonPrefabPath);
+        if (balloonPrefab != null)
+        {
+            GameObject balloon = (GameObject)PrefabUtility.InstantiatePrefab(balloonPrefab, go.transform);
+            balloon.name = "Canvas_SpeechBalloon";
+            balloon.SetActive(false);
+        }
+        else
+        {
+            Debug.LogWarning("[빈 이벤트 오브젝트] " + BalloonPrefabPath + " 를 찾지 못해 말풍선을 붙이지 못했습니다.");
+        }
+
         Undo.RegisterCreatedObjectUndo(go, "빈 이벤트 오브젝트 생성");
         Selection.activeGameObject = go;
     }
 
+    private const string BalloonPrefabPath = "Assets/Prefabs/Canvas_SpeechBalloon.prefab";
     private const string PlaceholderPath = "Assets/Sprite/_placeholder_square.png";
 
     /// <summary>
