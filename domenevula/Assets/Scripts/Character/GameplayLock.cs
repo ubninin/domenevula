@@ -14,6 +14,10 @@ public static class GameplayLock
         if (BattleLauncher.Active)
             return true;
 
+        // 맵 이동(페이드) 중
+        if (SceneMover.Transitioning)
+            return true;
+
         if (DialogueManager.Instance != null && DialogueManager.Instance.IsDialogueActive)
             return true;
 

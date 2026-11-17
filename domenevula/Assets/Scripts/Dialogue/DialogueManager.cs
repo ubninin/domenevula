@@ -178,7 +178,23 @@ public class DialogueManager : MonoBehaviour
         if (balloonAnchor != null && balloon == null)
             Debug.LogWarning($"DialogueManager: {balloonAnchor.name} 아래에서 SpeechBalloonController를 찾지 못했습니다.");
 
-        yield return PlayLines(sequence, balloon);
+        bool linesFinished = false;
+        try
+        {
+            yield return PlayLines(sequence, balloon);
+            linesFinished = true;
+        }
+        finally
+        {
+            // 대사 재생 중 에러로 코루틴이 죽어도 isPlaying 이 true 로 남아 조작이 영원히 잠기지 않게 한다.
+            if (!linesFinished)
+            {
+                isPlaying = false;
+                activeDisplay = null;
+                if (partyPanel != null) partyPanel.Hide();
+                HideAllBalloons();
+            }
+        }
 
         activeDisplay = null;
         partyPanel.Hide();

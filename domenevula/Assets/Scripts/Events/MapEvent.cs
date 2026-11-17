@@ -89,6 +89,15 @@ public class MapEvent : MonoBehaviour
     [Tooltip("상호작용 가능할 때 보여줄 표시(말풍선 아이콘 등). 없어도 됨")]
     [SerializeField] private GameObject promptIndicator;
 
+    [Header("상호작용 표시 (ActionButton 이벤트에 하얀 테두리)")]
+    [Tooltip("켜면 가까이 갔을 때 오브젝트 주위에 얇은 흰색 테두리가 떠서 상호작용할 수 있다는 걸 알려준다. 끄면 표시 없음")]
+    [SerializeField] private bool showInteractOutline = true;
+    [Tooltip("켜면 한 번 상호작용한 뒤로는 이 오브젝트의 테두리를 다시 보여주지 않는다")]
+    [SerializeField] private bool hideOutlineAfterInteract = true;
+    [Tooltip("테두리 두께 (월드 단위, 타일 1칸 = 1)")]
+    [SerializeField] private float outlineThickness = 0.03f;
+    [SerializeField] private Color outlineColor = Color.white;
+
     [Tooltip("페이지 모습을 바꿀 때 쓸 SpriteRenderer. 비워두면 같은 오브젝트에서 자동으로 찾는다")]
     [SerializeField] private SpriteRenderer spriteRenderer;
 
@@ -121,6 +130,8 @@ public class MapEvent : MonoBehaviour
 
     private readonly Dictionary<string, bool> selfSwitches = new Dictionary<string, bool>();
     private bool isRunning;
+    private bool interactedOnce;
+    private InteractOutline outline;
     private bool currentRunLocksMovement;
     private Transform player;
     private int activePageIndex = -1;
@@ -163,8 +174,14 @@ public class MapEvent : MonoBehaviour
 
     private void Start()
     {
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        if (playerObj != null) player = playerObj.transform;
+        // "Player" 태그가 여러 오브젝트에 붙어 있어도(가구 등) 실제 조작 캐릭터(PlayerMovement2D)를 우선 찾는다.
+        PlayerMovement2D mover = FindFirstObjectByType<PlayerMovement2D>();
+        if (mover != null) player = mover.transform;
+        else
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null) player = playerObj.transform;
+        }
 
         // 캐릭터 에셋의 모션은 우선순위가 가장 낮은 "기본값"이라, 페이지의 Override Motion이
         // 덮어쓸 수 있도록 페이지를 적용하기 전에 먼저 깔아둔다.
@@ -184,7 +201,7 @@ public class MapEvent : MonoBehaviour
         if (page.trigger != MapEventPage.TriggerType.ActionButton) return;
         if (isRunning || player == null) return;
 
-        bool inRange = Vector2.Distance(transform.position, player.position) <= interactRange;
+        bool inRange = DistanceToPlayer() <= interactRange;
         SetPrompt(inRange);
 
         if (!inRange) return;
@@ -192,6 +209,27 @@ public class MapEvent : MonoBehaviour
         if (!DialogueManager.WasInteractKeyPressedThisFrame()) return;
 
         StartCoroutine(RunCommands(page));
+    }
+
+    /// <summary>
+    /// 플레이어까지의 거리. 이벤트 오브젝트의 기준점(피벗)이 아니라 콜라이더의 가장 가까운 지점까지로 잰다.
+    /// (기준점만 쓰면 피벗이 한쪽으로 치우친 오브젝트는 앞에서 말을 걸 때와 뒤에서 걸 때 거리가 달라진다.)
+    /// 콜라이더가 없으면 예전처럼 기준점까지의 거리를 쓴다.
+    /// </summary>
+    private float DistanceToPlayer()
+    {
+        Vector2 p = player.position;
+        float best = Vector2.Distance(transform.position, p);
+        Collider2D[] cols = GetComponents<Collider2D>();
+        if (cols.Length == 0) return best;
+
+        best = float.MaxValue;
+        foreach (Collider2D c in cols)
+        {
+            if (c == null || !c.enabled) continue;
+            best = Mathf.Min(best, Vector2.Distance(c.ClosestPoint(p), p));
+        }
+        return best == float.MaxValue ? Vector2.Distance(transform.position, p) : best;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -218,6 +256,7 @@ public class MapEvent : MonoBehaviour
         if (!force && best == activePageIndex) return;
 
         activePageIndex = best;
+        interactedOnce = false; // 새 페이지로 넘어갔으면 테두리를 다시 보여준다
         MapEventPage page = pages[activePageIndex];
         ApplyAppearance(page);
         if (page.trigger != MapEventPage.TriggerType.ActionButton) SetPrompt(false);
@@ -278,6 +317,11 @@ public class MapEvent : MonoBehaviour
     private IEnumerator RunCommands(MapEventPage page)
     {
         isRunning = true;
+        if (page.trigger == MapEventPage.TriggerType.ActionButton)
+        {
+            interactedOnce = true;
+            UpdateOutline(false);
+        }
 
         // ActionButton/PlayerTouch/Autorun은 컷신처럼 플레이어 조작을 막는다.
         // Parallel(배경 연출)만 조작을 막지 않는다.
@@ -287,22 +331,60 @@ public class MapEvent : MonoBehaviour
 
         var ctx = new EventExecutionContext { Self = this, Player = player };
 
-        foreach (EventCommand cmd in page.commands)
+        bool finishedNormally = false;
+        try
         {
-            if (cmd == null) continue;
-            yield return cmd.Execute(ctx);
+            foreach (EventCommand cmd in page.commands)
+            {
+                if (cmd == null) continue;
+                yield return cmd.Execute(ctx);
+            }
+            finishedNormally = true;
         }
-
-        // 여기까지 정상적으로 왔다면(= 중간에 OnDisable로 끊기지 않았다면) 평소처럼 풀어준다.
-        if (locksMovement) RunningEventCount--;
-        isRunning = false;
+        finally
+        {
+            // 커맨드에서 에러가 나서 코루틴이 죽어도 잠금이 영원히 남지 않게 풀어준다.
+            // (OnDisable로 끊긴 경우는 OnDisable 쪽에서 이미 풀었으므로 isRunning 이 false 다.)
+            if (isRunning)
+            {
+                if (locksMovement) RunningEventCount--;
+                isRunning = false;
+            }
+            if (!finishedNormally && Application.isPlaying)
+                Debug.LogWarning("MapEvent: 이벤트가 끝까지 실행되지 못하고 중단되었습니다. (바로 위의 에러 메시지를 확인하세요)", this);
+        }
     }
 
     public bool GetSelfSwitch(string key) => selfSwitches.TryGetValue(key, out bool v) && v;
     public void SetSelfSwitch(string key, bool value) => selfSwitches[key] = value;
 
+    /// <summary>현재 페이지에 실제로 실행할 커맨드가 하나라도 있는지 (비어 있으면 상호작용해도 할 일이 없으므로 테두리를 안 띄운다).</summary>
+    private bool HasAnyCommand()
+    {
+        MapEventPage page = CurrentPage;
+        if (page == null || page.commands == null) return false;
+        foreach (EventCommand cmd in page.commands)
+            if (cmd != null) return true;
+        return false;
+    }
+
+    private void UpdateOutline(bool show)
+    {
+        bool want = show && showInteractOutline && HasAnyCommand() && !(hideOutlineAfterInteract && interactedOnce);
+
+        if (outline == null)
+        {
+            if (!want || spriteRenderer == null) return;
+            outline = GetComponent<InteractOutline>();
+            if (outline == null) outline = gameObject.AddComponent<InteractOutline>();
+            outline.Setup(spriteRenderer, outlineThickness, outlineColor);
+        }
+        outline.SetVisible(want);
+    }
+
     private void SetPrompt(bool show)
     {
         if (promptIndicator != null) promptIndicator.SetActive(show);
+        UpdateOutline(show);
     }
 }
