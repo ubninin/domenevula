@@ -174,14 +174,7 @@ public class MapEvent : MonoBehaviour
 
     private void Start()
     {
-        // "Player" 태그가 여러 오브젝트에 붙어 있어도(가구 등) 실제 조작 캐릭터(PlayerMovement2D)를 우선 찾는다.
-        PlayerMovement2D mover = FindFirstObjectByType<PlayerMovement2D>();
-        if (mover != null) player = mover.transform;
-        else
-        {
-            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-            if (playerObj != null) player = playerObj.transform;
-        }
+        FindPlayer();
 
         // 캐릭터 에셋의 모션은 우선순위가 가장 낮은 "기본값"이라, 페이지의 Override Motion이
         // 덮어쓸 수 있도록 페이지를 적용하기 전에 먼저 깔아둔다.
@@ -192,8 +185,21 @@ public class MapEvent : MonoBehaviour
         RefreshActivePage(force: true);
     }
 
+    /// <summary>"Player" 태그가 여러 오브젝트에 붙어 있어도(가구 등) 실제 조작 캐릭터(PlayerMovement2D)를 우선 찾는다.</summary>
+    private void FindPlayer()
+    {
+        PlayerMovement2D mover = FindFirstObjectByType<PlayerMovement2D>();
+        if (mover != null) { player = mover.transform; return; }
+
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null) player = playerObj.transform;
+    }
+
     private void Update()
     {
+        // 맵 씬이 Core 씬보다 먼저 켜졌을 때 등, 시작 시점에 플레이어를 못 찾았다면 계속 다시 찾는다.
+        if (player == null) FindPlayer();
+
         RefreshActivePage(force: false);
 
         MapEventPage page = CurrentPage;

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// 파티원(플레이어 뒤를 따라다니는 캐릭터들)을 관리.
@@ -74,6 +75,8 @@ public class PartyManager : MonoBehaviour
         }
 
         GameObject go = Instantiate(slot.followerPrefab, followTarget.position, Quaternion.identity);
+        // 활성 씬(=현재 맵)이 아니라 이 매니저가 있는 Core 씬에 둬야 맵이 바뀌어도 파티원이 같이 사라지지 않는다.
+        SceneManager.MoveGameObjectToScene(go, gameObject.scene);
         slot.instance = go;
 
         PartyFollower follower = go.GetComponent<PartyFollower>();

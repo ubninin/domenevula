@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -43,15 +41,6 @@ public static class CreateSceneMover
 
     private static void EnsureScenesInBuildSettings()
     {
-        var list = new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
-        bool changed = false;
-        foreach (string guid in AssetDatabase.FindAssets("t:Scene", new[] { "Assets/Scenes" }))
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            if (list.Exists(s => s.path == path)) continue;
-            list.Add(new EditorBuildSettingsScene(path, true));
-            changed = true;
-        }
-        if (changed) EditorBuildSettings.scenes = list.ToArray();
+        MapSystemSetup.EnsureCoreFirstInBuildSettings();
     }
 }

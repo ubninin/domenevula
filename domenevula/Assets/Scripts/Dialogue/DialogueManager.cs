@@ -418,7 +418,9 @@ public class DialogueManager : MonoBehaviour
         {
             Debug.LogWarning("DialogueManager: Game Over Scene Name이 비어 있어 현재 씬을 다시 불러옵니다. " +
                              "인스펙터에서 게임오버 씬 이름을 지정하세요 (Build Settings에 등록 필요).");
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            // Core 씬 구조에서는 Core 를 다시 불러오면 시작 맵부터 다시 시작된다.
+            if (MapManager.Instance != null) SceneManager.LoadScene(MapManager.CoreSceneName);
+            else SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
         else
         {

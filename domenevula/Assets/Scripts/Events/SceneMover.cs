@@ -17,6 +17,9 @@ public class SceneMover : MonoBehaviour
     [Tooltip("이동할 씬 이름 (Target Scene 을 넣으면 자동 입력). 씬은 Build Settings 에 등록돼 있어야 한다 (Play 시 자동 등록됨)")]
     [SerializeField] private string sceneName;
 
+    [Tooltip("이동한 맵에서 서는 도착 지점(MapSpawnPoint)의 Id. 비우면 그 맵의 기본 지점")]
+    [SerializeField] private string spawnId;
+
     [Header("화면 전환 효과")]
     [Tooltip("체크하면 이동할 때 화면이 어두워졌다가(페이드아웃) 새 맵에서 다시 밝아진다(페이드인). 끄면 바로 이동")]
     [SerializeField] private bool useFade = true;
@@ -51,12 +54,20 @@ public class SceneMover : MonoBehaviour
 
     private void TryMove(Collider2D other)
     {
-        if (loading || string.IsNullOrEmpty(sceneName)) return;
+        if (loading || MapManager.Transitioning || string.IsNullOrEmpty(sceneName)) return;
         // 실제로 조작하는 플레이어만 (파티 팔로워나 가구는 무시)
         if (other.GetComponentInParent<PlayerMovement2D>() == null) return;
         // 전투/대사/이벤트 중에는 이동하지 않는다 (끝나면 계속 닿아 있을 때 이동)
         if (GameplayLock.IsActionLocked()) return;
 
+        // Core 씬 구조(MapManager 가 있을 때): 맵을 Additive 로 교체하고 도착 지점에 세운다. 페이드도 MapManager 가 처리.
+        if (MapManager.Instance != null)
+        {
+            MapManager.Instance.GoTo(sceneName, spawnId, useFade, fadeColor, fadeOutDuration, fadeInDuration);
+            return;
+        }
+
+        // MapManager 가 없으면(옛 방식) 씬을 통째로 교체한다.
         loading = true;
         Transitioning = true;
         StartCoroutine(MoveRoutine());

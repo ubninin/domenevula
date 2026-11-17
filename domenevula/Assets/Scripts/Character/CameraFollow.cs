@@ -37,6 +37,25 @@ public class CameraFollow : MonoBehaviour
 
     private Vector3 velocity;
     private Camera cam;
+    private bool boundsReady;
+
+    /// <summary>맵이 바뀔 때 MapManager 가 부른다: 카메라 이동 범위를 이 영역으로 바꾼다.</summary>
+    public void SetBounds(Bounds b)
+    {
+        minX = b.min.x; maxX = b.max.x; minY = b.min.y; maxY = b.max.y;
+        boundsReady = true;
+    }
+
+    /// <summary>범위 제한 없이 움직이게 한다 (맵에 MapInfo 가 없을 때).</summary>
+    public void ClearBounds() { boundsReady = false; }
+
+    /// <summary>부드럽게 따라가지 않고 즉시 타겟 위치로 옮긴다 (맵 이동 직후).</summary>
+    public void SnapToTarget()
+    {
+        if (target == null) return;
+        velocity = Vector3.zero;
+        transform.position = ComputeDesiredPosition();
+    }
 
     private void Awake()
     {
@@ -50,15 +69,23 @@ public class CameraFollow : MonoBehaviour
             minY = b.min.y;
             maxY = b.max.y;
         }
+
+        boundsReady = backgroundBounds != null || minX != maxX || minY != maxY;
     }
 
     private void LateUpdate()
     {
         if (target == null) return;
 
+        Vector3 desiredPosition = ComputeDesiredPosition();
+        transform.position = Vector3.SmoothDamp(transform.position, desiredPosition, ref velocity, smoothTime);
+    }
+
+    private Vector3 ComputeDesiredPosition()
+    {
         Vector3 desiredPosition = target.position + offset;
 
-        if (useBounds)
+        if (useBounds && boundsReady)
         {
             float halfHeight = cam != null ? cam.orthographicSize : 5f;
             float halfWidth = halfHeight * (cam != null ? cam.aspect : 16f / 9f);
@@ -74,6 +101,6 @@ public class CameraFollow : MonoBehaviour
                 : Mathf.Clamp(desiredPosition.y, minY + halfHeight, maxY - halfHeight);
         }
 
-        transform.position = Vector3.SmoothDamp(transform.position, desiredPosition, ref velocity, smoothTime);
+        return desiredPosition;
     }
 }

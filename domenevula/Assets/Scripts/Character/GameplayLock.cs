@@ -15,7 +15,7 @@ public static class GameplayLock
             return true;
 
         // 맵 이동(페이드) 중
-        if (SceneMover.Transitioning)
+        if (SceneMover.Transitioning || MapManager.Transitioning)
             return true;
 
         if (DialogueManager.Instance != null && DialogueManager.Instance.IsDialogueActive)
