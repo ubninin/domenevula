@@ -1,5 +1,18 @@
 using UnityEngine;
 
+/// <summary>화자의 대사를 어떤 창으로 보여줄지.</summary>
+public enum DialogueWindowType
+{
+    [InspectorName("자동 (Is Party Member 따름)")]
+    Auto,
+    [InspectorName("말풍선")]
+    Balloon,
+    [InspectorName("캐릭터 대사창 (파티원 / 중요 NPC)")]
+    Character,
+    [InspectorName("하율 대사창")]
+    Hayul,
+}
+
 /// <summary>
 /// 대사에 등장하는 화자 하나를 정의하는 데이터.
 /// 파티원이든 NPC든 전부 이 타입의 에셋으로 만든다.
@@ -17,7 +30,11 @@ public class CharacterDefinition : ScriptableObject
     [Tooltip("기본 얼굴(초상화) 이미지")]
     public Sprite portrait;
 
-    [Tooltip("체크하면 파티 대사창(PartyDialoguePanel)으로, 체크 해제하면 말풍선으로 출력됨")]
+    [Tooltip("이 캐릭터의 대사를 어떤 창으로 보여줄지. '자동'이면 아래 Is Party Member 를 따른다(체크 = 캐릭터 대사창, 해제 = 말풍선). " +
+             "중요 NPC 를 캐릭터 대사창으로 쓰려면 '캐릭터 대사창', 하율이면 '하율 대사창'을 고른다.")]
+    public DialogueWindowType dialogueWindow = DialogueWindowType.Auto;
+
+    [Tooltip("'대사창 종류'가 자동일 때만 쓰임: 체크하면 캐릭터 대사창, 해제하면 말풍선")]
     public bool isPartyMember;
 
     [Header("이 캐릭터 전용 대사창/말풍선 스킨 (선택, 비워두면 기본 스킨)")]

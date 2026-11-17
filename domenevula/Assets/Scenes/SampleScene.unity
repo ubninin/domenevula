@@ -1650,10 +1650,51 @@ MonoBehaviour:
     overrideDirection: 0
     direction: 0
     trigger: 0
-    commands: []
+    commands:
+    - rid: 6447790569188491337
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 6447790569188491337
+      type: {class: ShowDialogueCommand, ns: , asm: Assembly-CSharp}
+      data:
+        sequence: {fileID: 0}
+        lines:
+        - kind: 0
+          speaker: {fileID: 0}
+          text: "\uCC45\uC0C1\uC774\uB2E4!"
+          portraitOverride: {fileID: 0}
+          displayMode: 3
+          panelPosition: 0
+          balloonTarget: 0
+          balloonTargetName: 
+          balloonOffsetY: 0
+          windowBackgroundOverride: {fileID: 0}
+          windowFrameOverride: {fileID: 0}
+          balloonBubbleOverride: {fileID: 0}
+          balloonTailOverride: {fileID: 0}
+          battle: {fileID: 0}
+          allowDefeat: 0
+          onVictory: {fileID: 0}
+          onDefeat: {fileID: 0}
+        - kind: 0
+          speaker: {fileID: 11400000, guid: 6c8a073a93f880e45b82f0c7d966b06e, type: 2}
+          text: "\uC624\uC624 \uBBF8\uCE5C"
+          portraitOverride: {fileID: 0}
+          displayMode: 0
+          panelPosition: 0
+          balloonTarget: 0
+          balloonTargetName: 
+          balloonOffsetY: 0
+          windowBackgroundOverride: {fileID: 0}
+          windowFrameOverride: {fileID: 0}
+          balloonBubbleOverride: {fileID: 0}
+          balloonTailOverride: {fileID: 0}
+          battle: {fileID: 0}
+          allowDefeat: 0
+          onVictory: {fileID: 0}
+          onDefeat: {fileID: 0}
+        useSelfAsBalloonAnchor: 1
 --- !u!114 &1246251037
 MonoBehaviour:
   m_ObjectHideFlags: 0

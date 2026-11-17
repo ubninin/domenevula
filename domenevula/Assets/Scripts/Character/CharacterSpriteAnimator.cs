@@ -66,6 +66,9 @@ public class CharacterSpriteAnimator : MonoBehaviour
     private MotionPreset activePreset;
     private Coroutine presetRoutine;
 
+    /// <summary>지금 바라보는 방향.</summary>
+    public FacingDirection CurrentFacing => currentDirection;
+
     /// <summary>지금 모션에 해당하는 크기 배율. DepthScale이 이 값을 읽어서 가중치를 곱한다.</summary>
     public Vector3 CurrentMotionScale =>
         activePreset != null ? activePreset.scale : (currentMotion == MotionState.Idle ? idleScale : walkScale);

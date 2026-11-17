@@ -98,14 +98,23 @@ public class PartyDialoguePanelController : MonoBehaviour, IDialogueDisplay
     /// </summary>
     public void ShowPage(DialogueLine line, string pageText)
     {
+        ShowPage(line, pageText, line.panelPosition);
+    }
+
+    /// <summary>위와 같되, 창 위치(위/아래)를 호출한 쪽이 직접 정한다 (자동 위치용).</summary>
+    public void ShowPage(DialogueLine line, string pageText, PartyPanelPosition position)
+    {
         gameObject.SetActive(true);
         typewriter.Play(pageText, charsPerSecond);
 
-        ApplyPanelPosition(line.panelPosition);
+        ApplyPanelPosition(position);
 
         Sprite portrait = line.ResolvePortrait();
-        portraitImage.sprite = portrait;
-        portraitImage.enabled = portrait != null;
+        if (portraitImage != null) // 기본 대사창처럼 얼굴 칸이 없는 창은 비워둔다
+        {
+            portraitImage.sprite = portrait;
+            portraitImage.enabled = portrait != null;
+        }
 
         if (backgroundImage != null)
         {

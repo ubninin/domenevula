@@ -22,6 +22,22 @@ public class PlayerMovement2D : MonoBehaviour, IPartyMovementState
     private Vector2 moveInput;
     private bool isRunning;
 
+    /// <summary>지금 바라보는 방향을 단위 벡터로 (상호작용 대상 우선순위 등에 쓴다).</summary>
+    public Vector2 FacingVector
+    {
+        get
+        {
+            if (animator == null) return Vector2.down;
+            switch (animator.CurrentFacing)
+            {
+                case FacingDirection.Up: return Vector2.up;
+                case FacingDirection.Left: return Vector2.left;
+                case FacingDirection.Right: return Vector2.right;
+                default: return Vector2.down;
+            }
+        }
+    }
+
     /// <summary>지금 실제로 달리는 중인지. PartyFollower가 이 값을 읽어서 따라온다.</summary>
     public bool IsRunning => isRunning;
 

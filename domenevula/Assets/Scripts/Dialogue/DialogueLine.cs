@@ -2,26 +2,42 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// 이 줄을 파티 대사창/말풍선 중 어디로 표시할지.
-/// Auto면 speaker.isPartyMember 값을 그대로 따른다 (기존 동작과 동일).
+/// 이 줄을 어느 창으로 표시할지.
+/// Auto: 화자가 없으면(지문) 기본 대사창, 화자가 있으면 화자의 Dialogue Window 설정을 따른다.
 /// </summary>
 public enum DialogueDisplayMode
 {
     [InspectorName("자동 (화자 설정 따름)")]
     Auto,
-    [InspectorName("파티 대사창으로 표시")]
+    [InspectorName("캐릭터 대사창으로 표시")]
     ForceParty,
     [InspectorName("말풍선으로 표시")]
     ForceBalloon,
+    [InspectorName("기본 대사창으로 표시 (지문, 얼굴 없음)")]
+    ForceDefault,
+    [InspectorName("하율 대사창으로 표시")]
+    ForceHayul,
+}
+
+/// <summary>실제로 쓸 대사 출력 창.</summary>
+public enum DialogueWindowKind
+{
+    Balloon,
+    Character,
+    Hayul,
+    Default,
 }
 
 /// <summary>파티 대사창을 화면 어디에 띄울지 (이 줄에서만 적용).</summary>
 public enum PartyPanelPosition
 {
-    [InspectorName("아래 (기본)")]
-    Bottom,
+    // 숫자는 이미 저장된 대사 에셋과 호환되도록 고정: 예전 기본값(0)은 이제 '자동'으로 읽힌다.
+    [InspectorName("자동 (플레이어 반대편)")]
+    Auto = 0,
     [InspectorName("위")]
-    Top,
+    Top = 1,
+    [InspectorName("아래")]
+    Bottom = 2,
 }
 
 /// <summary>말풍선을 어느 오브젝트 위에 띄울지.</summary>
@@ -72,11 +88,11 @@ public class DialogueLine
     /// <summary>얼굴: 이 줄 지정 &gt; speaker 기본값 &gt; 없음(null, 얼굴 숨김) 순으로 결정.</summary>
     public Sprite ResolvePortrait() => portraitOverride != null ? portraitOverride : speaker?.portrait;
 
-    [Tooltip("자동이면 speaker.isPartyMember를 따름. speaker가 없으면 자동은 '말풍선'으로 처리됨")]
+    [Tooltip("자동이면 화자 설정을 따름: 화자가 없으면(지문) 기본 대사창, 화자가 있으면 그 캐릭터의 Dialogue Window 설정(캐릭터/하율 대사창 또는 말풍선)")]
     public DialogueDisplayMode displayMode = DialogueDisplayMode.Auto;
 
-    [Tooltip("파티 대사창으로 표시될 때, 화면 위/아래 중 어디에 띄울지. 말풍선 표시에는 영향 없음")]
-    public PartyPanelPosition panelPosition = PartyPanelPosition.Bottom;
+    [Tooltip("대사창으로 표시될 때, 화면 위/아래 중 어디에 띄울지. 자동 = 플레이어가 화면 위쪽 절반에 있으면 아래에, 아래쪽 절반에 있으면 위에 띄움. 말풍선 표시에는 영향 없음")]
+    public PartyPanelPosition panelPosition = PartyPanelPosition.Auto;
 
     [Header("말풍선 위치 (말풍선으로 표시될 때만 적용)")]
     [Tooltip("말풍선을 띄울 대상. '이 이벤트 / 대화 상대'는 이 대사를 실행한 이벤트(NPC) 위. " +
@@ -115,16 +131,31 @@ public class DialogueLine
     [Tooltip("패배했을 때 이어서 재생할 대화 — Allow Defeat 가 체크된 경우에만 쓰인다 (비워두면 바로 다음 줄)")]
     public DialogueSequence onDefeat;
 
-    /// <summary>이 줄을 실제로 파티 대사창에 표시할지 계산.</summary>
-    public bool ShouldUsePartyPanel()
+    /// <summary>이 줄을 어느 창으로 보여줄지 계산.</summary>
+    public DialogueWindowKind ResolveWindow()
     {
         switch (displayMode)
         {
-            case DialogueDisplayMode.ForceParty: return true;
-            case DialogueDisplayMode.ForceBalloon: return false;
-            default: return speaker != null && speaker.isPartyMember; // speaker 없으면 false(말풍선)
+            case DialogueDisplayMode.ForceParty: return DialogueWindowKind.Character;
+            case DialogueDisplayMode.ForceBalloon: return DialogueWindowKind.Balloon;
+            case DialogueDisplayMode.ForceDefault: return DialogueWindowKind.Default;
+            case DialogueDisplayMode.ForceHayul: return DialogueWindowKind.Hayul;
+        }
+
+        // 자동: 화자가 없으면 지문 → 기본 대사창
+        if (speaker == null) return DialogueWindowKind.Default;
+
+        switch (speaker.dialogueWindow)
+        {
+            case DialogueWindowType.Balloon: return DialogueWindowKind.Balloon;
+            case DialogueWindowType.Character: return DialogueWindowKind.Character;
+            case DialogueWindowType.Hayul: return DialogueWindowKind.Hayul;
+            default: return speaker.isPartyMember ? DialogueWindowKind.Character : DialogueWindowKind.Balloon;
         }
     }
+
+    /// <summary>(예전 이름) 말풍선이 아니라 대사창으로 표시되는 줄인지.</summary>
+    public bool ShouldUsePartyPanel() => ResolveWindow() != DialogueWindowKind.Balloon;
 
     // 각 이미지: 이 줄 지정 > speaker 기본값 > null(패널 원래 기본 스킨 유지) 순으로 결정.
     public Sprite ResolveWindowBackground() => windowBackgroundOverride != null ? windowBackgroundOverride : speaker?.windowBackground;

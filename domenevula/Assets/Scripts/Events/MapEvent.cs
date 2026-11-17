@@ -123,6 +123,8 @@ public class MapEvent : MonoBehaviour
     {
         RunningEventCount = 0;
         All.Clear();
+        interactTarget = null;
+        interactTargetFrame = -1;
     }
 
     /// <summary>MapEvent 목록 (필요하면 다른 스크립트에서 순회용으로 사용).</summary>
@@ -207,14 +209,87 @@ public class MapEvent : MonoBehaviour
         if (page.trigger != MapEventPage.TriggerType.ActionButton) return;
         if (isRunning || player == null) return;
 
-        bool inRange = DistanceToPlayer() <= interactRange;
-        SetPrompt(inRange);
+        // 상호작용 범위 안에 여러 개가 있으면, 플레이어가 바라보는 방향의 하나만 대상이 된다.
+        bool isTarget = DistanceToPlayer() <= interactRange && GetInteractTarget() == this;
+        SetPrompt(isTarget);
 
-        if (!inRange) return;
+        if (!isTarget) return;
         if (GameplayLock.IsActionLocked()) return;
         if (!DialogueManager.WasInteractKeyPressedThisFrame()) return;
 
         StartCoroutine(RunCommands(page));
+    }
+
+    // ───── 상호작용 대상 고르기 ─────
+
+    private static MapEvent interactTarget;
+    private static int interactTargetFrame = -1;
+
+    /// <summary>앞쪽(바라보는 방향 ±약 72°)으로 인정하는 기준 (방향 벡터와의 내적).</summary>
+    private const float FrontDotThreshold = 0.3f;
+
+    /// <summary>
+    /// 지금 상호작용 키를 누르면 실행될 이벤트 하나. 프레임당 한 번만 계산해서 모든 이벤트가 같은 결과를 본다.
+    /// 범위 안의 후보 중 플레이어가 바라보는 방향에 있는 것을 우선하고(여러 개면 정면에 가깝고 가까운 것),
+    /// 앞쪽에 없으면 가장 가까운 것을 고른다. 실행할 커맨드가 없는 이벤트는 후보에서 뺀다.
+    /// </summary>
+    private static MapEvent GetInteractTarget()
+    {
+        if (interactTargetFrame == Time.frameCount) return interactTarget;
+        interactTargetFrame = Time.frameCount;
+        interactTarget = null;
+
+        PlayerMovement2D mover = FindFirstObjectByType<PlayerMovement2D>();
+        if (mover == null) return null;
+        Vector2 playerPos = mover.transform.position;
+        Vector2 facing = mover.FacingVector;
+
+        MapEvent bestFront = null, bestNear = null;
+        float bestFrontScore = float.NegativeInfinity, bestNearDist = float.MaxValue;
+
+        foreach (MapEvent e in All)
+        {
+            if (e == null || e.isRunning) continue;
+            MapEventPage page = e.CurrentPage;
+            if (page == null || page.trigger != MapEventPage.TriggerType.ActionButton) continue;
+            if (!e.HasAnyCommand()) continue;
+
+            Vector2 nearest = e.NearestPoint(playerPos);
+            float dist = Vector2.Distance(nearest, playerPos);
+            if (dist > e.interactRange) continue;
+
+            Vector2 toEvent = nearest - playerPos;
+            if (toEvent.sqrMagnitude < 0.0001f) toEvent = (Vector2)e.transform.position - playerPos;
+            float dot = toEvent.sqrMagnitude > 0.0001f ? Vector2.Dot(facing, toEvent.normalized) : 1f;
+
+            if (dist < bestNearDist) { bestNearDist = dist; bestNear = e; }
+
+            if (dot > FrontDotThreshold)
+            {
+                float score = dot - 0.5f * (dist / Mathf.Max(0.01f, e.interactRange));
+                if (score > bestFrontScore) { bestFrontScore = score; bestFront = e; }
+            }
+        }
+
+        interactTarget = bestFront != null ? bestFront : bestNear;
+        return interactTarget;
+    }
+
+    /// <summary>콜라이더에서 p 에 가장 가까운 지점 (콜라이더가 없으면 기준점).</summary>
+    private Vector2 NearestPoint(Vector2 p)
+    {
+        Collider2D[] cols = GetComponents<Collider2D>();
+        Vector2 best = transform.position;
+        float bestDist = float.MaxValue;
+        bool any = false;
+        foreach (Collider2D c in cols)
+        {
+            if (c == null || !c.enabled) continue;
+            Vector2 cp = c.ClosestPoint(p);
+            float d = Vector2.Distance(cp, p);
+            if (d < bestDist) { bestDist = d; best = cp; any = true; }
+        }
+        return any ? best : (Vector2)transform.position;
     }
 
     /// <summary>

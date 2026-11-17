@@ -30,10 +30,21 @@ public class DialogueManager : MonoBehaviour
     /// </summary>
     public bool IsDialogueActive => isPlaying;
 
-    [SerializeField] private PartyDialoguePanelController partyPanel;
+    [Header("대사창 3종 (전부 PartyDialoguePanelController 가 붙은 오브젝트)")]
+    [Tooltip("파티원 / 중요 NPC 용 (얼굴 있음)")]
+    [UnityEngine.Serialization.FormerlySerializedAs("partyPanel")]
+    [SerializeField] private PartyDialoguePanelController characterPanel;
+    [Tooltip("하율 전용")]
+    [SerializeField] private PartyDialoguePanelController hayulPanel;
+    [Tooltip("화자 없는 지문용 (얼굴 없음)")]
+    [SerializeField] private PartyDialoguePanelController defaultPanel;
 
     [Header("말풍선 프리팹 (Canvas_SpeechBalloon). 대화 상대 밑에 말풍선이 없으면 이걸 자동으로 만들어 붙인다. 비워두면 에디터가 알아서 채움")]
     [SerializeField] private GameObject speechBalloonPrefab;
+
+    [Header("대사창 위/아래 자동 배치")]
+    [Tooltip("체크하면 줄에 위/아래를 직접 정해 둔 것까지 포함해 모든 대사창이 자동 배치된다. 평소엔 꺼두면 됨: 줄의 Panel Position 이 '자동'(기본값)일 때만 자동 배치")]
+    [SerializeField] private bool autoPanelPositionForAll = false;
 
     [Header("파티 대사창 페이지 분할 (공백 포함 글자 수 기준)")]
     [SerializeField] private int maxCharsPerLine = DialogueTextWrapper.DefaultMaxCharsPerLine;
@@ -55,9 +66,26 @@ public class DialogueManager : MonoBehaviour
     private readonly Dictionary<SpeechBalloonController, Vector3> balloonBaseLocalPos = new Dictionary<SpeechBalloonController, Vector3>();
     private SpeechBalloonController shownBalloon;
 
+    /// <summary>
+    /// 인스펙터에 연결 안 된 대사창은 이름으로 찾아서 채운다.
+    /// (이름에 Hayul / Default / Character 가 들어간 PartyDialoguePanelController 오브젝트)
+    /// </summary>
+    private void AutoAssignPanels()
+    {
+        foreach (PartyDialoguePanelController c in FindObjectsByType<PartyDialoguePanelController>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            string n = c.gameObject.name;
+            if (hayulPanel == null && n.Contains("Hayul")) hayulPanel = c;
+            else if (defaultPanel == null && n.Contains("Default")) defaultPanel = c;
+            else if (characterPanel == null && n.Contains("Character")) characterPanel = c;
+        }
+    }
+
 #if UNITY_EDITOR
     private void OnValidate()
     {
+        if (!Application.isPlaying && (hayulPanel == null || defaultPanel == null || characterPanel == null)) AutoAssignPanels();
+
         if (speechBalloonPrefab == null)
             speechBalloonPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Canvas_SpeechBalloon.prefab");
     }
@@ -72,10 +100,14 @@ public class DialogueManager : MonoBehaviour
         }
         Instance = this;
 
+        AutoAssignPanels();
+
         // partyPanel의 부모 중 하나(예: Canvas_Screen)가 꺼져있으면 partyPanel의 Awake가
         // 아예 호출되지 않아서(인스펙터 연결은 멀쩡한데도) null 에러가 난다.
         // 대사가 처음 시작되기 전에 미리 깨워서 이 문제를 막는다.
-        EnsureAncestorsActive(partyPanel != null ? partyPanel.transform : null);
+        EnsureAncestorsActive(characterPanel != null ? characterPanel.transform : null);
+        EnsureAncestorsActive(hayulPanel != null ? hayulPanel.transform : null);
+        EnsureAncestorsActive(defaultPanel != null ? defaultPanel.transform : null);
     }
 
     /// <summary>
@@ -191,13 +223,13 @@ public class DialogueManager : MonoBehaviour
             {
                 isPlaying = false;
                 activeDisplay = null;
-                if (partyPanel != null) partyPanel.Hide();
+                HideAllPanels();
                 HideAllBalloons();
             }
         }
 
         activeDisplay = null;
-        partyPanel.Hide();
+        HideAllPanels();
         if (balloon != null) balloon.Hide();
         HideAllBalloons();
 
@@ -229,7 +261,7 @@ public class DialogueManager : MonoBehaviour
                 // 전투 전에 떠 있는 창을 모두 정리하고, 전투가 끝날 때까지 기다린다.
                 if (balloon != null) balloon.Hide();
                 HideAllBalloons();
-                partyPanel.Hide();
+                HideAllPanels();
                 activeDisplay = null;
 
                 yield return PlayBattleLine(line, balloon);
@@ -244,7 +276,15 @@ public class DialogueManager : MonoBehaviour
     /// <summary>대사 한 줄을 파티 대사창 또는 말풍선으로 띄우고, 진행 입력을 받을 때까지 기다린다.</summary>
     private IEnumerator PlaySayLine(DialogueLine line, SpeechBalloonController balloon)
     {
-        if (line.ShouldUsePartyPanel())
+        DialogueWindowKind window = line.ResolveWindow();
+        PartyDialoguePanelController panel = PanelFor(window);
+        if (window != DialogueWindowKind.Balloon && panel == null)
+        {
+            Debug.LogWarning($"DialogueManager: {window} 대사창이 연결돼 있지 않아 캐릭터 대사창으로 대신 표시합니다.");
+            panel = characterPanel;
+        }
+
+        if (window != DialogueWindowKind.Balloon && panel != null)
         {
             // 이전 줄이 말풍선이었다면, 파티 창으로 넘어가기 전에 말풍선부터 꺼준다.
             // (안 꺼주면 화자가 바뀌어도 말풍선이 화면에 계속 남아있음)
@@ -254,10 +294,15 @@ public class DialogueManager : MonoBehaviour
             // 파티 대사창은 한 줄 N자 / 페이지당 M줄로 자동 분할.
             // 페이지마다 한 번씩 진행 입력을 받는다 (한 DialogueLine이 여러 페이지로 보일 수 있음).
             List<string> pages = DialogueTextWrapper.SplitIntoPages(line.text, maxCharsPerLine, maxLinesPerPage);
+            // 다른 종류의 창이 떠 있었다면 먼저 끈다 (화자가 바뀌면 창도 바뀜)
+            HideAllPanelsExcept(panel);
+
+            PartyPanelPosition position = ResolvePanelPosition(line);
+
             foreach (string page in pages)
             {
-                partyPanel.ShowPage(line, page);
-                activeDisplay = partyPanel;
+                panel.ShowPage(line, page, position);
+                activeDisplay = panel;
                 advanceRequested = false;
                 yield return new WaitUntil(() => advanceRequested);
             }
@@ -265,8 +310,8 @@ public class DialogueManager : MonoBehaviour
         }
         else if (ResolveBalloonFor(line, balloon) is SpeechBalloonController target)
         {
-            // 이전 줄이 파티 창이었다면, 말풍선으로 넘어가기 전에 파티 창부터 꺼준다.
-            partyPanel.Hide();
+            // 이전 줄이 대사창이었다면, 말풍선으로 넘어가기 전에 대사창부터 꺼준다.
+            HideAllPanels();
 
             // 이전 줄의 말풍선이 다른 오브젝트 위에 있었다면 끈다.
             if (shownBalloon != null && shownBalloon != target) shownBalloon.Hide();
@@ -286,6 +331,52 @@ public class DialogueManager : MonoBehaviour
         yield return new WaitUntil(() => advanceRequested);
     }
 
+
+    // ───── 대사창 위/아래 자동 배치 ─────
+
+    /// <summary>줄의 Panel Position 을 실제 위치(위/아래)로 바꾼다. 자동이면 플레이어의 맵상 위치 반대편.</summary>
+    private PartyPanelPosition ResolvePanelPosition(DialogueLine line)
+    {
+        if (!autoPanelPositionForAll && line.panelPosition != PartyPanelPosition.Auto)
+            return line.panelPosition;
+
+        PlayerMovement2D mover = FindFirstObjectByType<PlayerMovement2D>();
+
+        // 1순위: 맵 기준. 플레이어가 맵(MapInfo 범위)의 세로 중앙보다 위에 있으면 대사창은 아래, 아래에 있으면 위.
+        // (카메라가 플레이어를 따라다녀서 화면 기준으로는 늘 중앙 근처라 판정이 거의 안 바뀌기 때문)
+        if (mover != null && MapManager.Instance != null && MapManager.Instance.TryGetCurrentBounds(out Bounds mapBounds))
+            return mover.transform.position.y >= mapBounds.center.y ? PartyPanelPosition.Bottom : PartyPanelPosition.Top;
+
+        // 맵 범위를 모르면 화면 기준으로 대신한다.
+        Camera cam = Camera.main;
+        if (cam == null || mover == null) return PartyPanelPosition.Bottom;
+
+        // 뷰포트 y: 0 = 화면 맨 아래, 1 = 맨 위. 플레이어가 위쪽 절반이면 대사창은 아래, 아래쪽 절반이면 위.
+        float viewY = cam.WorldToViewportPoint(mover.transform.position).y;
+        return viewY >= 0.5f ? PartyPanelPosition.Bottom : PartyPanelPosition.Top;
+    }
+
+    // ───── 대사창 3종 ─────
+
+    private PartyDialoguePanelController PanelFor(DialogueWindowKind kind)
+    {
+        switch (kind)
+        {
+            case DialogueWindowKind.Character: return characterPanel;
+            case DialogueWindowKind.Hayul: return hayulPanel;
+            case DialogueWindowKind.Default: return defaultPanel;
+            default: return null;
+        }
+    }
+
+    private void HideAllPanels() => HideAllPanelsExcept(null);
+
+    private void HideAllPanelsExcept(PartyDialoguePanelController keep)
+    {
+        if (characterPanel != null && characterPanel != keep) characterPanel.Hide();
+        if (hayulPanel != null && hayulPanel != keep) hayulPanel.Hide();
+        if (defaultPanel != null && defaultPanel != keep) defaultPanel.Hide();
+    }
 
     // ───── 말풍선 위치 ─────
 

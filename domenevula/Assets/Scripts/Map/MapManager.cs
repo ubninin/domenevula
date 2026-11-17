@@ -39,6 +39,15 @@ public class MapManager : MonoBehaviour
     [SerializeField] private string startSpawnId;
 
     private Scene currentMap;
+    private Bounds currentBounds;
+    private bool hasCurrentBounds;
+
+    /// <summary>지금 맵(MapInfo)의 범위. MapInfo 가 없으면 false.</summary>
+    public bool TryGetCurrentBounds(out Bounds bounds)
+    {
+        bounds = currentBounds;
+        return hasCurrentBounds;
+    }
 
 #if UNITY_EDITOR
     private void OnValidate()
@@ -163,6 +172,8 @@ public class MapManager : MonoBehaviour
                 Debug.LogWarning($"MapManager: '{map.name}' 맵에서 Id 가 '{spawnId}' 인 도착 지점을 찾지 못했습니다. 기본 지점을 사용합니다.");
             spawn = defaultSpawn != null ? defaultSpawn : (adopting ? null : anySpawn);
         }
+
+        hasCurrentBounds = info != null && info.TryGetBounds(out currentBounds);
 
         CameraFollow cam = FindFirstObjectByType<CameraFollow>();
         if (cam != null)
