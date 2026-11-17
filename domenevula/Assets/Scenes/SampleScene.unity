@@ -895,7 +895,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetScene: {fileID: 102900000, guid: fbe26999c644fca4e826b80a585b06c4, type: 3}
   sceneName: SampleScene 1
-  spawnId: 
+  spawnId: From
   useFade: 1
   fadeColor: {r: 0, g: 0, b: 0, a: 1}
   fadeOutDuration: 0.4
